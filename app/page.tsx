@@ -1,9 +1,11 @@
-import Image from "next/image";
+// app/page.tsx
 
-export default function Home() {
-  return (
-    <div>
-      <h1>Test</h1>
-    </div>
-  );
+import { redirect } from 'next/navigation';
+
+/**
+ * Root route (/) langsung diarahkan ke /beranda.
+ * Middleware akan menangani redirect ke /login jika belum login.
+ */
+export default function RootPage() {
+  redirect('/beranda');
 }

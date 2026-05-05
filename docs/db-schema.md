@@ -205,6 +205,116 @@ INSERT INTO units (name) VALUES
 
 ---
 
+-- ============================================================
+-- FIX 1: Trigger otomatis sync auth.users → public.users
+-- Paste & Run di Supabase SQL Editor
+-- ============================================================
+
+-- Fungsi yang dipanggil setiap kali user baru dibuat di Supabase Auth
+CREATE OR REPLACE FUNCTION public.handle_new_auth_user()
+RETURNS TRIGGER AS $$
+DECLARE
+  generated_code TEXT;
+  user_count     INT;
+BEGIN
+  -- Generate user_code otomatis: P01, P02, P03, ...
+  SELECT COUNT(*) INTO user_count FROM public.users;
+  generated_code := 'P' || LPAD((user_count + 1)::TEXT, 2, '0');
+
+  INSERT INTO public.users (
+    id,
+    user_code,
+    name,
+    email,
+    password_hash,
+    role,
+    status,
+    avatar_url,
+    created_at,
+    updated_at
+  )
+  VALUES (
+    NEW.id,                                                    -- ID sama dengan Supabase Auth
+    generated_code,                                            -- P01, P02, dst
+    COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)), -- nama dari metadata atau prefix email
+    NEW.email,
+    'MANAGED_BY_SUPABASE_AUTH',                                -- password dikelola Auth, bukan kita
+    COALESCE(NEW.raw_user_meta_data->>'role', 'admin'),        -- default role: admin
+    'active',
+    NEW.raw_user_meta_data->>'avatar_url'
+  )
+  ON CONFLICT (id) DO NOTHING; -- amankan jika trigger dipanggil duplikat
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Pasang trigger ke tabel auth.users
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_auth_user();
+
+
+-- ============================================================
+-- FIX 2: Sync user yang SUDAH ADA di Auth ke tabel public.users
+-- (Jalankan sekali untuk migrasi akun yang sudah terlanjur dibuat)
+-- ============================================================
+DO $$
+DECLARE
+  auth_user RECORD;
+  user_count INT := 0;
+  generated_code TEXT;
+BEGIN
+  FOR auth_user IN
+    SELECT au.*
+    FROM auth.users au
+    LEFT JOIN public.users pu ON pu.id = au.id
+    WHERE pu.id IS NULL  -- hanya yang belum ada di public.users
+  LOOP
+    SELECT COUNT(*) INTO user_count FROM public.users;
+    generated_code := 'P' || LPAD((user_count + 1)::TEXT, 2, '0');
+
+    INSERT INTO public.users (
+      id,
+      user_code,
+      name,
+      email,
+      password_hash,
+      role,
+      status,
+      created_at,
+      updated_at
+    )
+    VALUES (
+      auth_user.id,
+      generated_code,
+      COALESCE(auth_user.raw_user_meta_data->>'name', split_part(auth_user.email, '@', 1)),
+      auth_user.email,
+      'MANAGED_BY_SUPABASE_AUTH',
+      COALESCE(auth_user.raw_user_meta_data->>'role', 'admin'),
+      'active',
+      auth_user.created_at,
+      auth_user.updated_at
+    )
+    ON CONFLICT (id) DO NOTHING;
+  END LOOP;
+END $$;
+
+-- ============================================================
+-- Verifikasi: jalankan query ini untuk cek hasilnya
+-- ============================================================
+SELECT
+  pu.id,
+  pu.user_code,
+  pu.name,
+  pu.email,
+  pu.role,
+  pu.status
+FROM public.users pu
+ORDER BY pu.created_at ASC;
+
 ## Entity Relationship Diagram (Ringkasan)
 
 ```

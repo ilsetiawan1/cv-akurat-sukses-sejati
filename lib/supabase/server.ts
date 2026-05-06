@@ -20,7 +20,8 @@ export async function createClient() {
             });
           });
         } catch {
-          /* Ignore renders */
+          // Expected: cookies() is read-only in Server Components.
+          // Cookie mutations only work in Route Handlers & Server Actions.
         }
       },
     },

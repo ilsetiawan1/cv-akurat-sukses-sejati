@@ -2,43 +2,22 @@
 
 'use client';
 
-import { useState } from 'react';
 import { Eye, EyeOff, Loader2, Lock, Mail, AlertCircle } from 'lucide-react';
+import { useLogin } from '@/lib/hooks/useLogin';
 
 export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showForgot, setShowForgot] = useState(false);
-  const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
-  const [isPending, setIsPending] = useState(false);
-
-  async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError('');
-    setIsPending(true);
-
-    const fd = new FormData(e.currentTarget);
-
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: fd.get('email'),
-        password: fd.get('password'),
-      }),
-    });
-
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.error ?? 'Email atau password salah.');
-      setIsPending(false);
-      return;
-    }
-
-    // Cookie sudah di-set oleh API route.
-    // Hard redirect agar browser kirim request baru dengan cookie tersebut.
-    window.location.href = '/beranda';
-  }
+  const {
+    showPassword,
+    showForgot,
+    error,
+    successMsg,
+    isPending,
+    togglePasswordVisibility,
+    showForgotPasswordForm,
+    showLoginForm,
+    handleLoginSubmit,
+    handleForgotPasswordSubmit
+  } = useLogin();
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -94,7 +73,7 @@ export default function LoginPage() {
 
           {!showForgot ? (
             <form
-              onSubmit={handleLogin}
+              onSubmit={handleLoginSubmit}
               className="space-y-4"
             >
               <div>
@@ -144,7 +123,7 @@ export default function LoginPage() {
                   />
                   <button
                     type="button"
-                    onClick={() => setShowPassword((v) => !v)}
+                    onClick={togglePasswordVisibility}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                     tabIndex={-1}
                   >
@@ -164,10 +143,7 @@ export default function LoginPage() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowForgot(true);
-                    setError('');
-                  }}
+                  onClick={showForgotPasswordForm}
                   className="text-sm text-purple-600 hover:text-purple-700 font-medium"
                 >
                   Lupa password?
@@ -195,21 +171,7 @@ export default function LoginPage() {
           ) : (
             <form
               className="space-y-4"
-              onSubmit={async (e) => {
-                e.preventDefault();
-                setError('');
-                setSuccessMsg('');
-                setIsPending(true);
-                const email = (e.currentTarget.elements.namedItem('fp-email') as HTMLInputElement).value;
-                const { createClient } = await import('@/lib/supabase/client');
-                const supabase = createClient();
-                const { error: fpError } = await supabase.auth.resetPasswordForEmail(email, {
-                  redirectTo: `${window.location.origin}/reset-password`,
-                });
-                setIsPending(false);
-                if (fpError) setError('Gagal mengirim email. Coba lagi.');
-                else setSuccessMsg('Link reset password telah dikirim ke email Anda.');
-              }}
+              onSubmit={handleForgotPasswordSubmit}
             >
               <div>
                 <label
@@ -252,11 +214,7 @@ export default function LoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setShowForgot(false);
-                  setError('');
-                  setSuccessMsg('');
-                }}
+                onClick={showLoginForm}
                 className="w-full text-sm text-gray-500 hover:text-gray-700 text-center mt-1"
               >
                 ← Kembali ke halaman login

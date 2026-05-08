@@ -14,15 +14,7 @@ interface ConfirmDialogProps {
   onCancel: () => void;
 }
 
-export function ConfirmDialog({
-  open,
-  title,
-  description,
-  confirmLabel = 'Hapus',
-  isPending = false,
-  onConfirm,
-  onCancel,
-}: ConfirmDialogProps) {
+export function ConfirmDialog({ open, title, description, confirmLabel = 'Hapus', isPending = false, onConfirm, onCancel }: ConfirmDialogProps) {
   if (!open) return null;
 
   return (
@@ -36,7 +28,10 @@ export function ConfirmDialog({
       <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4 z-10">
         <div className="flex flex-col items-center text-center gap-4">
           <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center">
-            <AlertTriangle size={22} className="text-red-500" />
+            <AlertTriangle
+              size={22}
+              className="text-red-500"
+            />
           </div>
           <div>
             <h3 className="text-base font-semibold text-gray-900">{title}</h3>
@@ -55,7 +50,12 @@ export function ConfirmDialog({
               disabled={isPending}
               className="flex-1 py-2.5 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {isPending && <Loader2 size={14} className="animate-spin" />}
+              {isPending && (
+                <Loader2
+                  size={14}
+                  className="animate-spin"
+                />
+              )}
               {confirmLabel}
             </button>
           </div>

@@ -46,21 +46,21 @@ export function Pagination({ page, total, limit, onPageChange }: PaginationProps
       <div className="flex items-center gap-1">
         {getPages().map((p, i) =>
           p === '...' ? (
-            <span key={`dot-${i}`} className="px-2 text-gray-400 text-sm">...</span>
+            <span
+              key={`dot-${i}`}
+              className="px-2 text-gray-400 text-sm"
+            >
+              ...
+            </span>
           ) : (
             <button
               key={p}
               onClick={() => onPageChange(p as number)}
-              className={cn(
-                'w-8 h-8 text-sm rounded-lg transition-colors',
-                p === page
-                  ? 'bg-purple-600 text-white font-semibold'
-                  : 'text-gray-600 hover:bg-gray-100'
-              )}
+              className={cn('w-8 h-8 text-sm rounded-lg transition-colors', p === page ? 'bg-purple-600 text-white font-semibold' : 'text-gray-600 hover:bg-gray-100')}
             >
               {p}
             </button>
-          )
+          ),
         )}
       </div>
 

@@ -2,13 +2,7 @@
 
 export type UserRole = 'super_admin' | 'admin';
 export type UserStatus = 'active' | 'inactive';
-export type FeatureKey =
-  | 'dashboard'
-  | 'hak_akses'
-  | 'data_master'
-  | 'transaksi'
-  | 'laporan'
-  | 'pengaturan';
+export type FeatureKey = 'dashboard' | 'hak_akses' | 'data_master' | 'transaksi' | 'laporan' | 'pengaturan';
 
 export interface User {
   id: string;
@@ -67,6 +61,4 @@ export interface PaginatedUsers {
   limit: number;
 }
 
-export type ActionResult<T = void> =
-  | { success: true; data?: T }
-  | { success: false; error: string };
+export type ActionResult<T = void> = { success: true; data?: T } | { success: false; error: string };

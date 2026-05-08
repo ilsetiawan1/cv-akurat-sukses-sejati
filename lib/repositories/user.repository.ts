@@ -28,11 +28,7 @@ export async function getUsers(page: number, limit: number, search: string) {
 
 export async function getUserById(id: string) {
   const supabase = createAdminClient();
-  return supabase
-    .from('users')
-    .select('*, user_permissions(*)')
-    .eq('id', id)
-    .single();
+  return supabase.from('users').select('*, user_permissions(*)').eq('id', id).single();
 }
 
 export async function getUserByEmail(email: string) {
@@ -44,22 +40,14 @@ export async function getUserByEmail(email: string) {
 
 export async function generateUserCode(): Promise<string> {
   const supabase = createAdminClient();
-  const { count } = await supabase
-    .from('users')
-    .select('*', { count: 'exact', head: true });
+  const { count } = await supabase.from('users').select('*', { count: 'exact', head: true });
   const next = (count ?? 0) + 1;
   return 'P' + String(next).padStart(2, '0');
 }
 
 // ── Create ────────────────────────────────────────────────────
 
-export async function insertUser(data: {
-  id: string;
-  user_code: string;
-  name: string;
-  email: string;
-  role: string;
-}) {
+export async function insertUser(data: { id: string; user_code: string; name: string; email: string; role: string }) {
   const supabase = createAdminClient();
   return supabase.from('users').insert({
     id: data.id,
@@ -74,10 +62,7 @@ export async function insertUser(data: {
 
 // ── Update ────────────────────────────────────────────────────
 
-export async function updateUser(
-  id: string,
-  data: Partial<{ name: string; email: string; role: string; status: string }>
-) {
+export async function updateUser(id: string, data: Partial<{ name: string; email: string; role: string; status: string }>) {
   const supabase = createAdminClient();
   return supabase.from('users').update(data).eq('id', id);
 }
@@ -99,11 +84,9 @@ export async function upsertUserPermissions(
     can_read: boolean;
     can_update: boolean;
     can_delete: boolean;
-  }[]
+  }[],
 ) {
   const supabase = createAdminClient();
   const rows = permissions.map((p) => ({ user_id: userId, ...p }));
-  return supabase
-    .from('user_permissions')
-    .upsert(rows, { onConflict: 'user_id,feature' });
+  return supabase.from('user_permissions').upsert(rows, { onConflict: 'user_id,feature' });
 }

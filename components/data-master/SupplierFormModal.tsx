@@ -137,7 +137,7 @@ export default function SupplierFormModal({ isOpen, onClose, supplier }: Supplie
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
                   Email
@@ -185,19 +185,19 @@ export default function SupplierFormModal({ isOpen, onClose, supplier }: Supplie
             </div>
           </div>
 
-          <div className="mt-auto pt-4 border-t flex flex-col-reverse sm:flex-row justify-end gap-3 sticky bottom-0 bg-white">
+          <div className="mt-auto pt-4 border-t flex flex-col-reverse md:flex-row justify-end gap-3 sticky bottom-0 bg-white">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+              className="w-full md:w-auto px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-white bg-[#7C3AED] rounded-xl hover:bg-[#6D28D9] transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full md:w-auto px-5 py-2.5 text-sm font-medium text-white bg-[#7C3AED] rounded-xl hover:bg-[#6D28D9] transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
             >
               {isSubmitting ? 'Menyimpan...' : 'Simpan'}
             </button>

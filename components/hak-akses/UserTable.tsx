@@ -5,6 +5,7 @@
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import Image from 'next/image';
 import { Plus, Search, Download, Pencil, Trash2, Shield } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { getUsersAction, deleteUserAction } from '@/lib/actions/user.actions';
 import { UserFormModal } from '@/components/hak-akses/UserFormModal';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -60,7 +61,15 @@ function TableSkeleton() {
 
 // ── Main Component ────────────────────────────────────────────
 
-export function UserTable() {
+export function UserTable({
+  canCreate = true,
+  canUpdate = true,
+  canDelete = true,
+}: {
+  canCreate?: boolean;
+  canUpdate?: boolean;
+  canDelete?: boolean;
+}) {
   const [users, setUsers] = useState<UserWithPermissions[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -124,10 +133,15 @@ export function UserTable() {
   async function handleDelete() {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    await deleteUserAction(deleteTarget.id);
+    const result = await deleteUserAction(deleteTarget.id);
     setIsDeleting(false);
     setDeleteTarget(null);
-    loadUsers(page, search);
+    if (!result.success) {
+      toast.error(result.error || 'Gagal menghapus pengguna');
+    } else {
+      toast.success('Pengguna berhasil dihapus');
+      loadUsers(page, search);
+    }
   }
 
   function handleExport() {
@@ -171,13 +185,15 @@ export function UserTable() {
               <Download size={15} />
               Export
             </button>
-            <button
-              onClick={handleAdd}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
-            >
-              <Plus size={15} />
-              Tambah Pengguna Baru
-            </button>
+            {canCreate && (
+              <button
+                onClick={handleAdd}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
+              >
+                <Plus size={15} />
+                Tambah Pengguna Baru
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -257,20 +273,24 @@ export function UserTable() {
                     </td>
                     <td className="px-4 py-3.5">
                       <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => handleEdit(user)}
-                          className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
-                          title="Edit"
-                        >
-                          <Pencil size={15} />
-                        </button>
-                        <button
-                          onClick={() => setDeleteTarget(user)}
-                          className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Hapus"
-                        >
-                          <Trash2 size={15} />
-                        </button>
+                        {canUpdate && (
+                          <button
+                            onClick={() => handleEdit(user)}
+                            className="p-1.5 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                            title="Edit"
+                          >
+                            <Pencil size={15} />
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            onClick={() => setDeleteTarget(user)}
+                            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Hapus"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>

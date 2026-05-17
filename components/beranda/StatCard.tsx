@@ -82,9 +82,9 @@ export function StatCard({ title, value, change, sparklineData }: StatCardProps)
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-3 hover:shadow-md transition-shadow">
       {/* Header */}
-      <div className="flex items-start justify-between">
-        <p className="text-sm font-medium text-gray-500">{title}</p>
-        <button className="text-gray-300 hover:text-gray-500 transition-colors">
+      <div className="flex items-start justify-between gap-2">
+        <p className="text-xs sm:text-sm font-medium text-gray-500 flex-1 break-words leading-tight">{title}</p>
+        <button className="text-gray-300 hover:text-gray-500 transition-colors shrink-0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="5" cy="12" r="2" />
             <circle cx="12" cy="12" r="2" />

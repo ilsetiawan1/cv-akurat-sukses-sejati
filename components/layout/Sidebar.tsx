@@ -84,16 +84,26 @@ export function Sidebar({ user }: SidebarProps) {
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* ── Logo & Mobile Close Button ── */}
-        <div className="flex items-center justify-between px-5 h-16 border-b border-gray-100 shrink-0">
-          <Link href="/beranda" className="relative w-40 h-10 flex items-center transition-opacity hover:opacity-80">
-            <Image 
-              src="/logo-cv-akurat-sukses-sejati.png" 
-              alt="Logo CV Akurat Sukses Sejati" 
-              fill
-              className="object-contain object-left"
-              priority
-              sizes="(max-width: 768px) 160px, 160px"
-            />
+        <div className="flex items-center justify-between px-5 h-16 border-b border-gray-100 shrink-0 gap-3">
+          <Link href="/beranda" className="flex items-center gap-3 flex-1 min-w-0 transition-opacity hover:opacity-80">
+            <div className="relative w-8 h-8 sm:w-9 sm:h-9 shrink-0 flex items-center justify-center">
+              <Image 
+                src="/logo-cv-akurat-sukses-sejati.png" 
+                alt="Logo CV Akurat Sukses Sejati" 
+                fill
+                className="object-contain"
+                priority
+                sizes="36px"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h1 className="font-bold text-sm sm:text-[15px] text-gray-900 leading-tight truncate">
+                CV Akurat
+              </h1>
+              <p className="text-[10px] sm:text-[11px] text-gray-500 font-medium truncate uppercase tracking-wider">
+                Sukses Sejati
+              </p>
+            </div>
           </Link>
           
           <button 

@@ -6,10 +6,11 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Database, ShoppingCart, FileText, Settings, ChevronDown, Package, Truck, ArrowDownToLine, ArrowUpFromLine, Boxes, LogOut } from 'lucide-react';
+import { LayoutDashboard, Users, Database, ShoppingCart, FileText, Settings, ChevronDown, Package, Truck, ArrowDownToLine, ArrowUpFromLine, Boxes, LogOut, X, Search } from 'lucide-react';
 import { logoutAction } from '@/lib/actions/auth.actions';
 import type { UserWithPermissions } from '@/types/user.types';
 import { cn } from '@/lib/utils';
+import { useMobileNav } from './MobileNavProvider';
 
 interface SidebarProps {
   user: UserWithPermissions;
@@ -48,6 +49,7 @@ const navItems: NavItem[] = [
 
 export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
+  const { isOpen, setIsOpen } = useMobileNav();
 
   const initialOpen = navItems.reduce<Record<string, boolean>>((acc, item) => {
     if (item.children) {
@@ -67,166 +69,169 @@ export function Sidebar({ user }: SidebarProps) {
   }
 
   return (
-    <aside className="w-55 min-h-screen bg-white border-r border-gray-200 flex flex-col">
-      {/* ── Logo ── */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-gray-100">
-        <svg
-          width="36"
-          height="36"
-          viewBox="0 0 48 48"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M24 4L4 20H10V40H22V28H26V40H38V20H44L24 4Z"
-            fill="#D97706"
-            fillOpacity="0.15"
-            stroke="#D97706"
-            strokeWidth="2"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M18 40V30H30V40"
-            stroke="#D97706"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M8 22L24 8L40 22"
-            stroke="#D97706"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
+    <>
+      {/* ── Mobile Backdrop ── */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
-      {/* ── Search ── */}
-      <div className="px-3 py-3">
-        <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#9CA3AF"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle
-              cx="11"
-              cy="11"
-              r="8"
+      {/* ── Sidebar ── */}
+      <aside className={cn(
+        "fixed top-0 left-0 z-50 w-64 h-screen bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-xl lg:shadow-none",
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        {/* ── Logo & Mobile Close Button ── */}
+        <div className="flex items-center justify-between px-5 h-16 border-b border-gray-100 shrink-0">
+          <Link href="/beranda" className="relative w-40 h-10 flex items-center transition-opacity hover:opacity-80">
+            <Image 
+              src="/logo-cv-akurat-sukses-sejati.png" 
+              alt="Logo CV Akurat Sukses Sejati" 
+              fill
+              className="object-contain object-left"
+              priority
+              sizes="(max-width: 768px) 160px, 160px"
             />
-            <path d="m21 21-4.35-4.35" />
-          </svg>
-          <span className="text-sm text-gray-400">Search</span>
+          </Link>
+          
+          <button 
+            onClick={() => setIsOpen(false)}
+            className="lg:hidden p-1.5 -mr-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
+            aria-label="Tutup sidebar"
+          >
+            <X size={20} />
+          </button>
         </div>
-      </div>
 
-      {/* ── Navigation ── */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
-        {navItems.map((item) => {
-          if (item.children) {
-            const isOpen = openDropdowns[item.label] ?? false;
-            const hasActiveChild = item.children.some((c) => isActive(c.href));
+        {/* ── Search (Opsional, hanya UI mock) ── */}
+        <div className="px-3 py-4 shrink-0">
+          <div className="flex items-center gap-2 bg-gray-50/80 hover:bg-gray-100 border border-gray-200 rounded-xl px-3 py-2.5 transition-colors cursor-text">
+            <Search size={16} className="text-gray-400" />
+            <span className="text-sm text-gray-400">Pencarian menu...</span>
+          </div>
+        </div>
+
+        {/* ── Navigation ── */}
+        <nav className="flex-1 px-3 pb-4 space-y-1 overflow-y-auto">
+          {navItems.map((item) => {
+            if (item.children) {
+              const isDropdownOpen = openDropdowns[item.label] ?? false;
+              const hasActiveChild = item.children.some((c) => isActive(c.href));
+
+              return (
+                <div key={item.label} className="mb-1">
+                  <button
+                    onClick={() => toggleDropdown(item.label)}
+                    className={cn(
+                      'w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                      hasActiveChild ? 'bg-purple-50 text-[#7C3AED]' : 'text-gray-600 hover:bg-purple-50/50 hover:text-[#7C3AED]',
+                    )}
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className={cn("transition-colors", hasActiveChild ? "text-[#7C3AED]" : "text-gray-400 group-hover:text-[#7C3AED]")}>
+                        {item.icon}
+                      </span>
+                      {item.label}
+                    </span>
+                    <ChevronDown
+                      size={14}
+                      className={cn('transition-transform duration-200 text-gray-400', isDropdownOpen && 'rotate-180')}
+                    />
+                  </button>
+
+                  <div className={cn(
+                    "grid transition-all duration-200 ease-in-out",
+                    isDropdownOpen ? "grid-rows-[1fr] opacity-100 mt-1" : "grid-rows-[0fr] opacity-0"
+                  )}>
+                    <div className="overflow-hidden">
+                      <div className="ml-[18px] pl-3 border-l border-gray-200 space-y-1">
+                        {item.children.map((child) => (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            className={cn(
+                              'flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200',
+                              isActive(child.href) 
+                                ? 'bg-[#7C3AED] text-white font-medium shadow-sm shadow-purple-200' 
+                                : 'text-gray-500 hover:text-[#7C3AED] hover:bg-purple-50/50',
+                            )}
+                          >
+                            <span className={cn(
+                              "transition-colors", 
+                              isActive(child.href) ? 'text-white/80' : 'text-gray-400'
+                            )}>
+                              {child.icon}
+                            </span>
+                            {child.label}
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
 
             return (
-              <div key={item.label}>
-                <button
-                  onClick={() => toggleDropdown(item.label)}
-                  className={cn(
-                    'w-full flex items-center justify-between gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                    hasActiveChild ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-purple-600 hover:text-white',
-                  )}
-                >
-                  <span className="flex items-center gap-2.5">
-                    {item.icon}
-                    {item.label}
-                  </span>
-                  <ChevronDown
-                    size={14}
-                    className={cn('transition-transform', isOpen && 'rotate-180')}
-                  />
-                </button>
+              <Link
+                key={item.href}
+                href={item.href!}
+                className={cn(
+                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 mb-1',
+                  isActive(item.href!) 
+                    ? 'bg-[#7C3AED] text-white shadow-sm shadow-purple-200' 
+                    : 'text-gray-600 hover:bg-purple-50/50 hover:text-[#7C3AED]',
+                )}
+              >
+                <span className={cn("transition-colors", isActive(item.href!) ? "text-white/80" : "text-gray-400")}>
+                  {item.icon}
+                </span>
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
 
-                {isOpen && (
-                  <div className="ml-4 mt-0.5 space-y-0.5 border-l-2 border-gray-100 pl-3">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.href}
-                        href={child.href}
-                        className={cn(
-                          'flex items-center gap-2 px-2 py-2 rounded-lg text-sm transition-colors',
-                          isActive(child.href) ? 'text-purple-600 font-semibold' : 'text-gray-600 hover:text-purple-600',
-                        )}
-                      >
-                        <span className={cn(isActive(child.href) ? 'text-purple-600' : 'text-gray-400')}>{child.icon}</span>
-                        {child.label}
-                      </Link>
-                    ))}
-                  </div>
+        {/* ── Profile + Logout ── */}
+        <div className="border-t border-gray-100 p-4 shrink-0 bg-gray-50/50">
+          <div className="flex items-center justify-between gap-2">
+            <Link
+              href="/pengaturan/profil"
+              className="flex items-center gap-3 flex-1 min-w-0 group"
+            >
+              <div className="w-9 h-9 rounded-full bg-linear-to-br from-purple-100 to-purple-200 flex items-center justify-center text-[#7C3AED] text-xs font-bold shrink-0 uppercase ring-2 ring-white shadow-sm group-hover:ring-purple-100 transition-all">
+                {user.avatar_url ? (
+                  <Image
+                    src={user.avatar_url}
+                    alt={user.name}
+                    width={36}
+                    height={36}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  user.name.substring(0, 2)
                 )}
               </div>
-            );
-          }
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href!}
-              className={cn(
-                'flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
-                isActive(item.href!) ? 'bg-purple-600 text-white' : 'text-gray-700 hover:bg-purple-600 hover:text-white',
-              )}
-            >
-              {item.icon}
-              {item.label}
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-[#7C3AED] transition-colors">{user.name}</p>
+                <p className="text-xs text-gray-500 capitalize truncate mt-0.5">{user.role.replace('_', ' ')}</p>
+              </div>
             </Link>
-          );
-        })}
-      </nav>
 
-      {/* ── Profile + Logout ── */}
-      <div className="border-t border-gray-100 px-3 py-3">
-        <div className="flex items-center justify-between">
-          <Link
-            href="/pengaturan/profil"
-            className="flex items-center gap-2.5 flex-1 min-w-0"
-          >
-            <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 text-xs font-bold shrink-0 uppercase">
-              {user.avatar_url ? (
-                <Image
-                  src={user.avatar_url}
-                  alt={user.name}
-                  width={32}
-                  height={32}
-                  className="w-8 h-8 rounded-full object-cover"
-                />
-              ) : (
-                user.name.charAt(0)
-              )}
-            </div>
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-gray-800 truncate">{user.name}</p>
-              <p className="text-xs text-gray-400 capitalize">{user.role.replace('_', ' ')}</p>
-            </div>
-          </Link>
-
-          {/* Logout: <form action> dengan logoutAction yang return void + redirect */}
-          <form action={logoutAction}>
-            <button
-              type="submit"
-              title="Keluar"
-              className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-            >
-              <LogOut size={16} />
-            </button>
-          </form>
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                title="Keluar"
+                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-red-100"
+              >
+                <LogOut size={18} />
+              </button>
+            </form>
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

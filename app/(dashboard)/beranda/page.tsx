@@ -55,9 +55,12 @@ export default async function BerandaPage() {
         Selamat Datang, {user.name}!
       </h1>
 
-      <div className="grid grid-cols-12 gap-5">
-        {cards.map((card) => (
-          <div key={card.title} className="col-span-4">
+      <div className="grid grid-cols-2 lg:grid-cols-12 gap-4">
+          {cards.map((card) => (
+            <div
+              key={card.title}
+              className="col-span-1 lg:col-span-4"
+            >
             <StatCard
               title={card.title}
               value={card.value}

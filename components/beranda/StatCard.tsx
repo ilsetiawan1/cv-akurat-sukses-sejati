@@ -79,44 +79,59 @@ export function StatCard({ title, value, change, sparklineData }: StatCardProps)
 
   const color = isZero ? 'green' : isPositive ? 'green' : 'red';
 
-  return (
-    <div className="bg-white rounded-xl border border-gray-200 p-6 flex flex-col gap-3 hover:shadow-md transition-shadow">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-xs sm:text-sm font-medium text-gray-500 flex-1 break-words leading-tight">{title}</p>
-        <button className="text-gray-300 hover:text-gray-500 transition-colors shrink-0">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <circle cx="5" cy="12" r="2" />
-            <circle cx="12" cy="12" r="2" />
-            <circle cx="19" cy="12" r="2" />
-          </svg>
-        </button>
-      </div>
+return (
+  <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 flex flex-col gap-3 hover:shadow-md transition-shadow min-h-[160px]">
+    
+    {/* Header */}
+    <div className="flex items-start justify-between gap-2">
+      <p className="text-[11px] sm:text-sm font-medium text-gray-500 leading-snug">
+        {title}
+      </p>
 
-      {/* Value + Sparkline */}
-      <div className="flex items-end justify-between gap-2">
-        <span className="text-3xl font-bold text-gray-900 tabular-nums">
-          {value.toLocaleString('id-ID')}
-        </span>
+      <button className="text-gray-300 hover:text-gray-500 transition-colors shrink-0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="5" cy="12" r="2" />
+          <circle cx="12" cy="12" r="2" />
+          <circle cx="19" cy="12" r="2" />
+        </svg>
+      </button>
+    </div>
+
+    {/* Value */}
+    <div className="flex items-end justify-between gap-2">
+      <span className="text-2xl sm:text-3xl font-bold text-gray-900 tabular-nums leading-none">
+        {value.toLocaleString('id-ID')}
+      </span>
+
+      <div className="scale-75 sm:scale-100 origin-bottom-right">
         <Sparkline data={data} color={color} />
       </div>
+    </div>
 
-      {/* Change badge */}
-      <div className="flex items-center gap-1.5">
+    {/* Change */}
+    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-1.5 mt-auto">
+      
+      <div className="flex items-center gap-1">
         {isPositive ? (
-          <TrendingUp size={14} className="text-green-500 shrink-0" />
+          <TrendingUp size={13} className="text-green-500 shrink-0" />
         ) : (
-          <TrendingDown size={14} className="text-red-500 shrink-0" />
+          <TrendingDown size={13} className="text-red-500 shrink-0" />
         )}
+
         <span
-          className={`text-xs font-semibold ${
+          className={`text-[11px] sm:text-xs font-semibold ${
             isPositive ? 'text-green-600' : 'text-red-600'
           }`}
         >
-          {isPositive ? '+' : ''}{change}%
+          {isPositive ? '+' : ''}
+          {change}%
         </span>
-        <span className="text-xs text-gray-400">vs last month</span>
       </div>
+
+      <span className="text-[10px] sm:text-xs text-gray-400 leading-tight">
+        vs last month
+      </span>
     </div>
-  );
+  </div>
+);
 }

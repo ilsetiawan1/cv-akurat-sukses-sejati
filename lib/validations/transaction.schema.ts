@@ -8,3 +8,9 @@ export const goodsReceiptSchema = z.object({
   harga_satuan: z.coerce.number().min(0, 'Harga satuan tidak boleh negatif'),
   receipt_date: z.string().min(1, 'Tanggal penerimaan wajib diisi'),
 });
+
+export const goodsIssueSchema = z.object({
+  item_id: z.string().uuid('Barang tidak valid'),
+  quantity: z.coerce.number().min(1, 'Kuantitas minimal 1'),
+  issue_date: z.string().min(1, 'Tanggal pengeluaran wajib diisi'),
+});

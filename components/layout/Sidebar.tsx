@@ -88,10 +88,10 @@ export function Sidebar({ user }: SidebarProps) {
           <Link href="/beranda" className="flex items-center gap-3 flex-1 min-w-0 transition-opacity hover:opacity-80">
             <div className="relative w-8 h-8 sm:w-9 sm:h-9 shrink-0 flex items-center justify-center">
               <Image 
-                src="/logo-cv-akurat-sukses-sejati.png" 
+                src="/logo-cv-akurat-sukses-sejati-bg-purple.png" 
                 alt="Logo CV Akurat Sukses Sejati" 
                 fill
-                className="object-contain"
+                className="object-contain rounded-md"
                 priority
                 sizes="36px"
               />

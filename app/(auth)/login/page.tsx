@@ -2,6 +2,7 @@
 
 'use client';
 
+import Image from 'next/image';
 import { Eye, EyeOff, Loader2, Lock, Mail, AlertCircle } from 'lucide-react';
 import { useLogin } from '@/lib/hooks/useLogin';
 
@@ -25,36 +26,16 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
           <div className="flex flex-col items-center mb-8">
             <div className="mb-4">
-              <svg
-                width="48"
-                height="48"
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M24 4L4 20H10V40H22V28H26V40H38V20H44L24 4Z"
-                  fill="#D97706"
-                  fillOpacity="0.15"
-                  stroke="#D97706"
-                  strokeWidth="2"
-                  strokeLinejoin="round"
+              <div className="relative w-12 h-12 overflow-hidden rounded-xl border border-purple-100 shadow-sm bg-purple-50">
+                <Image
+                  src="/logo-cv-akurat-sukses-sejati-bg-purple.png"
+                  alt="Logo CV Akurat Sukses Sejati"
+                  fill
+                  sizes="48px"
+                  className="object-cover"
+                  priority
                 />
-                <path
-                  d="M18 40V30H30V40"
-                  stroke="#D97706"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M8 22L24 8L40 22"
-                  stroke="#D97706"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              </div>
             </div>
             <h1 className="text-xl font-semibold text-gray-900 tracking-tight">CV Akurat Sukses Sejati</h1>
             <p className="text-sm text-gray-500 mt-1">{showForgot ? 'Reset Password' : 'Masuk ke dashboard Anda'}</p>

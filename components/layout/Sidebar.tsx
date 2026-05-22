@@ -208,7 +208,7 @@ export function Sidebar({ user }: SidebarProps) {
         <div className="border-t border-gray-100 p-4 shrink-0 bg-gray-50/50">
           <div className="flex items-center justify-between gap-2">
             <Link
-              href="/pengaturan/profil"
+              href="/pengaturan?tab=profil"
               className="flex items-center gap-3 flex-1 min-w-0 group"
             >
               <div className="w-9 h-9 rounded-full bg-linear-to-br from-purple-100 to-purple-200 flex items-center justify-center text-[#7C3AED] text-xs font-bold shrink-0 uppercase ring-2 ring-white shadow-sm group-hover:ring-purple-100 transition-all">

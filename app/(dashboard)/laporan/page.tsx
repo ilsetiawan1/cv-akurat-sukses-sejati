@@ -6,6 +6,7 @@ import ReportFilterBar from '@/components/laporan/ReportFilterBar';
 import ReportTable from '@/components/laporan/ReportTable';
 import { generateReportData } from '@/lib/services/report.service';
 import type { ReportFilterPeriod } from '@/types/report.types';
+import { cookies } from 'next/headers';
 
 function getDateRanges(period: ReportFilterPeriod, start?: string, end?: string) {
   const today = new Date();
@@ -17,7 +18,7 @@ function getDateRanges(period: ReportFilterPeriod, start?: string, end?: string)
     text = today.toLocaleDateString('id-ID');
   } else if (period === 'minggu_ini') {
     const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1); 
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1);
     startDate = new Date(today.setDate(diff));
     text = `Minggu Ini (${startDate.toLocaleDateString('id-ID')} - ${endDate.toLocaleDateString('id-ID')})`;
   } else if (period === 'bulan_ini') {
@@ -62,6 +63,11 @@ export default async function LaporanPage(props: {
     );
   }
 
+  // Tarik Informasi Perusahaan Dinamis dari Cookie (di-set via /pengaturan)
+  const cookieStore = await cookies();
+  const companyName = cookieStore.get('company_name')?.value || 'CV. AKURAT SUKSES SEJATI';
+  const companyAddress = cookieStore.get('company_address')?.value || '';
+
   const ranges = getDateRanges(period, startParam, endParam);
   const { summary, receipts, issues } = await generateReportData(ranges.startDate, ranges.endDate);
 
@@ -81,6 +87,8 @@ export default async function LaporanPage(props: {
         issues={issues}
         summary={summary}
         dateRangeText={ranges.text}
+        companyName={companyName}
+        companyAddress={companyAddress}
       />
     </div>
   );

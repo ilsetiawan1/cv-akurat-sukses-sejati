@@ -25,18 +25,14 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen relative flex items-center justify-center p-4 bg-gray-50 overflow-hidden">
       {/* ── Top Half Background Image with Gradient Blur Fade ── */}
-      <div className="absolute inset-x-0 top-0 h-[50vh] sm:h-[55vh] z-0 overflow-hidden">
-        <Image
-          src="/bg-login-page.avif"
-          alt="Background CV Akurat Sukses Sejati"
-          fill
-          priority
-          className="object-cover object-center scale-105"
-        />
+      <div 
+        className="absolute inset-x-0 top-0 h-[50vh] sm:h-[55vh] z-0 overflow-hidden bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url('/bg-login-page.avif')" }}
+      >
         {/* Dark subtle tint overlay */}
-        <div className="absolute inset-0 bg-slate-950/25" />
+        <div className="absolute inset-0 bg-slate-950/20" />
         {/* Smooth Gradient + Blur Transition to bottom background */}
-        <div className="absolute inset-x-0 bottom-0 h-40 sm:h-52 bg-gradient-to-b from-transparent via-gray-50/80 to-gray-50 backdrop-blur-[2px]" />
+        <div className="absolute inset-x-0 bottom-0 h-40 sm:h-52 bg-gradient-to-b from-transparent via-gray-50/80 to-gray-50 backdrop-blur-[3px]" />
       </div>
 
       {/* ── Main Login Card ── */}

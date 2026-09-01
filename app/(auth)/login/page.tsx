@@ -3,7 +3,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Eye, EyeOff, Loader2, Lock, Mail, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Lock, Mail, AlertCircle, Sparkles } from 'lucide-react';
 import { useLogin } from '@/lib/hooks/useLogin';
 
 export default function LoginPage() {
@@ -13,11 +13,13 @@ export default function LoginPage() {
     error,
     successMsg,
     isPending,
+    isDemoLoading,
     togglePasswordVisibility,
     showForgotPasswordForm,
     showLoginForm,
     handleLoginSubmit,
-    handleForgotPasswordSubmit
+    handleForgotPasswordSubmit,
+    handleDemoLogin,
   } = useLogin();
 
   return (
@@ -40,6 +42,39 @@ export default function LoginPage() {
             <h1 className="text-xl font-semibold text-gray-900 tracking-tight">CV Akurat Sukses Sejati</h1>
             <p className="text-sm text-gray-500 mt-1">{showForgot ? 'Reset Password' : 'Masuk ke dashboard Anda'}</p>
           </div>
+
+          {/* ── Demo Login ── */}
+          {!showForgot && (
+            <div className="mb-5">
+              <button
+                type="button"
+                onClick={handleDemoLogin}
+                disabled={isDemoLoading || isPending}
+                className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition-all text-sm shadow-sm shadow-purple-200"
+              >
+                {isDemoLoading ? (
+                  <>
+                    <Loader2 size={15} className="animate-spin" />
+                    Memuat...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={15} />
+                    Coba Demo
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* ── Divider ── */}
+          {!showForgot && (
+            <div className="flex items-center gap-3 mb-5">
+              <div className="flex-1 h-px bg-gray-200" />
+              <span className="text-xs text-gray-400">atau</span>
+              <div className="flex-1 h-px bg-gray-200" />
+            </div>
+          )}
 
           {error && (
             <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-5 text-sm">

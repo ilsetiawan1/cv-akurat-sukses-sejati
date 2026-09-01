@@ -3,7 +3,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Eye, EyeOff, Loader2, Lock, Mail, AlertCircle, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, Loader2, Lock, Mail, AlertCircle } from 'lucide-react';
 import { useLogin } from '@/lib/hooks/useLogin';
 
 export default function LoginPage() {
@@ -23,11 +23,27 @@ export default function LoginPage() {
   } = useLogin();
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-          <div className="flex flex-col items-center mb-8">
-            <div className="mb-4">
+    <div className="min-h-screen relative flex items-center justify-center p-4 bg-gray-50 overflow-hidden">
+      {/* ── Top Half Background Image with Gradient Blur Fade ── */}
+      <div className="absolute inset-x-0 top-0 h-[50vh] sm:h-[55vh] z-0 overflow-hidden">
+        <Image
+          src="/bg-login-page.avif"
+          alt="Background CV Akurat Sukses Sejati"
+          fill
+          priority
+          className="object-cover object-center scale-105"
+        />
+        {/* Dark subtle tint overlay */}
+        <div className="absolute inset-0 bg-slate-950/25" />
+        {/* Smooth Gradient + Blur Transition to bottom background */}
+        <div className="absolute inset-x-0 bottom-0 h-40 sm:h-52 bg-gradient-to-b from-transparent via-gray-50/80 to-gray-50 backdrop-blur-[2px]" />
+      </div>
+
+      {/* ── Main Login Card ── */}
+      <div className="relative z-10 w-full max-w-md my-8">
+        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl shadow-slate-900/10 border border-white/80 p-7 sm:p-8">
+          <div className="flex flex-col items-center mb-7">
+            <div className="mb-3.5">
               <div className="relative w-12 h-12 overflow-hidden rounded-xl border border-purple-100 shadow-sm bg-purple-50">
                 <Image
                   src="/logo-cv-akurat-sukses-sejati-bg-purple.png"
@@ -39,42 +55,9 @@ export default function LoginPage() {
                 />
               </div>
             </div>
-            <h1 className="text-xl font-semibold text-gray-900 tracking-tight">CV Akurat Sukses Sejati</h1>
-            <p className="text-sm text-gray-500 mt-1">{showForgot ? 'Reset Password' : 'Masuk ke dashboard Anda'}</p>
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight">CV Akurat Sukses Sejati</h1>
+            <p className="text-sm text-gray-500 mt-1">{showForgot ? 'Reset Password' : 'Masuk ke dashboard sistem persediaan'}</p>
           </div>
-
-          {/* ── Demo Login ── */}
-          {!showForgot && (
-            <div className="mb-5">
-              <button
-                type="button"
-                onClick={handleDemoLogin}
-                disabled={isDemoLoading || isPending}
-                className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition-all text-sm shadow-sm shadow-purple-200"
-              >
-                {isDemoLoading ? (
-                  <>
-                    <Loader2 size={15} className="animate-spin" />
-                    Memuat...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={15} />
-                    Coba Demo
-                  </>
-                )}
-              </button>
-            </div>
-          )}
-
-          {/* ── Divider ── */}
-          {!showForgot && (
-            <div className="flex items-center gap-3 mb-5">
-              <div className="flex-1 h-px bg-gray-200" />
-              <span className="text-xs text-gray-400">atau</span>
-              <div className="flex-1 h-px bg-gray-200" />
-            </div>
-          )}
 
           {error && (
             <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-5 text-sm">
@@ -111,7 +94,7 @@ export default function LoginPage() {
                     required
                     autoComplete="email"
                     placeholder="admin@example.com"
-                    className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all placeholder:text-gray-400"
+                    className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all placeholder:text-gray-400"
                   />
                 </div>
               </div>
@@ -135,12 +118,12 @@ export default function LoginPage() {
                     required
                     autoComplete="current-password"
                     placeholder="••••••••"
-                    className="w-full pl-9 pr-10 py-2.5 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all placeholder:text-gray-400"
+                    className="w-full pl-9 pr-10 py-2.5 text-sm bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all placeholder:text-gray-400"
                   />
                   <button
                     type="button"
                     onClick={togglePasswordVisibility}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
                     tabIndex={-1}
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -153,7 +136,7 @@ export default function LoginPage() {
                   <input
                     name="remember"
                     type="checkbox"
-                    className="w-4 h-4 rounded border-gray-300 accent-purple-600"
+                    className="w-4 h-4 rounded border-gray-300 accent-purple-600 cursor-pointer"
                   />
                   <span className="text-sm text-gray-600">Ingat selama 30 hari</span>
                 </label>
@@ -166,10 +149,11 @@ export default function LoginPage() {
                 </button>
               </div>
 
+              {/* Tombol Utama: Masuk */}
               <button
                 type="submit"
-                disabled={isPending}
-                className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg transition-colors text-sm mt-2"
+                disabled={isPending || isDemoLoading}
+                className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-2.5 rounded-lg transition-colors text-sm shadow-sm shadow-purple-200 mt-2 cursor-pointer"
               >
                 {isPending ? (
                   <>
@@ -181,6 +165,32 @@ export default function LoginPage() {
                   </>
                 ) : (
                   'Masuk'
+                )}
+              </button>
+
+              {/* Divider Pemisah */}
+              <div className="relative flex items-center justify-center pt-2">
+                <div className="w-full border-t border-gray-200" />
+                <span className="absolute bg-white px-3 text-xs text-gray-400 font-medium">atau</span>
+              </div>
+
+              {/* Tombol Sekunder: Coba Demo (Warna berbeda & Tanpa Icon) */}
+              <button
+                type="button"
+                onClick={handleDemoLogin}
+                disabled={isDemoLoading || isPending}
+                className="w-full flex items-center justify-center gap-2 bg-purple-50 hover:bg-purple-100 active:bg-purple-200/80 border border-purple-200 text-purple-700 disabled:opacity-60 disabled:cursor-not-allowed font-medium py-2.5 rounded-lg transition-all text-sm cursor-pointer shadow-xs"
+              >
+                {isDemoLoading ? (
+                  <>
+                    <Loader2
+                      size={16}
+                      className="animate-spin"
+                    />
+                    Memuat Demo...
+                  </>
+                ) : (
+                  'Coba Demo'
                 )}
               </button>
             </form>
@@ -207,14 +217,14 @@ export default function LoginPage() {
                     type="email"
                     required
                     placeholder="admin@example.com"
-                    className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all placeholder:text-gray-400"
+                    className="w-full pl-9 pr-4 py-2.5 text-sm bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all placeholder:text-gray-400"
                   />
                 </div>
               </div>
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white font-medium py-2.5 rounded-lg transition-colors text-sm"
+                className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white font-medium py-2.5 rounded-lg transition-colors text-sm cursor-pointer"
               >
                 {isPending ? (
                   <>
@@ -231,14 +241,14 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={showLoginForm}
-                className="w-full text-sm text-gray-500 hover:text-gray-700 text-center mt-1"
+                className="w-full text-sm text-gray-500 hover:text-gray-700 text-center mt-1 cursor-pointer"
               >
                 ← Kembali ke halaman login
               </button>
             </form>
           )}
         </div>
-        <p className="text-center text-xs text-gray-400 mt-6">© {new Date().getFullYear()} CV Akurat Sukses Sejati</p>
+        <p className="text-center text-xs text-gray-500 mt-5 drop-shadow-xs">© {new Date().getFullYear()} CV Akurat Sukses Sejati</p>
       </div>
     </div>
   );

@@ -3,6 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+// Kredensial akun demo — menggunakan akun superadmin yang aktif
+const DEMO_EMAIL    = 'superadmin@gmail.com';
+const DEMO_PASSWORD = 'password123';
+
 export function useLogin() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
@@ -10,6 +14,7 @@ export function useLogin() {
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isPending, setIsPending] = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
 
   const togglePasswordVisibility = () => setShowPassword((prev) => !prev);
   
@@ -85,16 +90,44 @@ export function useLogin() {
     }
   };
 
+  const handleDemoLogin = async () => {
+    setError('');
+    setIsDemoLoading(true);
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: DEMO_EMAIL, password: DEMO_PASSWORD }),
+        credentials: 'same-origin',
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error ?? 'Gagal masuk dengan akun demo.');
+        setIsDemoLoading(false);
+        return;
+      }
+
+      window.location.replace('/beranda');
+    } catch {
+      setError('Terjadi kesalahan jaringan.');
+      setIsDemoLoading(false);
+    }
+  };
+
   return {
     showPassword,
     showForgot,
     error,
     successMsg,
     isPending,
+    isDemoLoading,
     togglePasswordVisibility,
     showForgotPasswordForm,
     showLoginForm,
     handleLoginSubmit,
-    handleForgotPasswordSubmit
+    handleForgotPasswordSubmit,
+    handleDemoLogin,
   };
 }

@@ -13,7 +13,7 @@ const supabase = createClient(supabaseUrl, serviceKey, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
-// Akun-akun profesional untuk CV Akurat Sukses Sejati
+// Akun-akun terpisah & profesional untuk CV Akurat Sukses Sejati
 const targetUsers = [
   {
     code: 'P01',
@@ -47,8 +47,23 @@ const targetUsers = [
   },
   {
     code: 'P03',
-    name: 'Siti Rahma (Kasir & Servis)',
+    name: 'Siti Rahma (Kasir)',
     email: 'kasir@cvakurat.com',
+    password: 'password123',
+    role: 'admin',
+    permissions: [
+      { feature: 'dashboard', can_create: false, can_read: true, can_update: false, can_delete: false },
+      { feature: 'hak_akses', can_create: false, can_read: false, can_update: false, can_delete: false },
+      { feature: 'data_master', can_create: false, can_read: true, can_update: false, can_delete: false },
+      { feature: 'transaksi', can_create: true, can_read: true, can_update: false, can_delete: false },
+      { feature: 'laporan', can_create: false, can_read: true, can_update: false, can_delete: false },
+      { feature: 'pengaturan', can_create: false, can_read: false, can_update: false, can_delete: false },
+    ],
+  },
+  {
+    code: 'P04',
+    name: 'Rian Hidayat (Teknisi & Servis)',
+    email: 'servis@cvakurat.com',
     password: 'password123',
     role: 'admin',
     permissions: [
@@ -61,7 +76,7 @@ const targetUsers = [
     ],
   },
   {
-    code: 'P04',
+    code: 'P05',
     name: 'Agnez Mo (Keuangan)',
     email: 'keuangan@cvakurat.com',
     password: 'password123',
@@ -78,41 +93,25 @@ const targetUsers = [
 ];
 
 async function cleanupAndSetupUsers() {
-  console.log('🔄 Merapikan Akun Pengguna CV Akurat Sukses Sejati...\n');
+  console.log('🔄 Memperbarui & Memisahkan Akun Pengguna...\n');
 
-  // 1. Ambil semua auth user yang ada saat ini
   const { data: authUsersData } = await supabase.auth.admin.listUsers();
   const currentAuthUsers = authUsersData?.users || [];
   const targetEmails = targetUsers.map((u) => u.email);
 
-  // 2. Hapus akun-akun testing lama yang tidak dipakai
   for (const au of currentAuthUsers) {
     if (!targetEmails.includes(au.email)) {
-      console.log(`🗑️  Menghapus akun test lama: ${au.email} (${au.id})`);
-      // Hapus dari public.users dulu jika ada
+      console.log(`🗑️  Menghapus akun: ${au.email}`);
       await supabase.from('users').delete().eq('id', au.id);
-      // Hapus dari Auth
       await supabase.auth.admin.deleteUser(au.id);
     }
   }
 
-  // 3. Hapus juga sisa-sisa di public.users yang tidak terhubung ke targetEmails
-  const { data: publicUsers } = await supabase.from('users').select('id, email');
-  for (const pu of publicUsers || []) {
-    if (!targetEmails.includes(pu.email)) {
-      console.log(`🗑️  Membersihkan row public.users lama: ${pu.email}`);
-      await supabase.from('users').delete().eq('id', pu.id);
-    }
-  }
-
-  console.log('\n✨ Menyiapkan Akun-Akun Profesional & Hak Akses...\n');
-
-  // 4. Buat / Update target users
   for (const target of targetUsers) {
     let authUser = currentAuthUsers.find((u) => u.email === target.email);
 
     if (!authUser) {
-      console.log(`➕ Membuat akun Auth baru: ${target.email} (${target.name})`);
+      console.log(`➕ Membuat akun Auth: ${target.email} (${target.name})`);
       const { data: created, error } = await supabase.auth.admin.createUser({
         email: target.email,
         password: target.password,
@@ -125,15 +124,14 @@ async function cleanupAndSetupUsers() {
       }
       authUser = created.user;
     } else {
-      console.log(`🔄 Mengupdate password akun Auth: ${target.email}`);
+      console.log(`🔄 Mengupdate akun Auth: ${target.email} -> ${target.name}`);
       await supabase.auth.admin.updateUserById(authUser.id, {
         password: target.password,
         user_metadata: { name: target.name, role: target.role },
       });
     }
 
-    // Upsert ke public.users
-    console.log(`💾 Sinkronisasi ke tabel public.users: ${target.name} [${target.code}]`);
+    // Upsert public.users
     await supabase.from('users').upsert({
       id: authUser.id,
       user_code: target.code,
@@ -146,7 +144,6 @@ async function cleanupAndSetupUsers() {
     }, { onConflict: 'id' });
 
     // Upsert permissions
-    console.log(`🔑 Mengatur matriks hak akses CRUD untuk: ${target.name}`);
     for (const perm of target.permissions) {
       await supabase.from('user_permissions').upsert({
         user_id: authUser.id,
@@ -159,10 +156,10 @@ async function cleanupAndSetupUsers() {
     }
   }
 
-  console.log('\n🎉 Selesai! Semua akun telah dirapikan secara profesional.');
+  console.log('\n🎉 Selesai! Kasir dan Servis sekarang sudah menjadi 2 peran terpisah.');
 }
 
 cleanupAndSetupUsers().catch((err) => {
-  console.error('❌ Gagal merapikan akun:', err);
+  console.error('❌ Gagal:', err);
   process.exit(1);
 });

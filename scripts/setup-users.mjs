@@ -62,7 +62,7 @@ const targetUsers = [
   },
   {
     code: 'P04',
-    name: 'Dewi Lestari (Keuangan)',
+    name: 'Agnez Mo (Keuangan)',
     email: 'keuangan@cvakurat.com',
     password: 'password123',
     role: 'admin',

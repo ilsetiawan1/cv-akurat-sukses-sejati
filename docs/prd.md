@@ -11,12 +11,22 @@
 
 ---
 
-## 2. Roles & Akses
+## 2. Roles, Akun & Akses
 
-| Role        | Deskripsi                                                                 |
-|-------------|---------------------------------------------------------------------------|
-| Super Admin | Akses penuh ke seluruh fitur termasuk manajemen hak akses pengguna        |
-| Admin       | Akses sesuai hak yang dikonfigurasi oleh Super Admin per fitur            |
+### 2.1 Konsep Role & Permission (PBAC)
+Sistem menggunakan **Permission-Based Access Control (PBAC)** dengan 2 level role teknis:
+* **Super Admin**: Akses penuh (bypass semua pembatasan) ke seluruh fitur termasuk manajemen hak akses pengguna.
+* **Admin**: Akses granular (CRUD) yang dikonfigurasi per fitur oleh Super Admin.
+
+### 2.2 Daftar Akun Operasional Sistem (Default Demo & Production)
+
+| ID | Nama Pengguna | Email | Password | Role | Lingkup Hak Akses |
+|:---|:---|:---|:---|:---|:---|
+| **P01** | **Super Admin (Owner)** | `superadmin@gmail.com` | `password123` | `super_admin` | **Full Access** ke seluruh modul sistem |
+| **P02** | **Budi Santoso (Kepala Gudang)** | `gudang@cvakurat.com` | `password123` | `admin` | Master Barang/Supplier (CRUD), Transaksi Masuk/Keluar (CRUD), Laporan (Read) |
+| **P03** | **Siti Rahma (Kasir)** | `kasir@cvakurat.com` | `password123` | `admin` | Master Barang (Read), Transaksi Penjualan (Create & Read), Persediaan (Read) |
+| **P04** | **Rian Hidayat (Teknisi & Servis)** | `servis@cvakurat.com` | `password123` | `admin` | Master Barang (Read), Transaksi Keluar/Servis (Create & Read), Persediaan (Read) |
+| **P05** | **Agnez Mo (Keuangan)** | `keuangan@cvakurat.com` | `password123` | `admin` | Transaksi (Read only), Laporan & Analitik HPP (Create, Read, Update, Export PDF/CSV) |
 
 ---
 

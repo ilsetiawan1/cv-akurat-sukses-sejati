@@ -31,11 +31,11 @@ export async function getInventoryPaginated(page: number, limit: number, search?
   }
 
   // Map "items" relation to "item" to match our interface
-  const mappedData = data?.map((row: any) => ({
+  const mappedData = ((data ?? []) as unknown as Record<string, unknown>[]).map((row) => ({
     ...row,
     item: row.items,
     items: undefined
-  })) as InventoryWithItem[];
+  })) as unknown as InventoryWithItem[];
 
   return { data: mappedData, count, error: null };
 }

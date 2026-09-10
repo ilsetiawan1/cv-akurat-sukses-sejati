@@ -1,6 +1,6 @@
 // lib/repositories/goods-receipt.repository.ts
 import { createAdminClient } from '@/lib/supabase/server-admin';
-import type { GoodsReceiptWithRelations } from '@/types/transaction.types';
+import type { GoodsReceiptWithRelations, InsertGoodsReceiptPayload } from '@/types/transaction.types';
 
 export async function getGoodsReceiptsPaginated(page: number, limit: number, search?: string) {
   const supabase = createAdminClient();
@@ -29,12 +29,12 @@ export async function getGoodsReceiptsPaginated(page: number, limit: number, sea
     return { data: null, count: null, error };
   }
 
-  const mappedData = data?.map((row: any) => ({
+  const mappedData = ((data ?? []) as unknown as GoodsReceiptWithRelations[]).map((row) => ({
     ...row,
     item: row.item,
     supplier: row.supplier,
     user: row.user
-  })) as GoodsReceiptWithRelations[];
+  }));
 
   return { data: mappedData, count, error: null };
 }
@@ -52,7 +52,7 @@ export async function generateReceiptCode(): Promise<string> {
   return 'AD' + Date.now().toString().slice(-6);
 }
 
-export async function insertGoodsReceipt(data: any) {
+export async function insertGoodsReceipt(data: InsertGoodsReceiptPayload) {
   const supabase = createAdminClient();
   return supabase.from('goods_receipts').insert(data).select().single();
 }

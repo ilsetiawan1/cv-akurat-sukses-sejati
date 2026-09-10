@@ -30,9 +30,9 @@ export default function UnitManager({ units }: { units: Unit[] }) {
         setEditingId(null);
         setFormData({ name: '', description: '' });
       } else {
-        toast.error(res.error, { id: toastId });
+        toast.error(res.error || 'Gagal menyimpan satuan', { id: toastId });
       }
-    } catch (err) {
+    } catch {
       toast.error('Gagal menghubungi server', { id: toastId });
     } finally {
       setLoading(false);
@@ -48,9 +48,9 @@ export default function UnitManager({ units }: { units: Unit[] }) {
       if (res.success) {
         toast.success('Satuan berhasil dihapus', { id: toastId });
       } else {
-        toast.error(res.error, { id: toastId });
+        toast.error(res.error || 'Gagal menghapus satuan', { id: toastId });
       }
-    } catch (err) {
+    } catch {
       toast.error('Gagal menghapus satuan', { id: toastId });
     }
   };

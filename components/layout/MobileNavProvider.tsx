@@ -16,11 +16,13 @@ const MobileNavContext = createContext<MobileNavContextType>({
 export function MobileNavProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const [prevPath, setPrevPath] = useState(pathname);
 
   // Tutup sidebar otomatis saat rute berubah di mobile
-  useEffect(() => {
+  if (prevPath !== pathname) {
+    setPrevPath(pathname);
     setIsOpen(false);
-  }, [pathname]);
+  }
 
   // Prevent scroll when sidebar is open on mobile
   useEffect(() => {

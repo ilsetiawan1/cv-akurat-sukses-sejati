@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Search, Plus, ExternalLink } from 'lucide-react';
 import type { GoodsIssueWithRelations } from '@/types/transaction.types';
-import GoodsIssueFormModal from './GoodsIssueFormModal';
+import GoodsIssueFormModal, { type IssueModalItem } from './GoodsIssueFormModal';
 import { Pagination } from '../ui/Pagination';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
@@ -14,7 +14,7 @@ interface Props {
   currentPage: number;
   limit: number;
   searchQuery: string;
-  items: any[];
+  items: IssueModalItem[];
   canCreate: boolean;
 }
 

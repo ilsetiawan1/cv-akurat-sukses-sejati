@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/lib/services/user.service';
 import InventoryTable from '@/components/transaksi/InventoryTable';
 import { listInventory } from '@/lib/services/inventory.service';
+import type { UserPermission } from '@/types/user.types';
 
 export default async function DataPersediaanPage(props: {
   searchParams?: Promise<{
@@ -23,7 +24,7 @@ export default async function DataPersediaanPage(props: {
   const currentUser = await getCurrentUser(authUser.id);
   if (!currentUser) redirect('/login');
 
-  const perm = currentUser.user_permissions?.find((p: any) => p.feature === 'transaksi');
+  const perm = currentUser.user_permissions?.find((p: UserPermission) => p.feature === 'transaksi');
   const canRead = currentUser.role === 'super_admin' || !!perm?.can_read;
 
   if (!canRead) {

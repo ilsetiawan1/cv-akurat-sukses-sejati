@@ -7,6 +7,9 @@ import { listGoodsIssues } from '@/lib/services/goods-issue.service';
 import { getAllItems } from '@/lib/repositories/item.repository';
 import { listInventory } from '@/lib/services/inventory.service';
 
+import type { UserPermission } from '@/types/user.types';
+import type { ItemWithRelations } from '@/types/item.types';
+
 export default async function BarangKeluarPage(props: {
   searchParams?: Promise<{ search?: string; page?: string; }>;
 }) {
@@ -22,7 +25,7 @@ export default async function BarangKeluarPage(props: {
   const currentUser = await getCurrentUser(authUser.id);
   if (!currentUser) redirect('/login');
 
-  const perm = currentUser.user_permissions?.find((p: any) => p.feature === 'transaksi');
+  const perm = currentUser.user_permissions?.find((p: UserPermission) => p.feature === 'transaksi');
   const canRead = currentUser.role === 'super_admin' || !!perm?.can_read;
   const canCreate = currentUser.role === 'super_admin' || !!perm?.can_create;
 
@@ -41,14 +44,15 @@ export default async function BarangKeluarPage(props: {
   // Fetch inventory to show current stock and HPP in the dropdown
   const invData = await listInventory(1, 10000);
   
-  const items = rawItems?.map((item: any) => {
+  const typedRawItems = (rawItems ?? []) as unknown as ItemWithRelations[];
+  const items = typedRawItems.map((item) => {
     const inv = invData.data.find(i => i.item_id === item.id);
     return {
       ...item,
       current_stock: inv?.stock || 0,
       current_hpp: inv?.hpp || 0
     };
-  }) || [];
+  });
 
   return (
     <div className="w-full">

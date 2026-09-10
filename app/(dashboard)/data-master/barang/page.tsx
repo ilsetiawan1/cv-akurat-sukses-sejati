@@ -6,7 +6,7 @@ import ItemTable from '@/components/data-master/ItemTable';
 import { listItems } from '@/lib/services/item.service';
 import { getAllCategories } from '@/lib/repositories/category.repository';
 import { getAllUnits } from '@/lib/repositories/unit.repository';
-import type { UserRole } from '@/types/user.types';
+import type { UserRole, UserPermission } from '@/types/user.types';
 
 export default async function DataBarangPage(props: {
   searchParams?: Promise<{
@@ -28,7 +28,7 @@ export default async function DataBarangPage(props: {
   const currentUser = await getCurrentUser(authUser.id);
   if (!currentUser) redirect('/login');
 
-  const perm = currentUser.user_permissions?.find((p: any) => p.feature === 'data_master');
+  const perm = currentUser.user_permissions?.find((p: UserPermission) => p.feature === 'data_master');
   const role: UserRole = currentUser.role;
   const canCreate = role === 'super_admin' || !!perm?.can_create;
   const canUpdate = role === 'super_admin' || !!perm?.can_update;

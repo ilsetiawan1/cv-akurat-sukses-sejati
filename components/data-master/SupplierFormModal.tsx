@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X } from 'lucide-react';
 import type { Supplier } from '@/types/supplier.types';
 import { addSupplierAction, editSupplierAction } from '@/lib/actions/supplier.actions';
@@ -15,34 +15,26 @@ export default function SupplierFormModal({ isOpen, onClose, supplier }: Supplie
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  const [prevTrack, setPrevTrack] = useState<{ id?: string; isOpen: boolean }>({ id: supplier?.id, isOpen });
   const [formData, setFormData] = useState({
-    name: '',
-    contact_name: '',
-    email: '',
-    phone: '',
-    address: ''
+    name: supplier?.name || '',
+    contact_name: supplier?.contact_name || '',
+    email: supplier?.email || '',
+    phone: supplier?.phone || '',
+    address: supplier?.address || ''
   });
 
-  useEffect(() => {
-    if (supplier) {
-      setFormData({
-        name: supplier.name || '',
-        contact_name: supplier.contact_name || '',
-        email: supplier.email || '',
-        phone: supplier.phone || '',
-        address: supplier.address || ''
-      });
-    } else {
-      setFormData({
-        name: '',
-        contact_name: '',
-        email: '',
-        phone: '',
-        address: ''
-      });
-    }
+  if (prevTrack.id !== supplier?.id || prevTrack.isOpen !== isOpen) {
+    setPrevTrack({ id: supplier?.id, isOpen });
+    setFormData({
+      name: supplier?.name || '',
+      contact_name: supplier?.contact_name || '',
+      email: supplier?.email || '',
+      phone: supplier?.phone || '',
+      address: supplier?.address || ''
+    });
     setError('');
-  }, [supplier, isOpen]);
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -67,8 +59,9 @@ export default function SupplierFormModal({ isOpen, onClose, supplier }: Supplie
       } else {
         onClose();
       }
-    } catch (err: any) {
-      setError(err.message || 'Terjadi kesalahan sistem');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Terjadi kesalahan sistem';
+      setError(message);
     } finally {
       setIsSubmitting(false);
     }

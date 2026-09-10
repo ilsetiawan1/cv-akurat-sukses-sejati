@@ -18,12 +18,12 @@ export async function getGoodsReceiptReport(startDate: string, endDate: string) 
 
   if (error) throw error;
 
-  return data?.map((row: any) => ({
+  return ((data ?? []) as unknown as GoodsReceiptWithRelations[]).map((row) => ({
     ...row,
     item: row.item,
     supplier: row.supplier,
     user: row.user
-  })) as GoodsReceiptWithRelations[];
+  }));
 }
 
 export async function getGoodsIssueReport(startDate: string, endDate: string) {
@@ -41,9 +41,9 @@ export async function getGoodsIssueReport(startDate: string, endDate: string) {
 
   if (error) throw error;
 
-  return data?.map((row: any) => ({
+  return ((data ?? []) as unknown as GoodsIssueWithRelations[]).map((row) => ({
     ...row,
     item: row.item,
     user: row.user
-  })) as GoodsIssueWithRelations[];
+  }));
 }

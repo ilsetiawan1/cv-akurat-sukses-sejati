@@ -6,6 +6,7 @@ import ProfileForm from '@/components/pengaturan/ProfileForm';
 import CategoryManager from '@/components/pengaturan/CategoryManager';
 import UnitManager from '@/components/pengaturan/UnitManager';
 import { cookies } from 'next/headers';
+import type { UserPermission } from '@/types/user.types';
 
 export default async function PengaturanPage(props: {
   searchParams?: Promise<{ tab?: string }>;
@@ -20,7 +21,7 @@ export default async function PengaturanPage(props: {
   const currentUser = await getCurrentUser(authUser.id);
   if (!currentUser) redirect('/login');
 
-  const perm = currentUser.user_permissions?.find((p: any) => p.feature === 'pengaturan');
+  const perm = currentUser.user_permissions?.find((p: UserPermission) => p.feature === 'pengaturan');
   const canRead = currentUser.role === 'super_admin' || !!perm?.can_read;
 
   if (!canRead) {

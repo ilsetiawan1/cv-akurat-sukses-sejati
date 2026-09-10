@@ -6,11 +6,18 @@ import { X } from 'lucide-react';
 import { addGoodsReceiptAction } from '@/lib/actions/goods-receipt.actions';
 import toast from 'react-hot-toast';
 
+import type { ItemWithRelations } from '@/types/item.types';
+import type { Supplier } from '@/types/supplier.types';
+
+export interface ReceiptModalItem extends ItemWithRelations {
+  current_stock: number;
+}
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  items: any[];
-  suppliers: any[];
+  items: ReceiptModalItem[];
+  suppliers: Supplier[];
 }
 
 export default function GoodsReceiptFormModal({ isOpen, onClose, items, suppliers }: Props) {
@@ -47,7 +54,7 @@ export default function GoodsReceiptFormModal({ isOpen, onClose, items, supplier
         setFormData({ item_id: '', supplier_id: '', quantity: '', harga_satuan: '', receipt_date: new Date().toISOString().split('T')[0] });
         onClose();
       }
-    } catch (err: any) {
+    } catch {
       toast.error('Gagal memproses transaksi');
     } finally {
       setIsSubmitting(false);

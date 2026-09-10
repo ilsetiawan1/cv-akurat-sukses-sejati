@@ -1,7 +1,7 @@
 // components/data-master/ItemFormModal.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X } from 'lucide-react';
 import type { ItemWithRelations, Category, Unit } from '@/types/item.types';
 import { addItemAction, editItemAction } from '@/lib/actions/item.actions';
@@ -18,30 +18,23 @@ interface ItemFormModalProps {
 export default function ItemFormModal({ isOpen, onClose, item, categories, units }: ItemFormModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [prevTrack, setPrevTrack] = useState<{ id?: string; isOpen: boolean }>({ id: item?.id, isOpen });
   const [formData, setFormData] = useState({
-    name: '',
-    category_id: '',
-    unit_id: '',
-    price: ''
+    name: item?.name ?? '',
+    category_id: item?.category_id || '',
+    unit_id: item?.unit_id || '',
+    price: item ? item.price.toString() : ''
   });
 
-  useEffect(() => {
-    if (item) {
-      setFormData({
-        name: item.name,
-        category_id: item.category_id || '',
-        unit_id: item.unit_id || '',
-        price: item.price.toString()
-      });
-    } else {
-      setFormData({
-        name: '',
-        category_id: '',
-        unit_id: '',
-        price: ''
-      });
-    }
-  }, [item, isOpen]);
+  if (prevTrack.id !== item?.id || prevTrack.isOpen !== isOpen) {
+    setPrevTrack({ id: item?.id, isOpen });
+    setFormData({
+      name: item?.name ?? '',
+      category_id: item?.category_id || '',
+      unit_id: item?.unit_id || '',
+      price: item ? item.price.toString() : ''
+    });
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -73,8 +66,9 @@ export default function ItemFormModal({ isOpen, onClose, item, categories, units
         toast.success(item ? 'Barang berhasil diperbarui' : 'Barang berhasil ditambahkan');
         onClose();
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Terjadi kesalahan sistem');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Terjadi kesalahan sistem';
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }

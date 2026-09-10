@@ -6,10 +6,17 @@ import { X, AlertCircle } from 'lucide-react';
 import { addGoodsIssueAction } from '@/lib/actions/goods-issue.actions';
 import toast from 'react-hot-toast';
 
+import type { ItemWithRelations } from '@/types/item.types';
+
+export interface IssueModalItem extends ItemWithRelations {
+  current_stock: number;
+  current_hpp: number;
+}
+
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  items: any[];
+  items: IssueModalItem[];
 }
 
 export default function GoodsIssueFormModal({ isOpen, onClose, items }: Props) {
@@ -50,7 +57,7 @@ export default function GoodsIssueFormModal({ isOpen, onClose, items }: Props) {
         setFormData({ item_id: '', quantity: '', issue_date: new Date().toISOString().split('T')[0] });
         onClose();
       }
-    } catch (err: any) {
+    } catch {
       toast.error('Gagal memproses transaksi');
     } finally {
       setIsSubmitting(false);

@@ -1,5 +1,23 @@
 // types/transaction.types.ts
-import type { ItemWithRelations } from './item.types';
+
+export interface InsertGoodsReceiptPayload {
+  receipt_code: string;
+  item_id: string;
+  user_id: string;
+  supplier_id: string;
+  quantity: number;
+  receipt_date: string;
+  total_price: number;
+}
+
+export interface InsertGoodsIssuePayload {
+  issue_code: string;
+  item_id: string;
+  user_id: string;
+  quantity: number;
+  issue_date: string;
+  total_hpp: number;
+}
 
 export interface GoodsReceipt {
   id: string;

@@ -63,10 +63,11 @@ export async function addGoodsIssue(userId: string, input: CreateGoodsIssueInput
       .eq('id', inv.id);
 
     if (invError) throw invError;
-  } catch (error: any) {
+  } catch (error) {
     // 4. Manual Rollback
     await deleteGoodsIssue(issue.id);
-    throw new Error(`Gagal mengurangi stok (Transaksi dibatalkan): ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Gagal mengurangi stok (Transaksi dibatalkan): ${errorMessage}`);
   }
 
   return issue;

@@ -4,9 +4,10 @@
 import { useState } from 'react';
 import { Search, Plus, Archive } from 'lucide-react';
 import type { GoodsReceiptWithRelations } from '@/types/transaction.types';
-import GoodsReceiptFormModal from './GoodsReceiptFormModal';
+import GoodsReceiptFormModal, { type ReceiptModalItem } from './GoodsReceiptFormModal';
 import { Pagination } from '../ui/Pagination';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import type { Supplier } from '@/types/supplier.types';
 
 interface Props {
   data: GoodsReceiptWithRelations[];
@@ -14,8 +15,8 @@ interface Props {
   currentPage: number;
   limit: number;
   searchQuery: string;
-  items: any[];
-  suppliers: any[];
+  items: ReceiptModalItem[];
+  suppliers: Supplier[];
   canCreate: boolean;
 }
 

@@ -6,6 +6,7 @@ import ReportFilterBar from '@/components/laporan/ReportFilterBar';
 import ReportTable from '@/components/laporan/ReportTable';
 import { generateReportData } from '@/lib/services/report.service';
 import type { ReportFilterPeriod } from '@/types/report.types';
+import type { UserPermission } from '@/types/user.types';
 import { cookies } from 'next/headers';
 
 function getDateRanges(period: ReportFilterPeriod, start?: string, end?: string) {
@@ -52,7 +53,7 @@ export default async function LaporanPage(props: {
   const currentUser = await getCurrentUser(authUser.id);
   if (!currentUser) redirect('/login');
 
-  const perm = currentUser.user_permissions?.find((p: any) => p.feature === 'laporan');
+  const perm = currentUser.user_permissions?.find((p: UserPermission) => p.feature === 'laporan');
   const canRead = currentUser.role === 'super_admin' || !!perm?.can_read;
 
   if (!canRead) {

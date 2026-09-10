@@ -87,10 +87,11 @@ export async function addGoodsReceipt(userId: string, input: CreateGoodsReceiptI
       if (invError) throw invError;
     }
 
-  } catch (error: any) {
+  } catch (error) {
     // MANUAL ROLLBACK: Delete the created receipt if inventory update fails
     await deleteGoodsReceipt(receipt.id);
-    throw new Error(`Gagal update persediaan (Transaksi dibatalkan): ${error.message}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Gagal update persediaan (Transaksi dibatalkan): ${errorMessage}`);
   }
 
   return receipt;

@@ -78,7 +78,7 @@ export default function ItemTable({
       } else {
         toast.success('Barang berhasil dihapus');
       }
-    } catch (error: any) {
+    } catch {
       toast.error('Gagal menghapus barang');
     } finally {
       setIsConfirmOpen(false);

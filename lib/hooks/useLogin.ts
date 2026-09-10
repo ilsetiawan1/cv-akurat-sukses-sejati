@@ -1,14 +1,12 @@
 // lib\hooks\useLogin.ts
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 // Kredensial akun demo — menggunakan akun superadmin yang aktif
 const DEMO_EMAIL    = 'superadmin@gmail.com';
 const DEMO_PASSWORD = 'password123';
 
 export function useLogin() {
-  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   const [error, setError] = useState('');
@@ -56,7 +54,7 @@ export function useLogin() {
 
       // Hard redirect: browser akan membawa cookie session yang baru di-set
       window.location.replace('/beranda');
-    } catch (err) {
+    } catch {
       setError('Terjadi kesalahan jaringan.');
       setIsPending(false);
     }
@@ -84,7 +82,7 @@ export function useLogin() {
       } else {
         setSuccessMsg('Link reset password telah dikirim ke email Anda.');
       }
-    } catch (err) {
+    } catch {
       setError('Terjadi kesalahan.');
       setIsPending(false);
     }

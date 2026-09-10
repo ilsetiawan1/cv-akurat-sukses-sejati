@@ -1,6 +1,6 @@
 // lib/repositories/goods-issue.repository.ts
 import { createAdminClient } from '@/lib/supabase/server-admin';
-import type { GoodsIssueWithRelations } from '@/types/transaction.types';
+import type { GoodsIssueWithRelations, InsertGoodsIssuePayload } from '@/types/transaction.types';
 
 export async function getGoodsIssuesPaginated(page: number, limit: number, search?: string) {
   const supabase = createAdminClient();
@@ -28,11 +28,11 @@ export async function getGoodsIssuesPaginated(page: number, limit: number, searc
     return { data: null, count: null, error };
   }
 
-  const mappedData = data?.map((row: any) => ({
+  const mappedData = ((data ?? []) as unknown as GoodsIssueWithRelations[]).map((row) => ({
     ...row,
     item: row.item,
     user: row.user
-  })) as GoodsIssueWithRelations[];
+  }));
 
   return { data: mappedData, count, error: null };
 }
@@ -50,7 +50,7 @@ export async function generateIssueCode(): Promise<string> {
   return 'AD' + Date.now().toString().slice(-6);
 }
 
-export async function insertGoodsIssue(data: any) {
+export async function insertGoodsIssue(data: InsertGoodsIssuePayload) {
   const supabase = createAdminClient();
   return supabase.from('goods_issues').insert(data).select().single();
 }

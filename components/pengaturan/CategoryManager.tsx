@@ -30,9 +30,9 @@ export default function CategoryManager({ categories }: { categories: Category[]
         setEditingId(null);
         setFormData({ name: '', description: '' });
       } else {
-        toast.error(res.error, { id: toastId });
+        toast.error(res.error || 'Gagal menyimpan kategori', { id: toastId });
       }
-    } catch (err) {
+    } catch {
       toast.error('Gagal menghubungi server', { id: toastId });
     } finally {
       setLoading(false);
@@ -48,9 +48,9 @@ export default function CategoryManager({ categories }: { categories: Category[]
       if (res.success) {
         toast.success('Kategori berhasil dihapus', { id: toastId });
       } else {
-        toast.error(res.error, { id: toastId });
+        toast.error(res.error || 'Gagal menghapus kategori', { id: toastId });
       }
-    } catch (err) {
+    } catch {
       toast.error('Gagal menghapus kategori', { id: toastId });
     }
   };

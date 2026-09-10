@@ -23,7 +23,7 @@ export async function updateProfileAction(formData: FormData) {
       const fileExt = avatar.name.split('.').pop();
       const fileName = `${user.id}-${Math.random()}.${fileExt}`;
       
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(fileName, avatar, { upsert: true });
 
@@ -37,7 +37,7 @@ export async function updateProfileAction(formData: FormData) {
     }
 
     // 2. Update Auth (Password & Email)
-    const authUpdatePayload: any = {};
+    const authUpdatePayload: { email?: string; password?: string } = {};
     if (email && email !== user.email) authUpdatePayload.email = email;
     if (password && password.trim() !== '') authUpdatePayload.password = password;
 
@@ -66,22 +66,29 @@ export async function updateProfileAction(formData: FormData) {
 
     revalidatePath('/', 'layout');
     return { success: true };
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Gagal update profil' };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Gagal update profil';
+    return { success: false, error: message };
   }
 }
 
-export async function manageCategoryAction(action: 'add' | 'edit' | 'delete', payload: any) {
+interface ManageItemPayload {
+  id?: string;
+  name?: string;
+  description?: string;
+}
+
+export async function manageCategoryAction(action: 'add' | 'edit' | 'delete', payload: ManageItemPayload) {
   try {
     const supabase = createAdminClient();
     
     if (action === 'add') {
-      const { error } = await supabase.from('categories').insert([{ name: payload.name, description: payload.description }]);
+      const { error } = await supabase.from('categories').insert([{ name: payload.name ?? '', description: payload.description ?? '' }]);
       if (error) throw error;
-    } else if (action === 'edit') {
+    } else if (action === 'edit' && payload.id) {
       const { error } = await supabase.from('categories').update({ name: payload.name, description: payload.description }).eq('id', payload.id);
       if (error) throw error;
-    } else if (action === 'delete') {
+    } else if (action === 'delete' && payload.id) {
       // Data Integrity: Validasi Relasi Data Barang
       const { count, error: countError } = await supabase
         .from('items')
@@ -100,22 +107,23 @@ export async function manageCategoryAction(action: 'add' | 'edit' | 'delete', pa
     revalidatePath('/pengaturan');
     revalidatePath('/data-master/barang');
     return { success: true };
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Gagal mengelola kategori' };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Gagal mengelola kategori';
+    return { success: false, error: message };
   }
 }
 
-export async function manageUnitAction(action: 'add' | 'edit' | 'delete', payload: any) {
+export async function manageUnitAction(action: 'add' | 'edit' | 'delete', payload: ManageItemPayload) {
   try {
     const supabase = createAdminClient();
     
     if (action === 'add') {
-      const { error } = await supabase.from('units').insert([{ name: payload.name, description: payload.description }]);
+      const { error } = await supabase.from('units').insert([{ name: payload.name ?? '', description: payload.description ?? '' }]);
       if (error) throw error;
-    } else if (action === 'edit') {
+    } else if (action === 'edit' && payload.id) {
       const { error } = await supabase.from('units').update({ name: payload.name, description: payload.description }).eq('id', payload.id);
       if (error) throw error;
-    } else if (action === 'delete') {
+    } else if (action === 'delete' && payload.id) {
       // Data Integrity: Validasi Relasi Data Barang
       const { count, error: countError } = await supabase
         .from('items')
@@ -134,7 +142,8 @@ export async function manageUnitAction(action: 'add' | 'edit' | 'delete', payloa
     revalidatePath('/pengaturan');
     revalidatePath('/data-master/barang');
     return { success: true };
-  } catch (err: any) {
-    return { success: false, error: err.message || 'Gagal mengelola satuan' };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Gagal mengelola satuan';
+    return { success: false, error: message };
   }
 }

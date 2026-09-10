@@ -57,7 +57,7 @@ async function main() {
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    const { data: itemData, error } = await supabase.from('items').upsert({
+    const { data: itemData } = await supabase.from('items').upsert({
       item_code: item.item_code,
       name: item.name,
       category_id: categoryMap[item.category],

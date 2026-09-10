@@ -5,7 +5,12 @@ import {
   insertGoodsReceipt, 
   deleteGoodsReceipt 
 } from '@/lib/repositories/goods-receipt.repository';
-import { createAdminClient } from '@/lib/supabase/server-admin';
+import { 
+  getRawInventoryByItemId, 
+  updateInventoryStockAndHpp, 
+  generateInventoryCode, 
+  insertInventoryRecord 
+} from '@/lib/repositories/inventory.repository';
 import type { CreateGoodsReceiptInput } from '@/types/transaction.types';
 
 export async function listGoodsReceipts(page: number, limit: number, search?: string) {
@@ -15,12 +20,10 @@ export async function listGoodsReceipts(page: number, limit: number, search?: st
 }
 
 export async function addGoodsReceipt(userId: string, input: CreateGoodsReceiptInput) {
-  const supabase = createAdminClient();
-
   const receipt_code = await generateReceiptCode();
   const total_price = input.quantity * input.harga_satuan;
 
-  // 1. Simpan ke tabel goods_receipts
+  // 1. Simpan ke tabel goods_receipts via repository
   const { data: receipt, error: receiptError } = await insertGoodsReceipt({
     receipt_code,
     item_id: input.item_id,
@@ -36,12 +39,8 @@ export async function addGoodsReceipt(userId: string, input: CreateGoodsReceiptI
   }
 
   try {
-    // 2 & 3. Update stok dan Recalculate HPP di tabel inventory
-    const { data: inv } = await supabase
-      .from('inventory')
-      .select('*')
-      .eq('item_id', input.item_id)
-      .single();
+    // 2 & 3. Update stok dan Recalculate HPP di tabel inventory via repository
+    const { data: inv } = await getRawInventoryByItemId(input.item_id);
 
     if (inv) {
       // HPP Moving Average Calculation
@@ -53,36 +52,18 @@ export async function addGoodsReceipt(userId: string, input: CreateGoodsReceiptI
       const newStock = oldStock + incomingQty;
       const newHpp = ((oldStock * oldHpp) + (incomingQty * incomingPrice)) / newStock;
 
-      const { error: invError } = await supabase
-        .from('inventory')
-        .update({ 
-          stock: newStock, 
-          hpp: newHpp,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', inv.id);
-
+      const { error: invError } = await updateInventoryStockAndHpp(inv.id, newStock, newHpp);
       if (invError) throw invError;
     } else {
-      // Generate Inventory DP code dynamically avoiding race condition
-      let newInvCode = 'DP' + Date.now().toString().slice(-4);
-      for (let i = 1; i <= 9999; i++) {
-        const testCode = 'DP' + String(i).padStart(4, '0');
-        const { count } = await supabase.from('inventory').select('*', { count: 'exact', head: true }).eq('inventory_code', testCode);
-        if ((count ?? 0) === 0) {
-          newInvCode = testCode;
-          break;
-        }
-      }
+      // Generate Inventory DP code dynamically
+      const newInvCode = await generateInventoryCode();
 
-      const { error: invError } = await supabase
-        .from('inventory')
-        .insert({
-          inventory_code: newInvCode,
-          item_id: input.item_id,
-          stock: input.quantity,
-          hpp: input.harga_satuan
-        });
+      const { error: invError } = await insertInventoryRecord({
+        inventory_code: newInvCode,
+        item_id: input.item_id,
+        stock: input.quantity,
+        hpp: input.harga_satuan
+      });
 
       if (invError) throw invError;
     }

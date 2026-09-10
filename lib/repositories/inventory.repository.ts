@@ -70,3 +70,50 @@ export async function getInventoryByItemId(itemId: string) {
 
   return { data: mappedData, error: null };
 }
+
+export async function getRawInventoryByItemId(itemId: string) {
+  const supabase = createAdminClient();
+  return supabase
+    .from('inventory')
+    .select('*')
+    .eq('item_id', itemId)
+    .single();
+}
+
+export async function updateInventoryStockAndHpp(id: string, stock: number, hpp?: number) {
+  const supabase = createAdminClient();
+  const updatePayload: Record<string, unknown> = {
+    stock,
+    updated_at: new Date().toISOString()
+  };
+  if (hpp !== undefined) {
+    updatePayload.hpp = hpp;
+  }
+  return supabase
+    .from('inventory')
+    .update(updatePayload)
+    .eq('id', id);
+}
+
+export async function generateInventoryCode(): Promise<string> {
+  const supabase = createAdminClient();
+  for (let i = 1; i <= 9999; i++) {
+    const code = 'DP' + String(i).padStart(4, '0');
+    const { count } = await supabase
+      .from('inventory')
+      .select('*', { count: 'exact', head: true })
+      .eq('inventory_code', code);
+    if ((count ?? 0) === 0) return code;
+  }
+  return 'DP' + Date.now().toString().slice(-4);
+}
+
+export async function insertInventoryRecord(data: {
+  inventory_code: string;
+  item_id: string;
+  stock: number;
+  hpp: number;
+}) {
+  const supabase = createAdminClient();
+  return supabase.from('inventory').insert(data);
+}

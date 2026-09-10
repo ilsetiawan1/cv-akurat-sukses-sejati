@@ -32,7 +32,7 @@ export default function LoginPage() {
         {/* Dark subtle tint overlay */}
         <div className="absolute inset-0 bg-slate-950/20" />
         {/* Smooth Gradient + Blur Transition to bottom background */}
-        <div className="absolute inset-x-0 bottom-0 h-40 sm:h-52 bg-gradient-to-b from-transparent via-gray-50/80 to-gray-50 backdrop-blur-[3px]" />
+        <div className="absolute inset-x-0 bottom-0 h-40 sm:h-52 bg-linear-to-b from-transparent via-gray-50/80 to-gray-50 backdrop-blur-[3px]" />
       </div>
 
       {/* ── Main Login Card ── */}

@@ -5,7 +5,10 @@ import {
   insertGoodsIssue, 
   deleteGoodsIssue 
 } from '@/lib/repositories/goods-issue.repository';
-import { createAdminClient } from '@/lib/supabase/server-admin';
+import { 
+  getRawInventoryByItemId, 
+  updateInventoryStockAndHpp 
+} from '@/lib/repositories/inventory.repository';
 import type { CreateGoodsIssueInput } from '@/types/transaction.types';
 
 export async function listGoodsIssues(page: number, limit: number, search?: string) {
@@ -15,14 +18,8 @@ export async function listGoodsIssues(page: number, limit: number, search?: stri
 }
 
 export async function addGoodsIssue(userId: string, input: CreateGoodsIssueInput) {
-  const supabase = createAdminClient();
-
-  // 1. Pengecekan Awal (Pre-flight Check) & Kalkulasi HPP
-  const { data: inv } = await supabase
-    .from('inventory')
-    .select('*')
-    .eq('item_id', input.item_id)
-    .single();
+  // 1. Pengecekan Awal (Pre-flight Check) & Kalkulasi HPP via Inventory Repository
+  const { data: inv } = await getRawInventoryByItemId(input.item_id);
 
   if (!inv) {
     throw new Error('Barang ini belum memiliki catatan persediaan.');
@@ -36,7 +33,7 @@ export async function addGoodsIssue(userId: string, input: CreateGoodsIssueInput
   const total_hpp = hpp_berjalan * input.quantity;
   const issue_code = await generateIssueCode();
 
-  // 2. Insert First to goods_issues
+  // 2. Insert First to goods_issues via Goods Issue Repository
   const { data: issue, error: issueError } = await insertGoodsIssue({
     issue_code,
     item_id: input.item_id,
@@ -50,17 +47,10 @@ export async function addGoodsIssue(userId: string, input: CreateGoodsIssueInput
     throw new Error(`Gagal menyimpan transaksi: ${issueError?.message}`);
   }
 
-  // 3. Try-Catch Block (Decrement)
+  // 3. Try-Catch Block (Decrement Stock via Inventory Repository)
   try {
     const newStock = Number(inv.stock) - input.quantity;
-
-    const { error: invError } = await supabase
-      .from('inventory')
-      .update({ 
-        stock: newStock,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', inv.id);
+    const { error: invError } = await updateInventoryStockAndHpp(inv.id, newStock);
 
     if (invError) throw invError;
   } catch (error) {

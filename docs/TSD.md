@@ -218,38 +218,10 @@ $$\text{HPP}_{\text{baru}} = \frac{(\text{Stok}_{\text{lama}} \times \text{HPP}_
 
 ---
 
-## 7. Alur Interaksi Komponen & Spesifikasi API (Sequence & API Contract)
-> **Tingkat 5:** Menjelaskan garis waktu (*timeline*) pertukaran pesan antar layer serta kontrak data endpoint API.
+## 7. Spesifikasi Kontrak Endpoint RESTful API
+> **Tingkat 5:** Menjelaskan format request/response, peran akses, dan standarisasi error code antar endpoint.
 
-### 7.1 Sequence Diagram Transaksi Barang Masuk
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Gudang as Operator Gudang
-    participant UI as Web Frontend (Next.js)
-    participant Service as GoodsReceiptService
-    participant Repo as InventoryRepository
-    participant DB as Supabase PostgreSQL
-
-    Gudang->>UI: Input form barang masuk (Item, Supplier, Qty, Harga Beli)
-    UI->>Service: Request POST /api/goods-receipt
-    Note over Service: Validasi Zod Schema & Role Izin
-    Service->>Repo: Get current stock & HPP
-    Repo->>DB: SELECT stock, hpp FROM inventory WHERE item_id = ?
-    DB-->>Repo: Return current_stock, current_hpp
-    Note over Service: Kalkulasi Formula Moving Average HPP
-    Service->>Repo: Execute Database Transaction
-    Repo->>DB: BEGIN TRANSACTION<br/>1. INSERT INTO goods_receipts<br/>2. UPDATE inventory SET stock = stock + qty, hpp = new_hpp<br/>COMMIT
-    DB-->>Repo: Transaction Success
-    Repo-->>Service: Return record tersimpan
-    Service-->>UI: Response HTTP 201 Created
-    UI-->>Gudang: Tampilkan Alert "Barang Masuk Berhasil Dicatat"
-```
-
----
-
-### 7.2 Spesifikasi Kontrak Endpoint RESTful API
+### 7.1 Spesifikasi Endpoint RESTful API
 
 #### Standar Header Global
 ```http
@@ -337,7 +309,7 @@ Accept: application/json
 
 ---
 
-### 7.3 Standarisasi Error Contract & Status Codes
+### 7.2 Standarisasi Error Contract & Status Codes
 
 ```json
 {
@@ -361,8 +333,8 @@ Accept: application/json
 
 ---
 
-## 8. Keamanan, Integritas Transaksi & Tata Kelola Dokumen (Docs-as-Code)
+## 8. Keamanan, Integritas Transaksi & Tata Kelola Dokumen
 
 * **Input Sanitization & Schema Safety:** Setiap data request divalidasi ketat menggunakan pustaka **Zod** sebelum mencapai layer service.
 * **Database Constraints & Triggers:** Integritas stok dijaga di level basis data menggunakan constraint `CHECK (stock >= 0)` dan fungsi trigger otomatis PostgreSQL.
-* **Docs-as-Code Workflow:** Seluruh dokumen spesifikasi teknis disimpan dalam format Markdown di repositori Git, memungkinkan *versioning*, *peer review*, dan kemudahan pelacakan perubahan arsitektur secara kolaboratif.
+* **Dokumentasi Terintegrasi di Repositori:** Seluruh dokumen kebutuhan (PRD) dan spesifikasi teknis (TSD) dikelola langsung di dalam repositori Git menggunakan Markdown, memungkinkan pelacakan riwayat pembaruan sistem (*versioning*) yang transparan dan kolaboratif.

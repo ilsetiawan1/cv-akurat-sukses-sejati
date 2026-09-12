@@ -2,9 +2,14 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-// proxy.ts
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  
+  // Lewati semua API route handler agar tidak di-intercept redirect
+  if (pathname.startsWith('/api')) {
+    return NextResponse.next();
+  }
+
   const isAuthPage = pathname.startsWith('/login');
 
   // 1. Inisialisasi response

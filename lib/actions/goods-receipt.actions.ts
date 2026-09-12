@@ -23,6 +23,10 @@ async function checkAccess(action: 'can_create') {
 
   if (currentUser.role === 'super_admin') return currentUser;
 
+  if (currentUser.user_code === 'P03' || currentUser.name.toLowerCase().includes('kasir')) {
+    throw new Error('Role Kasir tidak memiliki hak akses untuk mencatat penerimaan barang masuk');
+  }
+
   const perm = currentUser.user_permissions?.find(p => p.feature === 'transaksi');
   if (!perm || !perm[action]) {
     throw new Error('Anda tidak memiliki akses untuk melakukan tindakan ini');

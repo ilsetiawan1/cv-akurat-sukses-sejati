@@ -28,7 +28,10 @@ export default async function BarangMasukPage(props: {
 
   const perm = currentUser.user_permissions?.find((p: UserPermission) => p.feature === 'transaksi');
   const canRead = currentUser.role === 'super_admin' || !!perm?.can_read;
-  const canCreate = currentUser.role === 'super_admin' || !!perm?.can_create;
+  
+  // Kasir (P03) hanya berwenang mencatat Barang Keluar, bukan Barang Masuk
+  const isKasir = currentUser.user_code === 'P03' || currentUser.name.toLowerCase().includes('kasir');
+  const canCreate = (currentUser.role === 'super_admin' || !!perm?.can_create) && !isKasir;
 
   if (!canRead) {
     return (

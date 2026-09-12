@@ -1,6 +1,7 @@
-// lib\hooks\useLogin.ts
+// lib/hooks/useLogin.ts
 
 import { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 // Kredensial akun demo — menggunakan akun superadmin yang aktif
 const DEMO_EMAIL    = 'superadmin@gmail.com';
@@ -38,24 +39,22 @@ export function useLogin() {
     const password = fd.get('password') as string;
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'same-origin', // pastikan browser menyimpan Set-Cookie dari response
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error ?? 'Email atau password salah.');
+      if (signInError) {
+        setError(signInError.message || 'Email atau password salah.');
         setIsPending(false);
         return;
       }
 
-      // Hard redirect: browser akan membawa cookie session yang baru di-set
+      // Hard redirect: browser akan membawa cookie session Supabase
       window.location.replace('/beranda');
     } catch {
-      setError('Terjadi kesalahan jaringan.');
+      setError('Terjadi kesalahan saat masuk ke sistem.');
       setIsPending(false);
     }
   };
@@ -68,7 +67,6 @@ export function useLogin() {
 
     try {
       const email = (e.currentTarget.elements.namedItem('fp-email') as HTMLInputElement).value;
-      const { createClient } = await import('@/lib/supabase/client');
       const supabase = createClient();
       
       const { error: fpError } = await supabase.auth.resetPasswordForEmail(email, {
@@ -93,23 +91,21 @@ export function useLogin() {
     setIsDemoLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: DEMO_EMAIL, password: DEMO_PASSWORD }),
-        credentials: 'same-origin',
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: DEMO_EMAIL,
+        password: DEMO_PASSWORD,
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error ?? 'Gagal masuk dengan akun demo.');
+      if (signInError) {
+        setError(signInError.message || 'Gagal masuk dengan akun demo.');
         setIsDemoLoading(false);
         return;
       }
 
       window.location.replace('/beranda');
     } catch {
-      setError('Terjadi kesalahan jaringan.');
+      setError('Terjadi kesalahan saat masuk ke akun demo.');
       setIsDemoLoading(false);
     }
   };

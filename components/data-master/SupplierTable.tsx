@@ -15,9 +15,21 @@ interface SupplierTableProps {
   currentPage: number;
   limit: number;
   searchQuery: string;
+  canCreate?: boolean;
+  canUpdate?: boolean;
+  canDelete?: boolean;
 }
 
-export default function SupplierTable({ data, total, currentPage, limit, searchQuery }: SupplierTableProps) {
+export default function SupplierTable({ 
+  data, 
+  total, 
+  currentPage, 
+  limit, 
+  searchQuery,
+  canCreate = true,
+  canUpdate = true,
+  canDelete = true,
+}: SupplierTableProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -118,16 +130,18 @@ export default function SupplierTable({ data, total, currentPage, limit, searchQ
           </form>
 
           <div className="flex w-full md:w-auto gap-3">
-            <button 
-              onClick={() => {
-                setSelectedSupplier(null);
-                setIsModalOpen(true);
-              }}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
-            >
-              <Plus size={16} className="text-gray-500" />
-              <span>Tambah Supplier Baru</span>
-            </button>
+            {canCreate && (
+              <button 
+                onClick={() => {
+                  setSelectedSupplier(null);
+                  setIsModalOpen(true);
+                }}
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+              >
+                <Plus size={16} className="text-gray-500" />
+                <span>Tambah Supplier Baru</span>
+              </button>
+            )}
 
             <button 
               onClick={exportToCSV}
@@ -153,13 +167,15 @@ export default function SupplierTable({ data, total, currentPage, limit, searchQ
                 <th className="py-4 px-4 min-w-[200px] whitespace-nowrap">Email</th>
                 <th className="py-4 px-4 min-w-[200px] whitespace-nowrap">Alamat</th>
                 <th className="py-4 px-4 min-w-[150px] whitespace-nowrap">No. Telepon</th>
-                <th className="py-4 px-4 text-center whitespace-nowrap w-24">Aksi</th>
+                {(canUpdate || canDelete) && (
+                  <th className="py-4 px-4 text-center whitespace-nowrap w-24">Aksi</th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm">
               {data.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-10 text-center text-gray-500">
+                  <td colSpan={canUpdate || canDelete ? 8 : 7} className="p-10 text-center text-gray-500">
                     <div className="flex flex-col items-center justify-center">
                       <FileText className="h-10 w-10 text-gray-300 mb-3" />
                       <p className="font-medium text-gray-900">Tidak ada data</p>
@@ -195,27 +211,33 @@ export default function SupplierTable({ data, total, currentPage, limit, searchQ
                       </div>
                     </td>
                     <td className="py-3 px-4 font-semibold text-gray-900">{item.phone || '-'}</td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center justify-center gap-3 text-gray-400">
-                        <button 
-                          onClick={() => {
-                            setSupplierToDelete(item);
-                            setIsConfirmOpen(true);
-                          }}
-                          className="hover:text-red-600 transition-colors"
-                          title="Hapus"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                        <button 
-                          onClick={() => handleEdit(item)}
-                          className="hover:text-[#7C3AED] transition-colors"
-                          title="Edit"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                      </div>
-                    </td>
+                    {(canUpdate || canDelete) && (
+                      <td className="py-3 px-4">
+                        <div className="flex items-center justify-center gap-3 text-gray-400">
+                          {canDelete && (
+                            <button 
+                              onClick={() => {
+                                setSupplierToDelete(item);
+                                setIsConfirmOpen(true);
+                              }}
+                              className="hover:text-red-600 transition-colors"
+                              title="Hapus"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                          {canUpdate && (
+                            <button 
+                              onClick={() => handleEdit(item)}
+                              className="hover:text-[#7C3AED] transition-colors"
+                              title="Edit"
+                            >
+                              <Edit2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}

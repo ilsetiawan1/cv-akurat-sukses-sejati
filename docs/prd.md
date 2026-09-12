@@ -63,7 +63,7 @@ Sistem menerapkan **Permission-Based Access Control (PBAC)** dengan pembagian pe
 | Modul Sistem | Super Admin | Kepala Gudang | Kasir | Keuangan |
 | :--- | :---: | :---: | :---: | :---: |
 | **Dashboard & Analitik** | Full (CRUD) | View Only | View Only | Full (CRUD) |
-| **Data Master: Supplier** | Full (CRUD) | Full (CRUD) | No Access | View Only |
+| **Data Master: Supplier** | Full (CRUD) | Full (CRUD) | View Only | View Only |
 | **Data Master: Barang & Kategori** | Full (CRUD) | Full (CRUD) | View Only | View Only |
 | **Transaksi: Barang Masuk** | Full (CRUD) | Full (CRUD) | No Access | View Only |
 | **Transaksi: Barang Keluar** | Full (CRUD) | Full (CRUD) | Create & View | View Only |

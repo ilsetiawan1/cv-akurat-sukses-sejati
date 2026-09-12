@@ -1,10 +1,13 @@
 // app/api/goods-issue/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import { listGoodsIssues, addGoodsIssue } from '@/lib/services/goods-issue.service';
+import { authenticateApiRequest } from '@/lib/supabase/api-guard';
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
+
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
@@ -20,11 +23,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
 
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id || '3f4fea5d-c0dd-46e0-bad6-b168d682f79d'; // default Siti Rahma (Kasir)
+    const body = await request.json();
+    const userId = auth.user.id;
 
     const result = await addGoodsIssue(userId, body);
     return NextResponse.json({ 

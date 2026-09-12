@@ -1,10 +1,13 @@
 // app/api/goods-receipt/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import { listGoodsReceipts, addGoodsReceipt } from '@/lib/services/goods-receipt.service';
+import { authenticateApiRequest } from '@/lib/supabase/api-guard';
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
+
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
@@ -20,12 +23,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
+
     const body = await request.json();
-    
-    // Ambil user ID dari session jika ada, atau gunakan default admin jika dipanggil via API
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    const userId = user?.id || 'a9d004e5-5169-45af-ae0a-b80391703fff'; // default Budi Santoso (Kepala Gudang)
+    const userId = auth.user.id;
 
     const result = await addGoodsReceipt(userId, body);
     return NextResponse.json({ 

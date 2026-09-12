@@ -1,9 +1,13 @@
 // app/api/inventory/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { listInventory } from '@/lib/services/inventory.service';
+import { authenticateApiRequest } from '@/lib/supabase/api-guard';
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
+
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;

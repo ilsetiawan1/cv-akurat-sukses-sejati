@@ -1,12 +1,16 @@
 // app/api/items/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getItem, editItem, removeItem } from '@/lib/services/item.service';
+import { authenticateApiRequest } from '@/lib/supabase/api-guard';
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
+
     const { id } = await params;
     const item = await getItem(id);
     if (!item) {
@@ -24,6 +28,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
+
     const { id } = await params;
     const body = await request.json();
     const updated = await editItem(id, body);
@@ -39,6 +46,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
+
     const { id } = await params;
     await removeItem(id);
     return NextResponse.json({ success: true, message: 'Barang berhasil dihapus' });

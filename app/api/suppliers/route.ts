@@ -1,9 +1,13 @@
 // app/api/suppliers/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { listSuppliers, addSupplier } from '@/lib/services/supplier.service';
+import { authenticateApiRequest } from '@/lib/supabase/api-guard';
 
 export async function GET(request: NextRequest) {
   try {
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
+
     const { searchParams } = new URL(request.url);
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 10;
@@ -19,6 +23,9 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
+
     const body = await request.json();
     const result = await addSupplier(body);
     return NextResponse.json({ success: true, message: 'Supplier berhasil ditambahkan', data: result }, { status: 201 });

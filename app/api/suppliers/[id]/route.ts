@@ -1,12 +1,16 @@
 // app/api/suppliers/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupplier, editSupplier, removeSupplier } from '@/lib/services/supplier.service';
+import { authenticateApiRequest } from '@/lib/supabase/api-guard';
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
+
     const { id } = await params;
     const supplier = await getSupplier(id);
     if (!supplier) {
@@ -24,6 +28,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
+
     const { id } = await params;
     const body = await request.json();
     const updated = await editSupplier(id, body);
@@ -39,6 +46,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await authenticateApiRequest();
+    if (auth.errorResponse) return auth.errorResponse;
+
     const { id } = await params;
     await removeSupplier(id);
     return NextResponse.json({ success: true, message: 'Supplier berhasil dihapus' });

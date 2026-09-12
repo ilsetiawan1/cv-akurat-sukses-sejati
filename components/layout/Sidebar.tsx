@@ -20,15 +20,17 @@ interface NavItem {
   label: string;
   href?: string;
   icon: React.ReactNode;
+  feature?: 'dashboard' | 'hak_akses' | 'data_master' | 'transaksi' | 'laporan' | 'pengaturan';
   children?: { label: string; href: string; icon: React.ReactNode }[];
 }
 
 const navItems: NavItem[] = [
-  { label: 'Beranda', href: '/beranda', icon: <LayoutDashboard size={18} /> },
-  { label: 'Hak Akses', href: '/hak-akses', icon: <Users size={18} /> },
+  { label: 'Beranda', href: '/beranda', icon: <LayoutDashboard size={18} />, feature: 'dashboard' },
+  { label: 'Hak Akses', href: '/hak-akses', icon: <Users size={18} />, feature: 'hak_akses' },
   {
     label: 'Data Master',
     icon: <Database size={18} />,
+    feature: 'data_master',
     children: [
       { label: 'Data Supplier', href: '/data-master/supplier', icon: <Truck size={15} /> },
       { label: 'Data Barang', href: '/data-master/barang', icon: <Package size={15} /> },
@@ -37,21 +39,30 @@ const navItems: NavItem[] = [
   {
     label: 'Transaksi',
     icon: <ShoppingCart size={18} />,
+    feature: 'transaksi',
     children: [
       { label: 'Data Persediaan', href: '/transaksi/persediaan', icon: <Boxes size={15} /> },
       { label: 'Data Barang Masuk', href: '/transaksi/barang-masuk', icon: <ArrowDownToLine size={15} /> },
       { label: 'Data Barang Keluar', href: '/transaksi/barang-keluar', icon: <ArrowUpFromLine size={15} /> },
     ],
   },
-  { label: 'Laporan', href: '/laporan', icon: <FileText size={18} /> },
-  { label: 'Pengaturan', href: '/pengaturan', icon: <Settings size={18} /> },
+  { label: 'Laporan', href: '/laporan', icon: <FileText size={18} />, feature: 'laporan' },
+  { label: 'Pengaturan', href: '/pengaturan', icon: <Settings size={18} />, feature: 'pengaturan' },
 ];
 
 export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
   const { isOpen, setIsOpen } = useMobileNav();
 
-  const initialOpen = navItems.reduce<Record<string, boolean>>((acc, item) => {
+  // Filter menu navigasi berdasarkan hak akses granular (can_read)
+  const visibleNavItems = navItems.filter((item) => {
+    if (user.role === 'super_admin') return true;
+    if (!item.feature) return true;
+    const perm = user.user_permissions?.find((p) => p.feature === item.feature);
+    return !!perm?.can_read;
+  });
+
+  const initialOpen = visibleNavItems.reduce<Record<string, boolean>>((acc, item) => {
     if (item.children) {
       acc[item.label] = item.children.some((c) => pathname.startsWith(c.href));
     }
@@ -125,7 +136,7 @@ export function Sidebar({ user }: SidebarProps) {
 
         {/* ── Navigation ── */}
         <nav className="flex-1 px-3 pb-4 space-y-1 overflow-y-auto">
-          {navItems.map((item) => {
+          {visibleNavItems.map((item) => {
             if (item.children) {
               const isDropdownOpen = openDropdowns[item.label] ?? false;
               const hasActiveChild = item.children.some((c) => isActive(c.href));
@@ -207,28 +218,50 @@ export function Sidebar({ user }: SidebarProps) {
         {/* ── Profile + Logout ── */}
         <div className="border-t border-gray-100 p-4 shrink-0 bg-gray-50/50">
           <div className="flex items-center justify-between gap-2">
-            <Link
-              href="/pengaturan?tab=profil"
-              className="flex items-center gap-3 flex-1 min-w-0 group"
-            >
-              <div className="w-9 h-9 rounded-full bg-linear-to-br from-purple-100 to-purple-200 flex items-center justify-center text-[#7C3AED] text-xs font-bold shrink-0 uppercase ring-2 ring-white shadow-sm group-hover:ring-purple-100 transition-all">
-                {user.avatar_url ? (
-                  <Image
-                    src={user.avatar_url}
-                    alt={user.name}
-                    width={36}
-                    height={36}
-                    className="w-full h-full rounded-full object-cover"
-                  />
-                ) : (
-                  user.name.substring(0, 2)
-                )}
+            {user.role === 'super_admin' || user.user_permissions?.find((p) => p.feature === 'pengaturan')?.can_read ? (
+              <Link
+                href="/pengaturan?tab=profil"
+                className="flex items-center gap-3 flex-1 min-w-0 group"
+              >
+                <div className="w-9 h-9 rounded-full bg-linear-to-br from-purple-100 to-purple-200 flex items-center justify-center text-[#7C3AED] text-xs font-bold shrink-0 uppercase ring-2 ring-white shadow-sm group-hover:ring-purple-100 transition-all">
+                  {user.avatar_url ? (
+                    <Image
+                      src={user.avatar_url}
+                      alt={user.name}
+                      width={36}
+                      height={36}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    user.name.substring(0, 2)
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-[#7C3AED] transition-colors">{user.name}</p>
+                  <p className="text-xs text-gray-500 capitalize truncate mt-0.5">{user.role.replace('_', ' ')}</p>
+                </div>
+              </Link>
+            ) : (
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <div className="w-9 h-9 rounded-full bg-linear-to-br from-purple-100 to-purple-200 flex items-center justify-center text-[#7C3AED] text-xs font-bold shrink-0 uppercase ring-2 ring-white shadow-sm">
+                  {user.avatar_url ? (
+                    <Image
+                      src={user.avatar_url}
+                      alt={user.name}
+                      width={36}
+                      height={36}
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    user.name.substring(0, 2)
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
+                  <p className="text-xs text-gray-500 capitalize truncate mt-0.5">{user.role.replace('_', ' ')}</p>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-[#7C3AED] transition-colors">{user.name}</p>
-                <p className="text-xs text-gray-500 capitalize truncate mt-0.5">{user.role.replace('_', ' ')}</p>
-              </div>
-            </Link>
+            )}
 
             <form action={logoutAction}>
               <button

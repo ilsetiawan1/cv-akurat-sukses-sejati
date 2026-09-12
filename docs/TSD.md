@@ -33,43 +33,45 @@
 ---
 
 ## 3. Alur Aktivitas Sistem (Activity Diagrams)
-> **Tingkat 2 (UML Behavioral Diagram):** Menggambarkan alur operasional interaktif yang selaras langsung dengan alur demo aplikasi di antarmuka sistem.
+> **Tingkat 2 (UML Behavioral Diagram - Swimlane):** Menggambarkan alur operasional interaktif yang memisahkan tanggung jawab antara *Aktor Pengguna* dan *Sistem Backend*, dirancang menggunakan visual modeling standar Draw.io.
 
 ### 3.1 Activity Diagram: Transaksi Barang Masuk (*Goods Receipt Activity*)
+*Aktor Utama: **Kepala Gudang** | Target: Pengadaan & Rekalkulasi Nilai HPP Moving Average*
 
-```mermaid
-graph TD
-    A([START: Buka Form Barang Masuk]) --> B[Input Data: Supplier, Item Barang, Qty, & Harga Beli]
-    B --> C[Klik Tombol 'Simpan Transaksi']
-    C --> D{Validasi Input & Qty > 0?}
-    
-    D -- Tidak Valid --> E[Tampilkan Pesan Error Validasi]
-    E --> B
-    
-    D -- Valid --> F[Sistem Hitung Otomatis HPP Moving Average & Simpan ke DB]
-    F --> G[Tampilkan Notifikasi 'Transaksi Berhasil Disimpan']
-    G --> H[Data Stok & HPP di Tabel Persediaan Terupdate Real-Time]
-    H --> I([FINISH: Transaksi Selesai])
-```
+<p align="center">
+  <img src="./assets/Barang%20Masuk%20-%20Activity%20Diagram.png" alt="Activity Diagram: Transaksi Barang Masuk" width="560" />
+</p>
+
+| Langkah | Aktor / Jalur | Deskripsi Operasional & Validasi Teknis |
+| :---: | :--- | :--- |
+| **1** | Kepala Gudang | Membuka modal form transaksi barang masuk di antarmuka sistem. |
+| **2** | Kepala Gudang | Memilih supplier, memilih item sparepart, mengisi kuantitas masuk, dan harga beli per unit. |
+| **3** | Kepala Gudang | Menekan tombol **Simpan Transaksi**. |
+| **4** | Sistem | Memvalidasi kelengkapan form input (`Supplier != null`, `Item != null`, `Qty > 0`, `Harga Beli > 0`). |
+| **5a** | Sistem *(False)* | Menampilkan notifikasi kesalahan (*toast error*) jika input tidak lengkap $\rightarrow$ kembali ke form input. |
+| **5b** | Sistem *(True)* | Menghitung ulang **HPP Moving Average** secara otomatis $\rightarrow$ menyimpan data transaksi ke database Supabase. |
+| **6** | Sistem | Menampilkan notifikasi visual keberhasilan (*toast success*). |
+| **7** | Sistem | Memperbarui jumlah stok fisik dan nilai HPP baru di **Tabel Persediaan** secara real-time. |
 
 ---
 
-### 3.2 Activity Diagram: Transaksi Barang Keluar & Validasi Stok (*Goods Issue Activity*)
+### 3.2 Activity Diagram: Transaksi Barang Keluar (*Goods Issue Activity*)
+*Aktor Utama: **Kasir (Front Office)** | Target: Pelayanan Pengeluaran Komponen & Proteksi Stok Fisik*
 
-```mermaid
-graph TD
-    A([START: Buka Form Barang Keluar]) --> B[Input Data: Item Barang & Qty Keluar]
-    B --> C[Klik Tombol 'Simpan Transaksi']
-    C --> D{Stok Fisik Tersedia >= Qty Keluar?}
-    
-    D -- Tidak (Stok Kurang) --> E[Tampilkan Alert: 'Stok Barang Tidak Mencukupi']
-    E --> B
-    
-    D -- Ya (Stok Cukup) --> F[Sistem Kurangi Stok & Catat Transaksi Pengeluaran di DB]
-    F --> G[Tampilkan Notifikasi 'Pengeluaran Barang Berhasil']
-    G --> H[Stok di Tabel Persediaan Berkurang Real-Time]
-    H --> I([FINISH: Transaksi Selesai])
-```
+<p align="center">
+  <img src="./assets/Barang%20Keluar%20-%20Activity%20Diagram.png" alt="Activity Diagram: Transaksi Barang Keluar" width="560" />
+</p>
+
+| Langkah | Aktor / Jalur | Deskripsi Operasional & Validasi Teknis |
+| :---: | :--- | :--- |
+| **1** | Kasir | Membuka modal form transaksi barang keluar. |
+| **2** | Kasir | Memilih item sparepart yang diganti/dibeli, mengisi kuantitas keluar, dan data transaksi. |
+| **3** | Kasir | Menekan tombol **Simpan Transaksi**. |
+| **4** | Sistem | Memvalidasi ketersediaan inventaris: **`Stok Fisik Tersedia >= Qty Keluar?`**. |
+| **5a** | Sistem *(False)* | Menampilkan notifikasi kesalahan (*toast error: Stok Barang Tidak Mencukupi*) $\rightarrow$ kembali ke form input. |
+| **5b** | Sistem *(True)* | Mengurangi kuantitas stok di tabel persediaan dan mencatat transaksi pengeluaran sparepart di DB. |
+| **6** | Sistem | Menampilkan notifikasi visual keberhasilan (*toast success*). |
+| **7** | Sistem | Memperbarui sisa stok barang di **Tabel Persediaan** secara instan $\rightarrow$ selesai. |
 
 ---
 

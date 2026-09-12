@@ -36,6 +36,22 @@ export default function GoodsReceiptFormModal({ isOpen, onClose, items, supplier
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!formData.item_id || !formData.supplier_id || !formData.quantity || !formData.harga_satuan) {
+      toast.error('Harap lengkapi semua data barang, supplier, kuantitas, dan harga!');
+      return;
+    }
+
+    if (Number(formData.quantity) <= 0) {
+      toast.error('Kuantitas barang masuk harus lebih dari 0!');
+      return;
+    }
+
+    if (Number(formData.harga_satuan) < 0) {
+      toast.error('Harga satuan tidak boleh bernilai negatif!');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const payload = {
@@ -50,12 +66,12 @@ export default function GoodsReceiptFormModal({ isOpen, onClose, items, supplier
       if (!result.success) {
         toast.error(result.error);
       } else {
-        toast.success('Barang masuk berhasil disimpan & stok diupdate');
+        toast.success('Barang masuk berhasil dicatat & HPP terupdate!');
         setFormData({ item_id: '', supplier_id: '', quantity: '', harga_satuan: '', receipt_date: new Date().toISOString().split('T')[0] });
         onClose();
       }
     } catch {
-      toast.error('Gagal memproses transaksi');
+      toast.error('Gagal memproses transaksi barang masuk');
     } finally {
       setIsSubmitting(false);
     }
@@ -74,14 +90,13 @@ export default function GoodsReceiptFormModal({ isOpen, onClose, items, supplier
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 md:p-6 flex flex-col gap-5">
+        <form noValidate onSubmit={handleSubmit} className="p-4 md:p-6 flex flex-col gap-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Barang <span className="text-red-500">*</span></label>
             <select
               name="item_id"
               value={formData.item_id}
               onChange={handleChange}
-              required
               className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] outline-none transition-all bg-white"
             >
               <option value="">Pilih Barang...</option>
@@ -100,7 +115,6 @@ export default function GoodsReceiptFormModal({ isOpen, onClose, items, supplier
                 name="supplier_id"
                 value={formData.supplier_id}
                 onChange={handleChange}
-                required
                 className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] outline-none transition-all bg-white"
               >
                 <option value="">Pilih Supplier...</option>
@@ -117,7 +131,6 @@ export default function GoodsReceiptFormModal({ isOpen, onClose, items, supplier
                 name="receipt_date"
                 value={formData.receipt_date}
                 onChange={handleChange}
-                required
                 className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] outline-none transition-all"
               />
             </div>
@@ -131,8 +144,7 @@ export default function GoodsReceiptFormModal({ isOpen, onClose, items, supplier
                 name="quantity"
                 value={formData.quantity}
                 onChange={handleChange}
-                min="1"
-                required
+                placeholder="0"
                 className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] outline-none transition-all"
               />
             </div>
@@ -144,8 +156,7 @@ export default function GoodsReceiptFormModal({ isOpen, onClose, items, supplier
                 name="harga_satuan"
                 value={formData.harga_satuan}
                 onChange={handleChange}
-                min="0"
-                required
+                placeholder="Rp 0"
                 className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] outline-none transition-all font-mono"
               />
             </div>

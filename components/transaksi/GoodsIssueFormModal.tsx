@@ -39,7 +39,16 @@ export default function GoodsIssueFormModal({ isOpen, onClose, items }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isFormValid) return;
+
+    if (!formData.item_id || qty <= 0) {
+      toast.error('Harap pilih barang dan masukkan kuantitas keluar!');
+      return;
+    }
+
+    if (isQuantityExceeds) {
+      toast.error(`Kuantitas keluar (${qty}) melebihi sisa stok gudang (${selectedItem?.current_stock ?? 0})!`);
+      return;
+    }
     
     setIsSubmitting(true);
     try {
@@ -53,12 +62,12 @@ export default function GoodsIssueFormModal({ isOpen, onClose, items }: Props) {
       if (!result.success) {
         toast.error(result.error);
       } else {
-        toast.success('Barang keluar berhasil disimpan & stok dipotong');
+        toast.success('Barang keluar berhasil dicatat & stok berkurang!');
         setFormData({ item_id: '', quantity: '', issue_date: new Date().toISOString().split('T')[0] });
         onClose();
       }
     } catch {
-      toast.error('Gagal memproses transaksi');
+      toast.error('Gagal memproses transaksi barang keluar');
     } finally {
       setIsSubmitting(false);
     }
@@ -77,14 +86,13 @@ export default function GoodsIssueFormModal({ isOpen, onClose, items }: Props) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 md:p-6 flex flex-col gap-5">
+        <form noValidate onSubmit={handleSubmit} className="p-4 md:p-6 flex flex-col gap-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">Pilih Barang <span className="text-red-500">*</span></label>
             <select
               name="item_id"
               value={formData.item_id}
               onChange={handleChange}
-              required
               className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] outline-none transition-all bg-white"
             >
               <option value="">Pilih Barang dari Persediaan...</option>
@@ -104,7 +112,6 @@ export default function GoodsIssueFormModal({ isOpen, onClose, items }: Props) {
                 name="issue_date"
                 value={formData.issue_date}
                 onChange={handleChange}
-                required
                 className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] outline-none transition-all"
               />
             </div>
@@ -116,8 +123,7 @@ export default function GoodsIssueFormModal({ isOpen, onClose, items }: Props) {
                 name="quantity"
                 value={formData.quantity}
                 onChange={handleChange}
-                min="1"
-                required
+                placeholder="0"
                 className={`w-full px-3.5 py-2.5 border rounded-xl outline-none transition-all ${
                   isQuantityExceeds 
                   ? 'border-red-300 focus:ring-red-200 focus:border-red-500 bg-red-50' 

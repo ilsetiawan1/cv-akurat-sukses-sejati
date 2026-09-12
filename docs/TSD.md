@@ -150,104 +150,28 @@ cv-akurat-sukses-sejati/
 ---
 
 ## 5. Skema Basis Data & Pemodelan Data (ERD)
-> **Tingkat 4:** Menjelaskan struktur relasional tabel, kolom, tipe data, Primary Key (PK), dan Foreign Key (FK).
+> **Tingkat 4 (Physical Data Model):** Menjelaskan struktur relasional 8 entitas tabel, kolom atribut, tipe data, Primary Key (PK), Foreign Key (FK), dan batasan integritas data (*Mandatory vs Optional*).
 
-### 5.1 Entity Relationship Diagram (ERD)
+### 5.1 Entity Relationship Diagram (ERD - Crow's Foot Notation)
+*Visual Modeling Database PostgreSQL Supabase dirancang menggunakan Draw.io.*
 
-```mermaid
-erDiagram
-    USERS ||--o{ USER_PERMISSIONS : has
-    USERS ||--o{ GOODS_RECEIPTS : records
-    USERS ||--o{ GOODS_ISSUES : issues
-    
-    SUPPLIERS ||--o{ GOODS_RECEIPTS : supplies
-    
-    CATEGORIES ||--o{ ITEMS : classifies
-    UNITS ||--o{ ITEMS : defines_measure
-    
-    ITEMS ||--|| INVENTORY : tracks_stock
-    ITEMS ||--o{ GOODS_RECEIPTS : included_in
-    ITEMS ||--o{ GOODS_ISSUES : deducted_from
+<p align="center">
+  <img src="./assets/ERD%20-%20Schema%20DB.jpeg" alt="Entity Relationship Diagram (ERD) - CV Akurat Sukses Sejati" width="620" />
+</p>
 
-    USERS {
-        uuid id PK
-        varchar user_code UK
-        varchar name
-        varchar email UK
-        varchar role
-        varchar status
-        timestamptz created_at
-    }
+| Relasi Antar Tabel | Kardinalitas | Aturan Integritas (*Business Rules & Constraints*) |
+| :--- | :---: | :--- |
+| **`users` ─── `user_permissions`** | `1 : M` *(Mandatory)* | Satu pengguna wajib memiliki banyak konfigurasi izin granular per fitur (`NOT NULL`). |
+| **`users` ─── `goods_receipts`** | `1 : M` *(Mandatory)* | Satu operator (Kepala Gudang) mencatat banyak transaksi penerimaan barang (*Audit Trail*). |
+| **`users` ─── `goods_issues`** | `1 : M` *(Mandatory)* | Satu operator (Kasir) mencatat banyak transaksi pengeluaran barang (*Audit Trail*). |
+| **`suppliers` ─── `goods_receipts`** | `1 : M` *(Mandatory)* | Satu supplier rekanan dapat memasok barang dalam banyak transaksi penerimaan. |
+| **`categories` ─── `items`** | `1 : M` *(Mandatory)* | Satu kategori menaungi banyak jenis suku cadang / item barang otomotif. |
+| **`units` ─── `items`** | `1 : M` *(Mandatory)* | Satu satuan takaran (Pcs, Botol, Set, Box) digunakan oleh banyak item barang. |
+| **`items` ─── `inventory`** | `1 : 1` *(Mandatory)* | **One-to-One Eksklusif:** Satu master barang memiliki tepat satu catatan saldo stok dan kalkulasi HPP berjalan. |
+| **`items` ─── `goods_receipts`** | `1 : M` *(Mandatory)* | Satu item barang dapat diterima berulang kali dari supplier dengan harga beli dinamis. |
+| **`items` ─── `goods_issues`** | `1 : M` *(Mandatory)* | Satu item barang dapat dikeluarkan berulang kali dalam banyak transaksi pelayanan kasir. |
 
-    USER_PERMISSIONS {
-        uuid id PK
-        uuid user_id FK
-        varchar feature
-        boolean can_create
-        boolean can_read
-        boolean can_update
-        boolean can_delete
-    }
-
-    SUPPLIERS {
-        uuid id PK
-        varchar supplier_code UK
-        varchar name
-        varchar contact_name
-        varchar phone
-        text address
-    }
-
-    CATEGORIES {
-        uuid id PK
-        varchar name UK
-    }
-
-    UNITS {
-        uuid id PK
-        varchar name UK
-    }
-
-    ITEMS {
-        uuid id PK
-        varchar item_code UK
-        varchar name
-        uuid category_id FK
-        uuid unit_id FK
-        numeric price
-    }
-
-    INVENTORY {
-        uuid id PK
-        varchar inventory_code UK
-        uuid item_id FK
-        int stock
-        numeric hpp
-        timestamptz updated_at
-    }
-
-    GOODS_RECEIPTS {
-        uuid id PK
-        varchar receipt_code UK
-        uuid item_id FK
-        uuid user_id FK
-        uuid supplier_id FK
-        int quantity
-        date receipt_date
-        numeric total_price
-    }
-
-    GOODS_ISSUES {
-        uuid id PK
-        varchar issue_code UK
-        uuid item_id FK
-        uuid user_id FK
-        int quantity
-        date issue_date
-        numeric hpp
-        numeric total_hpp
-    }
-```
+---
 
 ### 5.2 Rincian Definisi Tabel Supabase PostgreSQL
 

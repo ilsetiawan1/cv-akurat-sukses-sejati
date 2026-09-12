@@ -1,144 +1,115 @@
 # Product Requirements Document (PRD)
-## CV Akurat Sukses Sejati — Sistem Informasi Persediaan Barang Otomotif
+## CV Akurat Sukses Sejati — Sistem Informasi Manajemen Persediaan Suku Cadang Otomotif
 
 ---
 
-## 1. Overview
+## 1. Document Control & Metadata
 
-**Nama Proyek**: CV Akurat Sukses Sejati  
-**Deskripsi**: Website sistem informasi manajemen persediaan barang otomotif kendaraan (aki, sparepart, charger, dll). Mendukung pengelolaan stok masuk/keluar, data supplier, laporan, dan hak akses pengguna.  
-**Target Pengguna**: Internal perusahaan — Super Admin & Admin.
-
----
-
-## 2. Roles, Akun & Akses
-
-### 2.1 Konsep Role & Permission (PBAC)
-Sistem menggunakan **Permission-Based Access Control (PBAC)** dengan 2 level role teknis:
-* **Super Admin**: Akses penuh (bypass semua pembatasan) ke seluruh fitur termasuk manajemen hak akses pengguna.
-* **Admin**: Akses granular (CRUD) yang dikonfigurasi per fitur oleh Super Admin.
-
-### 2.2 Daftar Akun Operasional Sistem (Default Demo & Production)
-
-| ID | Nama Pengguna | Email | Password | Role | Lingkup Hak Akses |
-|:---|:---|:---|:---|:---|:---|
-| **P01** | **Super Admin (Owner)** | `superadmin@gmail.com` | `password123` | `super_admin` | **Full Access** ke seluruh modul sistem |
-| **P02** | **Budi Santoso (Kepala Gudang)** | `gudang@cvakurat.com` | `password123` | `admin` | Master Barang/Supplier (CRUD), Transaksi Masuk/Keluar (CRUD), Laporan (Read) |
-| **P03** | **Siti Rahma (Kasir)** | `kasir@cvakurat.com` | `password123` | `admin` | Master Barang (Read), Transaksi Penjualan (Create & Read), Persediaan (Read) |
-| **P04** | **Rian Hidayat (Teknisi & Servis)** | `servis@cvakurat.com` | `password123` | `admin` | Master Barang (Read), Transaksi Keluar/Servis (Create & Read), Persediaan (Read) |
-| **P05** | **Agnez Mo (Keuangan)** | `keuangan@cvakurat.com` | `password123` | `admin` | Transaksi (Read only), Laporan & Analitik HPP (Create, Read, Update, Export PDF/CSV) |
+| Atribut | Keterangan |
+| :--- | :--- |
+| **Nama Proyek** | CV Akurat Sukses Sejati |
+| **Tipe Dokumen** | Product Requirements Document (PRD) |
+| **Versi Dokumen** | v2.0 (Standard Enterprise) |
+| **Domain Bisnis** | Distribusi & Manajemen Persediaan Suku Cadang Kendaraan (Aki, Sparepart, Aksesoris) |
+| **Target Platform** | Web Application (Responsive Desktop & Tablet Operasional) |
+| **Status** | Approved & Implemented |
 
 ---
 
-## 3. Fitur Utama
+## 2. Executive Summary & Business Background
 
-### 3.0 Halaman Login
-- Input: Email, Password
-- Opsi: "Remember for 30 days"
-- Link: "Lupa Password"
-- Tombol: "Login"
+### 2.1 Latar Belakang Masalah (Problem Statement)
+CV Akurat Sukses Sejati adalah entitas bisnis distributor dan bengkel suku cadang otomotif yang mengelola ribuan unit produk dengan perputaran stok harian yang tinggi. Sebelum sistem ini diterapkan, operasional perusahaan menghadapi sejumlah kendala krusial:
+1. **Selisih Stok Fisik vs Catatan Manual:** Pencatatan keluar-masuk barang yang terpisah antara kasir dan gudang sering menimbulkan selisih stok (*stock discrepancy*).
+2. **Fluktuasi Harga Beli Supplier:** Pembelian stok dari berbagai supplier (misal: PT Astra Otoparts, GS Battery) terjadi dengan harga yang bervariasi setiap periode, menyulitkan perhitungan keuntungan kotor dan valuasi aset persediaan secara riil.
+3. **Ketiadaan Jejak Audit (Audit Trail):** Sulit melacak siapa operator yang memasukkan barang, mengeluarkan barang untuk servis, atau melakukan penyesuaian data.
 
----
-
-### 3.1 Sidebar (Navigasi Global)
-- Logo perusahaan
-- Beranda
-- Hak Akses
-- Data Master *(Dropdown)*: Data Supplier, Data Barang
-- Transaksi *(Dropdown)*: Data Persediaan, Data Barang Masuk, Data Barang Keluar
-- Laporan
-- Pengaturan
-- Profil Pengguna + Ikon Logout
+### 2.2 Solusi Produk (Product Solution)
+Membangun sistem informasi persediaan terpusat berbasis web yang mengotomatisasi:
+* Pencatatan penerimaan barang (*Goods Receipt*) dan pengeluaran barang (*Goods Issue*) secara real-time.
+* Valuasi aset persediaan menggunakan metode kalkulasi **HPP (Harga Pokok Penjualan) Moving Average**.
+* Manajemen izin pengguna berbasis peran (*Role & Permission Management*) dengan audit log tercatat rapi.
 
 ---
 
-### 3.2 Beranda (Dashboard)
-- Sambutan: "Selamat datang, [Nama Pengguna]!"
-- Grid 12 kolom, 2 baris:
-  - **Baris 1**: Kategori Barang (span 4), Pengguna (span 4), Supplier (span 4)
-  - **Baris 2**: Total Barang Masuk (span 4), Total Barang Keluar (span 4), Total Persediaan Barang (span 4)
-- Setiap kartu menampilkan angka, persentase perubahan vs bulan lalu, dan grafik mini sparkline.
+## 3. Product Vision & Goals
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                          PRODUCT OBJECTIVES                            │
+├──────────────────┬─────────────────────────────┬───────────────────────┤
+│ 1. Zero Stock    │ 2. Automated Asset          │ 3. Granular Access    │
+│    Discrepancy   │    Valuation (HPP)          │    Governance         │
+│ Selisih fisik vs │ Perhitungan nilai aset stok │ Hak akses spesifik    │
+│ sistem mendekati │ terhitung otomatis setiap   │ per modul operasional │
+│ 0% secara riil.  │ transaksi penerimaan.       │ (PBAC / RBAC).        │
+└──────────────────┴─────────────────────────────┴───────────────────────┘
+```
 
 ---
 
-### 3.3 Hak Akses
+## 4. User Personas & Role Matrix (PBAC / RBAC)
 
-#### 3.3.1 Daftar Pengguna
-- Tabel: Foto, Nama, ID Pengguna (P01, P02...), Email, Password, Status, Aksi (Edit, Delete)
-- Fitur: Search, Tambah Pengguna, pagination (maks 10/halaman)
+Sistem menerapkan **Permission-Based Access Control (PBAC)** dengan pembagian peran operasional sebagai berikut:
 
-#### 3.3.2 Tambah / Edit Pengguna
-- Form: Nama, ID Pengguna, Email, Password
-- Tabel Hak Akses (toggle checklist per kolom CRUD):
+### 4.1 Deskripsi Peran Operasional
+* **Super Admin (Owner / Direktur):** Memiliki akses penuh (*Full Access / Bypass*) ke seluruh modul, konfigurasi hak akses pengguna, dan audit laporan keuangan.
+* **Kepala Gudang:** Bertanggung jawab atas pengelolaan data master barang, penerimaan barang dari supplier (*Goods Receipt*), monitoring stok minimum, dan retur gudang.
+* **Kasir (Front Office & Kasir Depan):** Mengelola transaksi penjualan suku cadang ke pelanggan umum serta pengeluaran suku cadang untuk pengerjaan servis kendaraan (*Goods Issue*).
+* **Keuangan & Akuntansi:** Monitoring mutasi persediaan, analisis HPP Moving Average, dan ekspor laporan keuangan ke format PDF/CSV.
 
-| Fitur       | Create | Read | Update | Delete |
-|-------------|--------|------|--------|--------|
-| Dashboard   | ☐      | ☐    | ☐      | ☐      |
-| Hak Akses   | ☐      | ☐    | ☐      | ☐      |
-| Data Master | ☐      | ☐    | ☐      | ☐      |
-| Transaksi   | ☐      | ☐    | ☐      | ☐      |
-| Laporan     | ☐      | ☐    | ☐      | ☐      |
-| Pengaturan  | ☐      | ☐    | ☐      | ☐      |
+### 4.2 Matriks Hak Akses (Role-Permission Matrix)
 
----
-
-### 3.4 Data Master
-
-#### 3.4.1 Data Supplier
-- Tabel: Foto, Nama, ID Supplier (S001...), Nama Kontak, Email, Alamat, No. Telepon, Aksi (Edit, Delete)
-- Fitur: Search, Tambah Supplier Baru, Export, Pagination (maks 10/halaman)
-
-#### 3.4.2 Data Barang
-- Tabel: Nama Barang, ID Barang (000001...), Kategori Barang, Satuan, Harga, Aksi (Edit, Delete)
-- Fitur: Search, Filter, Tambah Barang Baru, Export
+| Modul Sistem | Super Admin | Kepala Gudang | Kasir | Keuangan |
+| :--- | :---: | :---: | :---: | :---: |
+| **Dashboard & Analitik** | Full (CRUD) | View Only | View Only | Full (CRUD) |
+| **Data Master: Supplier** | Full (CRUD) | Full (CRUD) | No Access | View Only |
+| **Data Master: Barang & Kategori** | Full (CRUD) | Full (CRUD) | View Only | View Only |
+| **Transaksi: Barang Masuk** | Full (CRUD) | Full (CRUD) | No Access | View Only |
+| **Transaksi: Barang Keluar** | Full (CRUD) | Full (CRUD) | Create & View | View Only |
+| **Kartu Stok & Persediaan** | Full (CRUD) | Full (CRUD) | View Only | Full (CRUD) |
+| **Laporan & Ekspor Dokumen** | Full (CRUD) | View Only | No Access | Full (CRUD) |
+| **Manajemen Hak Akses & User** | Full (CRUD) | No Access | No Access | No Access |
 
 ---
 
-### 3.5 Transaksi
+## 5. Functional Requirements (Spesifikasi Fitur)
 
-#### 3.5.1 Data Persediaan
-- Tabel: ID Persediaan, ID Barang, Nama Barang, Persediaan (stok), HPP
-- Fitur: Search, Filter, Export
+### 5.1 Modul 1: Autentikasi & Manajemen Sesi
+* **FR-01.1:** Pengguna wajib login menggunakan email dan password terdaftar.
+* **FR-01.2:** Sistem mengidentifikasi hak akses pengguna saat login dan menyembunyikan navigasi menu yang tidak diizinkan.
+* **FR-01.3:** Mendukung fitur penyimpanan sesi aman (*Remember Session*).
 
-#### 3.5.2 Data Barang Masuk
-- Tabel: ID Barang Masuk, ID Barang, ID Pengguna, ID Supplier, Jumlah Barang Masuk, Tanggal Masuk, Total Harga, Aksi (Edit, Delete)
-- Fitur: Search, Filter, Tambah Barang Masuk, Export
+### 5.2 Modul 2: Master Data Management
+* **FR-02.1 (Data Supplier):** CRUD data supplier meliputi Kode Supplier (contoh: `S001`), Nama Perusahaan, Kontak Person, Telepon, dan Alamat.
+* **FR-02.2 (Kategori & Satuan):** Pengelompokan barang berdasarkan kategori otomotif (`AKI`, `SPAREPART`, `CHARGER`, `ANALITIK`, `AKSESORIS`) dan satuan (`UNIT`, `PCS`, `BOX`, `SET`).
+* **FR-02.3 (Master Barang):** CRUD katalog barang meliputi Kode Barang (contoh: `000001`), Nama Produk, Kategori, Satuan, dan Harga Jual Standar.
 
-#### 3.5.3 Data Barang Keluar
-- Tabel: ID Barang Keluar, ID Pengguna, ID Barang, Jumlah Keluar, Tanggal Keluar, HPP, Total HPP, Aksi (Edit, Delete)
-- Fitur: Search, Filter, Tambah Barang Keluar, Export
+### 5.3 Modul 3: Transaksi Barang Masuk (*Goods Receipt*)
+* **FR-03.1:** Operator gudang mencatat penerimaan barang dari supplier dengan input: Kode Penerimaan (contoh: `AD0001`), Supplier, Tanggal Masuk, Item Barang, Jumlah (*Qty*), dan Harga Beli Satuan.
+* **FR-03.2:** Sistem secara otomatis menghitung ulang nilai **HPP Moving Average** pada item terkait dan menambah kuantitas stok di tabel persediaan.
+* **FR-03.3:** Menolak transaksi jika kuantitas barang masuk bernilai $\le 0$.
 
----
+### 5.4 Modul 4: Transaksi Barang Keluar (*Goods Issue*)
+* **FR-04.1:** Operator kasir mencatat pengeluaran barang (baik untuk penjualan langsung maupun penggantian suku cadang servis kendaraan) dengan input: Kode Transaksi, Tanggal, Item Barang, dan Jumlah (*Qty*).
+* **FR-04.2:** Sistem melakukan validasi ketersediaan stok fisik:
+  * Jika $\text{Stok Tersedia} < \text{Qty Keluar}$, sistem membatalkan transaksi dan memunculkan notifikasi error.
+  * Jika stok mencukupi, sistem mengunci nilai HPP saat transaksi terjadi (*HPP Snapshot*), menghitung total beban HPP, dan mengurangi stok persediaan secara instan.
 
-### 3.6 Laporan
-- Ringkasan laporan persediaan, barang masuk, dan barang keluar
-- Filter berdasarkan periode (hari, bulan, tahun)
-- Export ke PDF/Excel
+### 5.5 Modul 5: Monitoring Persediaan & Kartu Stok
+* **FR-05.1:** Menampilkan ringkasan total item, total kuantitas stok, dan total nilai nominal aset persediaan.
+* **FR-05.2:** Menampilkan riwayat mutasi stok per barang (*in, out, running balance*).
+* **FR-05.3:** Memberikan penanda visual jika stok suatu barang berada di bawah ambang batas minimum (*Low Stock Indicator*).
 
----
-
-### 3.7 Pengaturan
-- Pengaturan profil perusahaan
-- Manajemen kategori barang dan satuan
-- Konfigurasi sistem
-
----
-
-## 4. UI/UX Guidelines
-
-- **Warna Utama**: Purple (`#7C3AED`) untuk elemen aktif, hover, dan CTA
-- **Hover**: `bg-purple text-white` (default teks hitam)
-- **Teks**: Hitam untuk default, putih saat hover/aktif
-- **Ikon**: Konsisten menggunakan library ikon (Lucide React)
-- **Layout**: Clean, admin dashboard, sidebar tetap di kiri
-- **Responsif**: Minimal untuk tampilan desktop (1280px+)
-- **Pagination**: Maksimal 10 data per halaman
+### 5.6 Modul 6: Laporan & Ekspor Data
+* **FR-06.1:** Menyediakan filter laporan berdasarkan rentang tanggal (*Date Range*), kategori barang, dan jenis transaksi.
+* **FR-06.2:** Mendukung ekspor data laporan mutasi dan laporan laba kotor/HPP ke dalam format PDF dan CSV.
 
 ---
 
-## 5. Out of Scope
+## 6. Non-Functional Requirements (NFR)
 
-- Aplikasi mobile native
-- Integrasi payment gateway
-- Multi-bahasa (hanya Bahasa Indonesia)
-- Notifikasi email / push notification (fase berikutnya)
+* **Performance:** Waktu respon pencarian data dan submit form transaksi rata-rata $\le 1$ detik.
+* **Data Integrity & Consistency:** Seluruh transaksi mutasi stok menggunakan mekanisme transaksi database yang menjamin integritas data (ACID). Tidak boleh terjadi stok negatif (`stock >= 0`).
+* **Security:** Proteksi endpoint menggunakan autentikasi token dan validasi *Role-Based Access Control* di level server.
+* **Usability:** Antarmuka responsif, bersih, dan meminimalisir kesalahan input data operasional di kasir maupun gudang.

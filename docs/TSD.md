@@ -383,7 +383,7 @@ Cookie: sb-<project-ref>-auth-token=<session_token>
 | **Inventory** | `GET` | `/api/inventory` | Monitoring stok fisik & HPP real-time | Super Admin, Kepala Gudang, Kasir, Keuangan |
 | **Reports** | `GET` | `/api/reports` | Rekapitulasi laporan berkala (start/end date) | Super Admin, Keuangan, Kepala Gudang (View) |
 
-> 📁 **Dokumentasi Interaktif:** Koleksi API lengkap beserta contoh payload dan variabel environment dapat diakses dan diuji langsung melalui Postman Collection: `docs/Workshop inventory.postman_collection.json`.
+> 📁 **Pengujian API Interaktif:** Seluruh katalog endpoint di atas telah terverifikasi dan divalidasi secara komprehensif melalui Postman Collection dengan variabel environment `{{base_url}}` dan proteksi sesi API Guard.
 
 ---
 

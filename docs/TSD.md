@@ -219,50 +219,64 @@ $$\text{HPP}_{\text{baru}} = \frac{(\text{Stok}_{\text{lama}} \times \text{HPP}_
 ---
 
 ## 7. Spesifikasi Kontrak Endpoint RESTful API
-> **Tingkat 5:** Menjelaskan format request/response, peran akses, dan standarisasi error code antar endpoint.
+> **Tingkat 5:** Menjelaskan format request/response, peran akses, standarisasi status code, dan sinkronisasi kontrak data dengan Postman Collection.
 
-### 7.1 Spesifikasi Endpoint RESTful API
+### 7.1 Mekanisme Autentikasi & Header Global
 
-#### Standar Header Global
+Seluruh endpoint RESTful API diproteksi oleh **API Security Guard** (`lib/supabase/api-guard.ts`) berbasis sesi cookie Supabase Auth (`Cookie-based Session`). Klien wajib melakukan autentikasi melalui `POST /api/auth/login` sebelum mengakses endpoint terlindungi.
+
 ```http
-Authorization: Bearer <session_jwt_token>
 Content-Type: application/json
 Accept: application/json
+Cookie: sb-<project-ref>-auth-token=<session_token>
 ```
 
-#### 1. `GET /api/items` — Mengambil Katalog Master Barang
-* **Role Akses:** `super_admin`, `admin`
+---
+
+### 7.2 Contoh Spesifikasi Core Endpoints
+
+#### 1. `GET /api/items` — Mengambil Katalog Master Barang (Paginated)
+* **Role Akses:** `super_admin`, `admin (Gudang / Kasir)`
+* **Query Params (Opsional):** `page=1`, `limit=10`, `search=`, `category=`
 * **Response `200 OK` (JSON):**
 ```json
 {
   "success": true,
   "data": [
     {
-      "id": "a1b2c3d4-e5f6-7890-abcd-111111111111",
-      "item_code": "000001",
-      "name": "Aki GS Astra Hybrid NS40Z (35Ah)",
-      "category": { "name": "AKI" },
-      "unit": { "name": "UNIT" },
-      "price": 785000,
-      "inventory": {
-        "stock": 15,
-        "hpp": 660000
+      "id": "1bbc5164-57bd-4d98-a13d-031d00979deb",
+      "item_code": "000021",
+      "name": "Aki GS Astra Hybrid NS40",
+      "category_id": "eead97ed-ac7c-4a92-8262-7a44401a79dc",
+      "unit_id": "dfcaba98-5cf5-401f-b7b5-ce820073bcea",
+      "price": 860000,
+      "created_at": "2026-05-21T14:46:10.131748+00:00",
+      "updated_at": "2026-05-21T14:46:10.131748+00:00",
+      "category": {
+        "id": "eead97ed-ac7c-4a92-8262-7a44401a79dc",
+        "name": "AKI"
+      },
+      "unit": {
+        "id": "dfcaba98-5cf5-401f-b7b5-ce820073bcea",
+        "name": "PCS"
       }
     }
-  ]
+  ],
+  "total": 21,
+  "page": 1,
+  "limit": 10
 }
 ```
 
-#### 2. `POST /api/goods-receipt` — Mencatat Penerimaan Barang Masuk
+#### 2. `POST /api/goods-receipt` — Mencatat Penerimaan Barang Masuk & Rekalkulasi HPP
 * **Role Akses:** `super_admin`, `admin (Gudang)`
 * **Request Body (JSON):**
 ```json
 {
-  "receipt_code": "AD0005",
-  "item_id": "a1b2c3d4-e5f6-7890-abcd-111111111111",
-  "supplier_id": "s1s2s3s4-e5f6-7890-abcd-222222222222",
+  "item_id": "1bbc5164-57bd-4d98-a13d-031d00979deb",
+  "supplier_id": "6871fbbc-07e2-49b3-9541-55819f73dfee",
   "quantity": 5,
-  "purchase_price": 680000,
+  "harga_satuan": 680000,
   "receipt_date": "2026-09-15"
 }
 ```
@@ -272,21 +286,26 @@ Accept: application/json
   "success": true,
   "message": "Transaksi barang masuk berhasil dicatat dan HPP telah diperbarui",
   "data": {
-    "receipt_id": "r1r2r3r4-e5f6-7890-abcd-333333333333",
-    "item_code": "000001",
-    "updated_stock": 15,
-    "new_hpp": 660000
+    "id": "31d07722-b38d-4060-9fb2-63212534bdd8",
+    "receipt_code": "AD0005",
+    "item_id": "1bbc5164-57bd-4d98-a13d-031d00979deb",
+    "user_id": "a9d004e5-5169-45af-ae0a-b80391703fff",
+    "supplier_id": "6871fbbc-07e2-49b3-9541-55819f73dfee",
+    "quantity": 5,
+    "receipt_date": "2026-09-15",
+    "total_price": 3400000,
+    "created_at": "2026-09-15T10:00:00.000Z",
+    "updated_at": "2026-09-15T10:00:00.000Z"
   }
 }
 ```
 
-#### 3. `POST /api/goods-issue` — Mencatat Pengeluaran Barang
+#### 3. `POST /api/goods-issue` — Mencatat Pengeluaran Barang & Pemotongan Stok
 * **Role Akses:** `super_admin`, `admin (Kasir / Gudang)`
 * **Request Body (JSON):**
 ```json
 {
-  "issue_code": "OUT0012",
-  "item_id": "a1b2c3d4-e5f6-7890-abcd-111111111111",
+  "item_id": "1bbc5164-57bd-4d98-a13d-031d00979deb",
   "quantity": 2,
   "issue_date": "2026-09-15"
 }
@@ -295,46 +314,105 @@ Accept: application/json
 ```json
 {
   "success": true,
-  "message": "Barang keluar berhasil dicatat",
+  "message": "Transaksi barang keluar berhasil dicatat",
   "data": {
-    "issue_id": "i1i2i3i4-e5f6-7890-abcd-444444444444",
-    "item_code": "000001",
-    "quantity_issued": 2,
-    "snapshot_hpp": 660000,
-    "total_hpp_expense": 1320000,
-    "remaining_stock": 13
+    "id": "4a5b6c7d-8e9f-0123-4567-89abcdef0123",
+    "issue_code": "OUT0012",
+    "item_id": "1bbc5164-57bd-4d98-a13d-031d00979deb",
+    "user_id": "a9d004e5-5169-45af-ae0a-b80391703fff",
+    "quantity": 2,
+    "issue_date": "2026-09-15",
+    "total_hpp": 1320000,
+    "created_at": "2026-09-15T10:30:00.000Z",
+    "updated_at": "2026-09-15T10:30:00.000Z"
   }
+}
+```
+
+#### 4. `GET /api/inventory` — Monitoring Saldo Persediaan & HPP Berjalan
+* **Role Akses:** `super_admin`, `admin (Gudang / Kasir)`
+* **Response `200 OK` (JSON):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "inv-uuid-001",
+      "inventory_code": "DP0021",
+      "item_id": "1bbc5164-57bd-4d98-a13d-031d00979deb",
+      "stock": 15,
+      "hpp": 660000,
+      "item": {
+        "id": "1bbc5164-57bd-4d98-a13d-031d00979deb",
+        "item_code": "000021",
+        "name": "Aki GS Astra Hybrid NS40",
+        "price": 860000,
+        "category": { "name": "AKI" },
+        "unit": { "name": "PCS" }
+      }
+    }
+  ],
+  "total": 21,
+  "page": 1,
+  "limit": 10
 }
 ```
 
 ---
 
-### 7.2 Standarisasi Error Contract & Status Codes
+### 7.3 Matriks Katalog Seluruh Endpoint RESTful API
+
+| Modul / Sub-Modul | Method | Path URL | Deskripsi Bisnis | Role Akses |
+| :--- | :---: | :--- | :--- | :--- |
+| **Auth** | `POST` | `/api/auth/login` | Inisialisasi sesi pengguna (email/password) | Publik |
+| **Auth** | `POST` | `/api/auth/logout` | Mengakhiri sesi aktif pengguna | Authenticated |
+| **Master Items** | `GET` | `/api/items` | Menampilkan katalog barang berpaginasi | Super Admin, Admin |
+| **Master Items** | `GET` | `/api/items/:id` | Detail data satu item spesifik | Super Admin, Admin |
+| **Master Items** | `POST` | `/api/items` | Tambah katalog item barang baru | Super Admin, Admin Gudang |
+| **Master Items** | `PUT` | `/api/items/:id` | Perbarui data barang | Super Admin, Admin Gudang |
+| **Master Items** | `DELETE` | `/api/items/:id` | Hapus barang dari katalog | Super Admin |
+| **Master Supplier** | `GET` | `/api/suppliers` | Menampilkan daftar rekanan supplier | Super Admin, Admin |
+| **Master Supplier** | `GET` | `/api/suppliers/:id` | Detail data satu supplier | Super Admin, Admin |
+| **Master Supplier** | `POST` | `/api/suppliers` | Tambah data supplier baru | Super Admin, Admin Gudang |
+| **Master Supplier** | `PUT` | `/api/suppliers/:id` | Perbarui data supplier | Super Admin, Admin Gudang |
+| **Master Supplier** | `DELETE` | `/api/suppliers/:id` | Hapus data supplier | Super Admin |
+| **Goods Receipt** | `GET` | `/api/goods-receipt` | Riwayat transaksi barang masuk | Super Admin, Admin |
+| **Goods Receipt** | `POST` | `/api/goods-receipt` | Catat barang masuk & rekalkulasi HPP | Super Admin, Admin Gudang |
+| **Goods Issue** | `GET` | `/api/goods-issue` | Riwayat transaksi barang keluar | Super Admin, Admin |
+| **Goods Issue** | `POST` | `/api/goods-issue` | Catat barang keluar & potong stok | Super Admin, Kasir |
+| **Inventory** | `GET` | `/api/inventory` | Monitoring stok fisik & HPP real-time | Super Admin, Admin |
+| **Reports** | `GET` | `/api/reports` | Rekapitulasi laporan berkala (start/end date) | Super Admin |
+
+> 📁 **Dokumentasi Interaktif:** Koleksi API lengkap beserta contoh payload dan variabel environment dapat diakses dan diuji langsung melalui Postman Collection: `docs/Workshop inventory.postman_collection.json`.
+
+---
+
+### 7.4 Standarisasi Error Contract & Status Codes
+
+Setiap kegagalan request mengembalikan format amplop error yang konsisten:
 
 ```json
 {
   "success": false,
-  "error": {
-    "code": "INSUFFICIENT_STOCK",
-    "message": "Permintaan gagal: Stok fisik barang (3 unit) tidak mencukupi untuk pengeluaran (5 unit)."
-  }
+  "error": "Akses ditolak: Sesi tidak valid atau belum login. Silakan lakukan POST /api/auth/login terlebih dahulu."
 }
 ```
 
 | HTTP Status | Keterangan Standar | Contoh Kasus |
 | :---: | :--- | :--- |
-| **`200 OK`** | Request berhasil dieksekusi | Pengambilan data master barang dan laporan |
-| **`201 Created`** | Sumber daya data baru berhasil dibuat | Sukses mencatat Goods Receipt atau Goods Issue |
+| **`200 OK`** | Request berhasil dieksekusi | Pengambilan data master barang, inventory, dan laporan |
+| **`201 Created`** | Sumber daya data baru berhasil dibuat | Sukses menambah item, supplier, Goods Receipt, atau Goods Issue |
 | **`400 Bad Request`** | Validasi payload gagal / aturan bisnis dilanggar | Input kuantitas $\le 0$ atau stok tidak mencukupi |
-| **`401 Unauthorized`** | Sesi pengguna tidak terautentikasi | Token tidak valid atau sesi login kedaluwarsa |
-| **`403 Forbidden`** | Pengguna tidak memiliki hak akses modul | Kasir mencoba mengakses menu manajemen hak akses |
+| **`401 Unauthorized`** | Sesi pengguna tidak terautentikasi | Cookie sesi kosong atau sesi login kedaluwarsa |
+| **`403 Forbidden`** | Pengguna tidak memiliki hak akses fitur | Kasir mencoba menambah/menghapus supplier |
 | **`404 Not Found`** | Data yang diminta tidak ditemukan | ID Barang atau ID Supplier tidak terdaftar di DB |
-| **`500 Server Error`** | Terjadi kegagalan pada server/database | Database connection timeout atau trigger error |
+| **`500 Server Error`** | Terjadi kegagalan internal server/database | Database connection timeout atau trigger error |
 
 ---
 
 ## 8. Keamanan, Integritas Transaksi & Tata Kelola Dokumen
 
-* **Input Sanitization & Schema Safety:** Setiap data request divalidasi ketat menggunakan pustaka **Zod** sebelum mencapai layer service.
+* **Input Sanitization & Schema Safety:** Setiap data request divalidasi ketat pada layer service sebelum dieksekusi ke basis data.
 * **Database Constraints & Triggers:** Integritas stok dijaga di level basis data menggunakan constraint `CHECK (stock >= 0)` dan fungsi trigger otomatis PostgreSQL.
 * **Dokumentasi Terintegrasi di Repositori:** Seluruh dokumen kebutuhan (PRD) dan spesifikasi teknis (TSD) dikelola langsung di dalam repositori Git menggunakan Markdown, memungkinkan pelacakan riwayat pembaruan sistem (*versioning*) yang transparan dan kolaboratif.
+

@@ -9,7 +9,7 @@
 | :--- | :--- |
 | **Nama Proyek** | CV Akurat Sukses Sejati |
 | **Tipe Dokumen** | Technical Specification Document (TSD) |
-| **Versi Dokumen** | v2.0 (Standard Enterprise) |
+| **Versi Dokumen** | v2.0 |
 | **Pola Arsitektur** | Layered Architecture (Repository-Service Pattern) |
 | **Backend & Database**| Supabase (PostgreSQL 15+ dengan RLS & Trigger Function) |
 | **Status** | Implemented & Production-Ready |

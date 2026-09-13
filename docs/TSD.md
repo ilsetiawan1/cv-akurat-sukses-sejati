@@ -19,17 +19,9 @@
 
 ## 2. Technology Stack
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                          TECHNOLOGY STACK                              │
-├──────────────────┬─────────────────────────────┬───────────────────────┤
-│ Frontend & UI    │ Backend & Database          │ Validation & Security │
-│ • Next.js (App)  │ • Supabase (PostgreSQL)     │ • Zod Schema Engine   │
-│ • TypeScript     │ • Server Actions / API Route│ • PBAC / RBAC Control │
-│ • Tailwind CSS   │ • SQL Triggers & Functions  │ • HTTP-Only Cookies   │
-│ • Shadcn UI      │ • PostgreSQL Transactions   │ • Prepared Statements │
-└──────────────────┴─────────────────────────────┴───────────────────────┘
-```
+* **Frontend & Antarmuka UI:** Next.js 15 (App Router), TypeScript, Tailwind CSS, Lucide Icons.
+* **Backend & Basis Data:** Supabase (PostgreSQL 15+), Next.js Server Actions & Route Handlers, SQL Functions.
+* **Keamanan & Validasi:** Zod Schema Validation, Granular PBAC/RBAC Control, Cookie-based Session Guard (API Guard).
 
 ---
 

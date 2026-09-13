@@ -236,7 +236,7 @@ Cookie: sb-<project-ref>-auth-token=<session_token>
 ### 7.2 Contoh Spesifikasi Core Endpoints
 
 #### 1. `GET /api/items` — Mengambil Katalog Master Barang (Paginated)
-* **Role Akses:** `super_admin`, `admin (Gudang / Kasir)`
+* **Role Akses:** `Super Admin`, `Kepala Gudang`, `Kasir (View Only)`, `Keuangan (View Only)`
 * **Query Params (Opsional):** `page=1`, `limit=10`, `search=`, `category=`
 * **Response `200 OK` (JSON):**
 ```json
@@ -269,7 +269,7 @@ Cookie: sb-<project-ref>-auth-token=<session_token>
 ```
 
 #### 2. `POST /api/goods-receipt` — Mencatat Penerimaan Barang Masuk & Rekalkulasi HPP
-* **Role Akses:** `super_admin`, `admin (Gudang)`
+* **Role Akses:** `Super Admin`, `Kepala Gudang`
 * **Request Body (JSON):**
 ```json
 {
@@ -301,7 +301,7 @@ Cookie: sb-<project-ref>-auth-token=<session_token>
 ```
 
 #### 3. `POST /api/goods-issue` — Mencatat Pengeluaran Barang & Pemotongan Stok
-* **Role Akses:** `super_admin`, `admin (Kasir / Gudang)`
+* **Role Akses:** `Super Admin`, `Kepala Gudang`, `Kasir`
 * **Request Body (JSON):**
 ```json
 {
@@ -330,7 +330,7 @@ Cookie: sb-<project-ref>-auth-token=<session_token>
 ```
 
 #### 4. `GET /api/inventory` — Monitoring Saldo Persediaan & HPP Berjalan
-* **Role Akses:** `super_admin`, `admin (Gudang / Kasir)`
+* **Role Akses:** `Super Admin`, `Kepala Gudang`, `Kasir (View Only)`, `Keuangan`
 * **Response `200 OK` (JSON):**
 ```json
 {
@@ -362,26 +362,26 @@ Cookie: sb-<project-ref>-auth-token=<session_token>
 
 ### 7.3 Matriks Katalog Seluruh Endpoint RESTful API
 
-| Modul / Sub-Modul | Method | Path URL | Deskripsi Bisnis | Role Akses |
+| Modul / Sub-Modul | Method | Path URL | Deskripsi Bisnis | Role Akses (Sesuai PRD 4.2) |
 | :--- | :---: | :--- | :--- | :--- |
-| **Auth** | `POST` | `/api/auth/login` | Inisialisasi sesi pengguna (email/password) | Publik |
+| **Auth** | `POST` | `/api/auth/login` | Inisialisasi sesi pengguna (email/password) | Publik (Semua Role) |
 | **Auth** | `POST` | `/api/auth/logout` | Mengakhiri sesi aktif pengguna | Authenticated |
-| **Master Items** | `GET` | `/api/items` | Menampilkan katalog barang berpaginasi | Super Admin, Admin |
-| **Master Items** | `GET` | `/api/items/:id` | Detail data satu item spesifik | Super Admin, Admin |
-| **Master Items** | `POST` | `/api/items` | Tambah katalog item barang baru | Super Admin, Admin Gudang |
-| **Master Items** | `PUT` | `/api/items/:id` | Perbarui data barang | Super Admin, Admin Gudang |
-| **Master Items** | `DELETE` | `/api/items/:id` | Hapus barang dari katalog | Super Admin |
-| **Master Supplier** | `GET` | `/api/suppliers` | Menampilkan daftar rekanan supplier | Super Admin, Admin |
-| **Master Supplier** | `GET` | `/api/suppliers/:id` | Detail data satu supplier | Super Admin, Admin |
-| **Master Supplier** | `POST` | `/api/suppliers` | Tambah data supplier baru | Super Admin, Admin Gudang |
-| **Master Supplier** | `PUT` | `/api/suppliers/:id` | Perbarui data supplier | Super Admin, Admin Gudang |
-| **Master Supplier** | `DELETE` | `/api/suppliers/:id` | Hapus data supplier | Super Admin |
-| **Goods Receipt** | `GET` | `/api/goods-receipt` | Riwayat transaksi barang masuk | Super Admin, Admin |
-| **Goods Receipt** | `POST` | `/api/goods-receipt` | Catat barang masuk & rekalkulasi HPP | Super Admin, Admin Gudang |
-| **Goods Issue** | `GET` | `/api/goods-issue` | Riwayat transaksi barang keluar | Super Admin, Admin |
-| **Goods Issue** | `POST` | `/api/goods-issue` | Catat barang keluar & potong stok | Super Admin, Kasir |
-| **Inventory** | `GET` | `/api/inventory` | Monitoring stok fisik & HPP real-time | Super Admin, Admin |
-| **Reports** | `GET` | `/api/reports` | Rekapitulasi laporan berkala (start/end date) | Super Admin |
+| **Master Items** | `GET` | `/api/items` | Menampilkan katalog barang berpaginasi | Super Admin, Kepala Gudang, Kasir, Keuangan |
+| **Master Items** | `GET` | `/api/items/:id` | Detail data satu item spesifik | Super Admin, Kepala Gudang, Kasir, Keuangan |
+| **Master Items** | `POST` | `/api/items` | Tambah katalog item barang baru | Super Admin, Kepala Gudang |
+| **Master Items** | `PUT` | `/api/items/:id` | Perbarui data barang | Super Admin, Kepala Gudang |
+| **Master Items** | `DELETE` | `/api/items/:id` | Hapus barang dari katalog | Super Admin, Kepala Gudang |
+| **Master Supplier** | `GET` | `/api/suppliers` | Menampilkan daftar rekanan supplier | Super Admin, Kepala Gudang, Kasir, Keuangan |
+| **Master Supplier** | `GET` | `/api/suppliers/:id` | Detail data satu supplier | Super Admin, Kepala Gudang, Kasir, Keuangan |
+| **Master Supplier** | `POST` | `/api/suppliers` | Tambah data supplier baru | Super Admin, Kepala Gudang |
+| **Master Supplier** | `PUT` | `/api/suppliers/:id` | Perbarui data supplier | Super Admin, Kepala Gudang |
+| **Master Supplier** | `DELETE` | `/api/suppliers/:id` | Hapus data supplier | Super Admin, Kepala Gudang |
+| **Goods Receipt** | `GET` | `/api/goods-receipt` | Riwayat transaksi barang masuk | Super Admin, Kepala Gudang, Keuangan |
+| **Goods Receipt** | `POST` | `/api/goods-receipt` | Catat barang masuk & rekalkulasi HPP | Super Admin, Kepala Gudang |
+| **Goods Issue** | `GET` | `/api/goods-issue` | Riwayat transaksi barang keluar | Super Admin, Kepala Gudang, Kasir, Keuangan |
+| **Goods Issue** | `POST` | `/api/goods-issue` | Catat barang keluar & potong stok | Super Admin, Kepala Gudang, Kasir |
+| **Inventory** | `GET` | `/api/inventory` | Monitoring stok fisik & HPP real-time | Super Admin, Kepala Gudang, Kasir, Keuangan |
+| **Reports** | `GET` | `/api/reports` | Rekapitulasi laporan berkala (start/end date) | Super Admin, Keuangan, Kepala Gudang (View) |
 
 > 📁 **Dokumentasi Interaktif:** Koleksi API lengkap beserta contoh payload dan variabel environment dapat diakses dan diuji langsung melalui Postman Collection: `docs/Workshop inventory.postman_collection.json`.
 

@@ -9,10 +9,11 @@
 | :--- | :--- |
 | **Nama Proyek** | CV Akurat Sukses Sejati |
 | **Tipe Dokumen** | Product Requirements Document (PRD) |
-| **Versi Dokumen** | v2.0 (Standard Enterprise) |
-| **Domain Bisnis** | Distribusi & Manajemen Persediaan Suku Cadang Kendaraan (Aki, Sparepart, Aksesoris) |
-| **Target Platform** | Web Application (Responsive Desktop & Tablet Operasional) |
-| **Status** | Approved & Implemented |
+| **Penulis / Pengembang** | Muhammad Ilham Setiawan |
+| **Versi Dokumen** | v1.0 |
+| **Domain Bisnis** | Distribusi & Manajemen Persediaan Suku Cadang Otomotif |
+| **Target Platform** | Web Application (Responsive Desktop & Tablet) |
+| **Status Dokumen** | Selesai & Terimplementasi |
 
 ---
 
@@ -34,17 +35,10 @@ Membangun sistem informasi persediaan terpusat berbasis web yang mengotomatisasi
 
 ## 3. Product Vision & Goals
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                          PRODUCT OBJECTIVES                            │
-├──────────────────┬─────────────────────────────┬───────────────────────┤
-│ 1. Zero Stock    │ 2. Automated Asset          │ 3. Granular Access    │
-│    Discrepancy   │    Valuation (HPP)          │    Governance         │
-│ Selisih fisik vs │ Perhitungan nilai aset stok │ Hak akses spesifik    │
-│ sistem mendekati │ terhitung otomatis setiap   │ per modul operasional │
-│ 0% secara riil.  │ transaksi penerimaan.       │ (PBAC / RBAC).        │
-└──────────────────┴─────────────────────────────┴───────────────────────┘
-```
+Sistem manajemen persediaan ini dibangun untuk mencapai tiga target utama:
+* **Zero Stock Discrepancy:** Menghilangkan selisih antara jumlah stok fisik di rak gudang dengan data di sistem melalui pencatatan mutasi secara real-time.
+* **Automated Asset Valuation (Kalkulasi HPP Otomatis):** Memperbarui harga modal rata-rata dan nilai aset persediaan secara otomatis setiap kali ada barang masuk dari distributor.
+* **Granular Access Governance (Keamanan Hak Akses):** Membatasi wewenang operasional pengguna secara tegas berbasis peran (PBAC/RBAC) untuk mencegah kesalahan input antar bagian.
 
 ---
 

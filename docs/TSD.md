@@ -26,7 +26,6 @@
 ---
 
 ## 3. Alur Aktivitas Sistem (Activity Diagrams)
-> **Tingkat 2 (UML Behavioral Diagram - Swimlane):** Menggambarkan alur operasional interaktif yang memisahkan tanggung jawab antara *Aktor Pengguna* dan *Sistem Backend*, dirancang menggunakan visual modeling standar Draw.io.
 
 ### 3.1 Activity Diagram: Transaksi Barang Masuk (*Goods Receipt Activity*)
 *Aktor Utama: **Kepala Gudang** | Target: Pengadaan & Rekalkulasi Nilai HPP Moving Average*
@@ -69,9 +68,7 @@
 ---
 
 ## 4. Arsitektur Layered & Struktur Direktori (Folder Tree)
-> **Tingkat 3:** Menjelaskan pemisahan layer tanggung jawab kode (*Separation of Concerns*) berbasis struktur direktori nyata.
-
-Aplikasi memisahkan tanggung jawab kode ke dalam 4 layer utama menggunakan pola **Repository-Service Pattern**:
+Aplikasi memisahkan tanggung jawab kode ke dalam 4 layer utama (*Separation of Concerns*) menggunakan pola **Repository-Service Pattern**:
 
 ```text
 cv-akurat-sukses-sejati/
@@ -143,7 +140,6 @@ cv-akurat-sukses-sejati/
 ---
 
 ## 5. Skema Basis Data & Pemodelan Data (ERD)
-> **Tingkat 4 (Physical Data Model):** Menjelaskan struktur relasional 8 entitas tabel, kolom atribut, tipe data, Primary Key (PK), Foreign Key (FK), dan batasan integritas data (*Mandatory vs Optional*).
 
 ### 5.1 Entity Relationship Diagram (ERD - Crow's Foot Notation)
 *Visual Modeling Database PostgreSQL Supabase dirancang menggunakan Draw.io.*
@@ -212,7 +208,6 @@ $$\text{HPP}_{\text{baru}} = \frac{(\text{Stok}_{\text{lama}} \times \text{HPP}_
 ---
 
 ## 7. Spesifikasi Kontrak Endpoint RESTful API
-> **Tingkat 5:** Menjelaskan format request/response, peran akses, standarisasi status code, dan sinkronisasi kontrak data dengan Postman Collection.
 
 ### 7.1 Mekanisme Autentikasi & Header Global
 

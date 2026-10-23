@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "db:seed": "node -r dotenv/config scripts/seed.mjs dotenv_config_path=.env.local"
+    "db:seed": "node -r dotenv/config supabase/scripts/seed.mjs dotenv_config_path=.env.local"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.2",

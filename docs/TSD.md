@@ -141,8 +141,8 @@ cv-akurat-sukses-sejati/
 
 ## 5. Skema Basis Data & Pemodelan Data (ERD)
 
-### 5.1 Entity Relationship Diagram (ERD - Crow's Foot Notation)
-*Visual Modeling Database PostgreSQL Supabase dirancang menggunakan Draw.io.*
+### 5.1 Entity Relationship Diagram (ERD)
+*Visual Modeling Database*
 
 <p align="center">
   <img src="./assets/ERD%20-%20Schema%20DB.jpeg" alt="Entity Relationship Diagram (ERD) - CV Akurat Sukses Sejati" width="620" />

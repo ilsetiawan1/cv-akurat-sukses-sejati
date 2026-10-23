@@ -1,4 +1,4 @@
-// scripts/setup-users.mjs
+// supabase/scripts/setup-users.mjs
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

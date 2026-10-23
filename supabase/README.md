@@ -12,6 +12,9 @@ Mirip seperti folder `prisma/` pada ekosistem Prisma, proyek berbasis Supabase m
 supabase/
 ├── migrations/
 │   └── 20260501000000_initial_schema.sql  # Skema lengkap semua tabel, index, dan trigger PostgreSQL
+├── scripts/
+│   ├── seed.mjs                           # Script otomasi seeding data master & super admin
+│   └── setup-users.mjs                    # Script konfigurasi pengguna & matriks hak akses
 ├── seed.sql                               # Data awal (Kategori, Satuan, Supplier, Master Barang, Stok)
 └── README.md                              # Panduan database & instruksi seeding
 ```

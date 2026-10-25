@@ -2,11 +2,23 @@
 
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Database, ShoppingCart, FileText, Settings, ChevronDown, Package, Truck, ArrowDownToLine, ArrowUpFromLine, Boxes, LogOut, X, Search } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Users,
+  FileText,
+  Settings,
+  Package,
+  Truck,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Boxes,
+  LogOut,
+  X,
+  ExternalLink,
+} from 'lucide-react';
 import { logoutAction } from '@/lib/actions/auth.actions';
 import type { UserWithPermissions } from '@/types/user.types';
 import { cn } from '@/lib/utils';
@@ -16,63 +28,94 @@ interface SidebarProps {
   user: UserWithPermissions;
 }
 
-interface NavItem {
-  label: string;
-  href?: string;
-  icon: React.ReactNode;
-  feature?: 'dashboard' | 'hak_akses' | 'data_master' | 'transaksi' | 'laporan' | 'pengaturan';
-  children?: { label: string; href: string; icon: React.ReactNode }[];
+interface NavSection {
+  title: string;
+  items: {
+    label: string;
+    href: string;
+    icon: React.ReactNode;
+    feature?: 'dashboard' | 'hak_akses' | 'data_master' | 'transaksi' | 'laporan' | 'pengaturan';
+    badge?: string;
+  }[];
 }
 
-const navItems: NavItem[] = [
-  { label: 'Beranda', href: '/beranda', icon: <LayoutDashboard size={18} />, feature: 'dashboard' },
-  { label: 'Hak Akses', href: '/hak-akses', icon: <Users size={18} />, feature: 'hak_akses' },
+const navSections: NavSection[] = [
   {
-    label: 'Data Master',
-    icon: <Database size={18} />,
-    feature: 'data_master',
-    children: [
-      { label: 'Data Supplier', href: '/data-master/supplier', icon: <Truck size={15} /> },
-      { label: 'Data Barang', href: '/data-master/barang', icon: <Package size={15} /> },
+    title: 'Operasional Gudang',
+    items: [
+      {
+        label: 'Dashboard',
+        href: '/dashboard',
+        icon: <LayoutDashboard size={16} />,
+        feature: 'dashboard',
+      },
+      {
+        label: 'Status Persediaan',
+        href: '/transaksi/persediaan',
+        icon: <Boxes size={16} />,
+        feature: 'transaksi',
+        badge: 'Stok',
+      },
+      {
+        label: 'Barang Masuk',
+        href: '/transaksi/barang-masuk',
+        icon: <ArrowDownToLine size={16} />,
+        feature: 'transaksi',
+      },
+      {
+        label: 'Barang Keluar',
+        href: '/transaksi/barang-keluar',
+        icon: <ArrowUpFromLine size={16} />,
+        feature: 'transaksi',
+      },
+      {
+        label: 'Laporan Mutasi',
+        href: '/laporan',
+        icon: <FileText size={16} />,
+        feature: 'laporan',
+      },
     ],
   },
   {
-    label: 'Transaksi',
-    icon: <ShoppingCart size={18} />,
-    feature: 'transaksi',
-    children: [
-      { label: 'Data Persediaan', href: '/transaksi/persediaan', icon: <Boxes size={15} /> },
-      { label: 'Data Barang Masuk', href: '/transaksi/barang-masuk', icon: <ArrowDownToLine size={15} /> },
-      { label: 'Data Barang Keluar', href: '/transaksi/barang-keluar', icon: <ArrowUpFromLine size={15} /> },
+    title: 'Pengaturan Master',
+    items: [
+      {
+        label: 'Kelola Supplier',
+        href: '/data-master/supplier',
+        icon: <Truck size={16} />,
+        feature: 'data_master',
+      },
+      {
+        label: 'Kelola Barang',
+        href: '/data-master/barang',
+        icon: <Package size={16} />,
+        feature: 'data_master',
+      },
+      {
+        label: 'Kelola Akun Staf',
+        href: '/hak-akses',
+        icon: <Users size={16} />,
+        feature: 'hak_akses',
+      },
+      {
+        label: 'Pengaturan Sistem',
+        href: '/pengaturan',
+        icon: <Settings size={16} />,
+        feature: 'pengaturan',
+      },
     ],
   },
-  { label: 'Laporan', href: '/laporan', icon: <FileText size={18} />, feature: 'laporan' },
-  { label: 'Pengaturan', href: '/pengaturan', icon: <Settings size={18} />, feature: 'pengaturan' },
 ];
 
 export function Sidebar({ user }: SidebarProps) {
   const pathname = usePathname();
   const { isOpen, setIsOpen } = useMobileNav();
 
-  // Filter menu navigasi berdasarkan hak akses granular (can_read)
-  const visibleNavItems = navItems.filter((item) => {
+  function isItemVisible(feature?: string) {
     if (user.role === 'super_admin') return true;
-    if (!item.feature) return true;
-    const perm = user.user_permissions?.find((p) => p.feature === item.feature);
+    if (!feature) return true;
+    const perm = user.user_permissions?.find((p) => p.feature === feature);
     return !!perm?.can_read;
-  });
-
-  const initialOpen = visibleNavItems.reduce<Record<string, boolean>>((acc, item) => {
-    if (item.children) {
-      acc[item.label] = item.children.some((c) => pathname.startsWith(c.href));
-    }
-    return acc;
-  }, {});
-
-  const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>(initialOpen);
-
-  function toggleDropdown(label: string) {
-    setOpenDropdowns((prev) => ({ ...prev, [label]: !prev[label] }));
   }
 
   function isActive(href: string) {
@@ -83,193 +126,161 @@ export function Sidebar({ user }: SidebarProps) {
     <>
       {/* ── Mobile Backdrop ── */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden backdrop-blur-sm transition-opacity"
+        <div
+          className="fixed inset-0 z-40 bg-slate-900/20 backdrop-blur-xs lg:hidden transition-opacity"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* ── Sidebar ── */}
-      <aside className={cn(
-        "fixed top-0 left-0 z-50 w-64 h-screen bg-white border-r border-gray-200 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-xl lg:shadow-none",
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        {/* ── Logo & Mobile Close Button ── */}
-        <div className="flex items-center justify-between px-5 h-16 border-b border-gray-100 shrink-0 gap-3">
-          <Link href="/beranda" className="flex items-center gap-3 flex-1 min-w-0 transition-opacity hover:opacity-80">
-            <div className="relative w-8 h-8 sm:w-9 sm:h-9 shrink-0 flex items-center justify-center">
-              <Image 
-                src="/logo-cv-akurat-sukses-sejati-bg-purple.png" 
-                alt="Logo CV Akurat Sukses Sejati" 
-                fill
-                className="object-contain rounded-md"
+      {/* ── Sidebar Container ── */}
+      <aside
+        className={cn(
+          'fixed top-0 left-0 z-50 w-64 h-screen bg-white border-r border-slate-100 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-sm lg:shadow-none select-none',
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+      >
+        {/* ── Header: Logo Brand ── */}
+        <div className="flex items-center justify-between px-5 h-16 border-b border-slate-50 shrink-0 gap-3">
+          <Link
+            href="/dashboard"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center gap-3 flex-1 min-w-0 transition-opacity hover:opacity-85"
+          >
+            <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center p-1.5 shrink-0 shadow-2xs">
+              <Image
+                src="/logo-cv-akurat-sukses-sejati.png"
+                alt="Logo CV Akurat Sukses Sejati"
+                width={26}
+                height={26}
+                className="object-contain"
                 priority
-                sizes="36px"
               />
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="font-bold text-sm sm:text-[15px] text-gray-900 leading-tight truncate">
+              <h1 className="font-bold text-sm text-slate-900 leading-tight truncate">
                 CV Akurat
               </h1>
-              <p className="text-[10px] sm:text-[11px] text-gray-500 font-medium truncate uppercase tracking-wider">
+              <p className="text-[10px] text-slate-400 font-semibold truncate tracking-wider uppercase">
                 Sukses Sejati
               </p>
             </div>
           </Link>
-          
-          <button 
+
+          <button
             onClick={() => setIsOpen(false)}
-            className="lg:hidden p-1.5 -mr-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
+            className="lg:hidden p-1.5 -mr-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none"
             aria-label="Tutup sidebar"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* ── Search (Opsional, hanya UI mock) ── */}
-        <div className="px-3 py-4 shrink-0">
-          <div className="flex items-center gap-2 bg-gray-50/80 hover:bg-gray-100 border border-gray-200 rounded-xl px-3 py-2.5 transition-colors cursor-text">
-            <Search size={16} className="text-gray-400" />
-            <span className="text-sm text-gray-400">Pencarian menu...</span>
-          </div>
-        </div>
-
-        {/* ── Navigation ── */}
-        <nav className="flex-1 px-3 pb-4 space-y-1 overflow-y-auto">
-          {visibleNavItems.map((item) => {
-            if (item.children) {
-              const isDropdownOpen = openDropdowns[item.label] ?? false;
-              const hasActiveChild = item.children.some((c) => isActive(c.href));
-
-              return (
-                <div key={item.label} className="mb-1">
-                  <button
-                    onClick={() => toggleDropdown(item.label)}
-                    className={cn(
-                      'w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
-                      hasActiveChild ? 'bg-purple-50 text-[#7C3AED]' : 'text-gray-600 hover:bg-purple-50/50 hover:text-[#7C3AED]',
-                    )}
-                  >
-                    <span className="flex items-center gap-3">
-                      <span className={cn("transition-colors", hasActiveChild ? "text-[#7C3AED]" : "text-gray-400 group-hover:text-[#7C3AED]")}>
-                        {item.icon}
-                      </span>
-                      {item.label}
-                    </span>
-                    <ChevronDown
-                      size={14}
-                      className={cn('transition-transform duration-200 text-gray-400', isDropdownOpen && 'rotate-180')}
-                    />
-                  </button>
-
-                  <div className={cn(
-                    "grid transition-all duration-200 ease-in-out",
-                    isDropdownOpen ? "grid-rows-[1fr] opacity-100 mt-1" : "grid-rows-[0fr] opacity-0"
-                  )}>
-                    <div className="overflow-hidden">
-                      <div className="ml-[18px] pl-3 border-l border-gray-200 space-y-1">
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.href}
-                            href={child.href}
-                            className={cn(
-                              'flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-all duration-200',
-                              isActive(child.href) 
-                                ? 'bg-[#7C3AED] text-white font-medium shadow-sm shadow-purple-200' 
-                                : 'text-gray-500 hover:text-[#7C3AED] hover:bg-purple-50/50',
-                            )}
-                          >
-                            <span className={cn(
-                              "transition-colors", 
-                              isActive(child.href) ? 'text-white/80' : 'text-gray-400'
-                            )}>
-                              {child.icon}
-                            </span>
-                            {child.label}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            }
+        {/* ── Flat Clean Navigation ── */}
+        <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
+          {navSections.map((section) => {
+            const visibleItems = section.items.filter((item) => isItemVisible(item.feature));
+            if (visibleItems.length === 0) return null;
 
             return (
-              <Link
-                key={item.href}
-                href={item.href!}
-                className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 mb-1',
-                  isActive(item.href!) 
-                    ? 'bg-[#7C3AED] text-white shadow-sm shadow-purple-200' 
-                    : 'text-gray-600 hover:bg-purple-50/50 hover:text-[#7C3AED]',
-                )}
-              >
-                <span className={cn("transition-colors", isActive(item.href!) ? "text-white/80" : "text-gray-400")}>
-                  {item.icon}
+              <div key={section.title} className="space-y-0.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 pb-1.5 block">
+                  {section.title}
                 </span>
-                {item.label}
-              </Link>
+
+                {visibleItems.map((item) => {
+                  const active = isActive(item.href);
+
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className={cn(
+                        'flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all group',
+                        active
+                          ? 'bg-white border border-slate-200/80 text-slate-900 shadow-xs'
+                          : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50/70 border border-transparent'
+                      )}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span
+                          className={cn(
+                            'transition-colors shrink-0',
+                            active ? 'text-slate-900' : 'text-slate-400 group-hover:text-slate-700'
+                          )}
+                        >
+                          {item.icon}
+                        </span>
+                        <span className="truncate">{item.label}</span>
+                      </div>
+
+                      {item.badge && (
+                        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100/80 text-slate-500 border border-slate-200/50">
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
             );
           })}
         </nav>
 
-        {/* ── Profile + Logout ── */}
-        <div className="border-t border-gray-100 p-4 shrink-0 bg-gray-50/50">
-          <div className="flex items-center justify-between gap-2">
-            {user.role === 'super_admin' || user.user_permissions?.find((p) => p.feature === 'pengaturan')?.can_read ? (
-              <Link
-                href="/pengaturan?tab=profil"
-                className="flex items-center gap-3 flex-1 min-w-0 group"
-              >
-                <div className="w-9 h-9 rounded-full bg-linear-to-br from-purple-100 to-purple-200 flex items-center justify-center text-[#7C3AED] text-xs font-bold shrink-0 uppercase ring-2 ring-white shadow-sm group-hover:ring-purple-100 transition-all">
-                  {user.avatar_url ? (
-                    <Image
-                      src={user.avatar_url}
-                      alt={user.name}
-                      width={36}
-                      height={36}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  ) : (
-                    user.name.substring(0, 2)
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-[#7C3AED] transition-colors">{user.name}</p>
-                  <p className="text-xs text-gray-500 capitalize truncate mt-0.5">{user.role.replace('_', ' ')}</p>
-                </div>
-              </Link>
-            ) : (
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="w-9 h-9 rounded-full bg-linear-to-br from-purple-100 to-purple-200 flex items-center justify-center text-[#7C3AED] text-xs font-bold shrink-0 uppercase ring-2 ring-white shadow-sm">
-                  {user.avatar_url ? (
-                    <Image
-                      src={user.avatar_url}
-                      alt={user.name}
-                      width={36}
-                      height={36}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  ) : (
-                    user.name.substring(0, 2)
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-gray-900 truncate">{user.name}</p>
-                  <p className="text-xs text-gray-500 capitalize truncate mt-0.5">{user.role.replace('_', ' ')}</p>
-                </div>
+        {/* ── Bottom Section: Shortcut + Profile ── */}
+        <div className="p-3 border-t border-slate-50 shrink-0 space-y-2">
+          {/* Quick link button to catalog */}
+          <Link
+            href="/data-master/barang"
+            onClick={() => setIsOpen(false)}
+            className="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-50/60 hover:bg-slate-100/80 border border-slate-100 text-slate-600 text-xs font-medium transition-all group"
+          >
+            <div className="flex items-center gap-2">
+              <ExternalLink size={14} className="text-slate-400 group-hover:text-slate-700" />
+              <span>Katalog Barang</span>
+            </div>
+            <span className="text-[10px] font-semibold text-slate-500 bg-white border border-slate-200/60 px-1.5 py-0.5 rounded-md">
+              Buka ↗
+            </span>
+          </Link>
+
+          {/* User profile card */}
+          <div className="flex items-center justify-between rounded-xl bg-white border border-slate-100 p-2 shadow-2xs gap-2">
+            <Link
+              href="/pengaturan?tab=profil"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center gap-2.5 flex-1 min-w-0 group cursor-pointer"
+            >
+              <div className="w-8 h-8 rounded-lg bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0 tracking-wider">
+                {user.avatar_url ? (
+                  <Image
+                    src={user.avatar_url}
+                    alt={user.name}
+                    width={32}
+                    height={32}
+                    className="w-full h-full rounded-lg object-cover"
+                  />
+                ) : (
+                  user.name.substring(0, 2).toUpperCase()
+                )}
               </div>
-            )}
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold text-slate-800 truncate group-hover:text-slate-900 transition-colors">
+                  {user.name}
+                </p>
+                <p className="text-[10px] text-slate-400 truncate capitalize leading-tight">
+                  {user.role.replace('_', ' ')}
+                </p>
+              </div>
+            </Link>
 
             <form action={logoutAction}>
               <button
                 type="submit"
-                title="Keluar"
-                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-red-100"
+                title="Keluar dari akun"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
               >
-                <LogOut size={18} />
+                <LogOut size={16} />
               </button>
             </form>
           </div>

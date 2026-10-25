@@ -2,27 +2,29 @@
 
 'use client';
 
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface StatCardProps {
   title: string;
   value: number;
-  change: number; // persentase vs bulan lalu, bisa negatif
+  change: number;
   sparklineData?: number[];
+  isCurrency?: boolean;
+  badgeLabel?: string;
 }
 
-// Sparkline SVG sederhana tanpa library eksternal
+// Sparkline SVG minimalis
 function Sparkline({
   data,
   color,
 }: {
   data: number[];
-  color: 'green' | 'red';
+  color: 'emerald' | 'rose' | 'slate';
 }) {
   if (!data || data.length < 2) return null;
 
-  const width = 80;
-  const height = 32;
+  const width = 72;
+  const height = 28;
   const min = Math.min(...data);
   const max = Math.max(...data);
   const range = max - min || 1;
@@ -35,10 +37,15 @@ function Sparkline({
     })
     .join(' ');
 
-  const stroke = color === 'green' ? '#22c55e' : '#ef4444';
-  const fill = color === 'green' ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)';
+  const stroke =
+    color === 'emerald' ? '#10b981' : color === 'rose' ? '#f43f5e' : '#94a3b8';
+  const fill =
+    color === 'emerald'
+      ? 'rgba(16,185,129,0.06)'
+      : color === 'rose'
+      ? 'rgba(244,63,94,0.06)'
+      : 'rgba(148,163,184,0.06)';
 
-  // Area path (tutup ke bawah)
   const areaPoints = `0,${height} ${points} ${width},${height}`;
 
   return (
@@ -47,7 +54,7 @@ function Sparkline({
       height={height}
       viewBox={`0 0 ${width} ${height}`}
       fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+      className="shrink-0"
     >
       <polygon points={areaPoints} fill={fill} />
       <polyline
@@ -62,76 +69,85 @@ function Sparkline({
   );
 }
 
-// Data sparkline dummy yang terlihat natural
 const DEFAULT_SPARKLINES: Record<string, number[]> = {
-  up: [3, 5, 4, 7, 6, 8, 9, 11, 10, 13],
-  down: [13, 11, 12, 9, 10, 8, 7, 6, 8, 5],
-  flat: [6, 7, 6, 8, 7, 9, 8, 9, 8, 10],
+  up: [4, 6, 5, 8, 7, 9, 11, 10, 13],
+  down: [13, 11, 12, 9, 10, 8, 7, 6, 5],
+  flat: [6, 7, 6, 8, 7, 8, 7, 8, 8],
 };
 
-export function StatCard({ title, value, change, sparklineData }: StatCardProps) {
-  const isPositive = change >= 0;
-  const isZero = change === 0;
+export function StatCard({
+  title,
+  value,
+  change,
+  sparklineData,
+  isCurrency = false,
+  badgeLabel,
+}: StatCardProps) {
+  const isPositive = change > 0;
+  const isNegative = change < 0;
 
   const data =
     sparklineData ??
-    (isZero ? DEFAULT_SPARKLINES.flat : isPositive ? DEFAULT_SPARKLINES.up : DEFAULT_SPARKLINES.down);
+    (change === 0
+      ? DEFAULT_SPARKLINES.flat
+      : isPositive
+      ? DEFAULT_SPARKLINES.up
+      : DEFAULT_SPARKLINES.down);
 
-  const color = isZero ? 'green' : isPositive ? 'green' : 'red';
+  const color = isPositive ? 'emerald' : isNegative ? 'rose' : 'slate';
 
-return (
-  <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-5 flex flex-col gap-3 hover:shadow-md transition-shadow min-h-[160px]">
-    
-    {/* Header */}
-    <div className="flex items-start justify-between gap-2">
-      <p className="text-[11px] sm:text-sm font-medium text-gray-500 leading-snug">
-        {title}
-      </p>
-
-      <button className="text-gray-300 hover:text-gray-500 transition-colors shrink-0">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="5" cy="12" r="2" />
-          <circle cx="12" cy="12" r="2" />
-          <circle cx="19" cy="12" r="2" />
-        </svg>
-      </button>
-    </div>
-
-    {/* Value */}
-    <div className="flex items-end justify-between gap-2">
-      <span className="text-2xl sm:text-3xl font-bold text-gray-900 tabular-nums leading-none">
-        {value.toLocaleString('id-ID')}
-      </span>
-
-      <div className="scale-75 sm:scale-100 origin-bottom-right">
-        <Sparkline data={data} color={color} />
-      </div>
-    </div>
-
-    {/* Change */}
-    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-1.5 mt-auto">
-      
-      <div className="flex items-center gap-1">
-        {isPositive ? (
-          <TrendingUp size={13} className="text-green-500 shrink-0" />
-        ) : (
-          <TrendingDown size={13} className="text-red-500 shrink-0" />
-        )}
-
-        <span
-          className={`text-[11px] sm:text-xs font-semibold ${
-            isPositive ? 'text-green-600' : 'text-red-600'
-          }`}
-        >
-          {isPositive ? '+' : ''}
-          {change}%
+  return (
+    <div className="bg-white rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-all p-4 sm:p-5 flex flex-col justify-between h-full shadow-xs group">
+      {/* Zona 1: Header */}
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          {title}
         </span>
+        {badgeLabel && (
+          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200/80">
+            {badgeLabel}
+          </span>
+        )}
       </div>
 
-      <span className="text-[10px] sm:text-xs text-gray-400 leading-tight">
-        vs last month
-      </span>
+      {/* Zona 2: Slot Nilai Utama + Sparkline (Terkunci Tinggi Simetris) */}
+      <div className="min-h-[56px] flex items-end justify-between gap-2 my-2">
+        <div className="flex items-baseline gap-1 min-w-0">
+          {isCurrency && (
+            <span className="text-sm font-semibold text-slate-400">Rp</span>
+          )}
+          <span className="text-xl sm:text-2xl font-bold text-slate-900 tabular-nums tracking-tight truncate">
+            {value.toLocaleString('id-ID')}
+          </span>
+        </div>
+
+        <div className="shrink-0 pl-1">
+          <Sparkline data={data} color={color} />
+        </div>
+      </div>
+
+      {/* Zona 3: Footer Tren & Periode (Simetris di Dasar Kartu) */}
+      <div className="mt-auto pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-1.5">
+          {isPositive ? (
+            <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-md border border-emerald-200/60">
+              <TrendingUp size={12} className="stroke-[2.5]" />
+              +{change}%
+            </span>
+          ) : isNegative ? (
+            <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded-md border border-rose-200/60">
+              <TrendingDown size={12} className="stroke-[2.5]" />
+              {change}%
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-slate-600 bg-slate-50 px-1.5 py-0.5 rounded-md border border-slate-200/60">
+              <Minus size={12} className="stroke-[2.5]" />
+              0%
+            </span>
+          )}
+          <span className="text-[10px] sm:text-[11px] text-slate-400">vs bulan lalu</span>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
 }

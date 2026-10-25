@@ -48,7 +48,7 @@ export default async function proxy(request: NextRequest) {
 
   // proxy.ts
   if (user && isAuthPage) {
-    const url = new URL('/beranda', request.url);
+    const url = new URL('/dashboard', request.url);
     // PENTING: Gunakan response.headers agar cookie terbaru ikut terbawa
     return NextResponse.redirect(url, {
       headers: response.headers,

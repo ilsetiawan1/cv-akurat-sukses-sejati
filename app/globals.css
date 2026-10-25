@@ -1,10 +1,21 @@
 @import "tailwindcss";
 
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: #f1f5f9;
+  }
+
+  body {
+    background-color: #f8f9fc;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
 @theme {
-  --color-primary:       #7C3AED;
-  --color-primary-dark:  #6D28D9;
-  --color-primary-light: #EDE9FE;
-  --color-sidebar-bg:    #FAFAFA;
-  --color-border:        #E5E7EB;
-  --color-text-muted:    #6B7280;
+  --color-border: #f1f5f9;
 }

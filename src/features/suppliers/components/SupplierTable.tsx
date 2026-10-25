@@ -161,12 +161,12 @@ export default function SupplierTable({
                 <th className="p-4 w-12 text-center">
                   <input type="checkbox" className="rounded border-gray-300 w-4 h-4 cursor-not-allowed opacity-50" disabled />
                 </th>
-                <th className="py-4 px-4 min-w-[200px] whitespace-nowrap">Nama Supplier</th>
-                <th className="py-4 px-4 min-w-[120px] whitespace-nowrap">ID Supplier</th>
-                <th className="py-4 px-4 min-w-[150px] whitespace-nowrap">Nama Kontak</th>
-                <th className="py-4 px-4 min-w-[200px] whitespace-nowrap">Email</th>
-                <th className="py-4 px-4 min-w-[200px] whitespace-nowrap">Alamat</th>
-                <th className="py-4 px-4 min-w-[150px] whitespace-nowrap">No. Telepon</th>
+                <th className="py-4 px-4 min-w-50 whitespace-nowrap">Nama Supplier</th>
+                <th className="py-4 px-4 min-w-30 whitespace-nowrap">ID Supplier</th>
+                <th className="py-4 px-4 min-w-37.5 whitespace-nowrap">Nama Kontak</th>
+                <th className="py-4 px-4 min-w-50 whitespace-nowrap">Email</th>
+                <th className="py-4 px-4 min-w-50 whitespace-nowrap">Alamat</th>
+                <th className="py-4 px-4 min-w-37.5 whitespace-nowrap">No. Telepon</th>
                 {(canUpdate || canDelete) && (
                   <th className="py-4 px-4 text-center whitespace-nowrap w-24">Aksi</th>
                 )}
@@ -190,7 +190,7 @@ export default function SupplierTable({
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center font-semibold text-xs shrink-0 text-white shadow-sm overflow-hidden">
+                        <div className="w-8 h-8 rounded-full bg-linear-to-br from-amber-200 to-orange-300 flex items-center justify-center font-semibold text-xs shrink-0 text-white shadow-sm overflow-hidden">
                           {item.avatar_url ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img src={item.avatar_url} alt={item.name} className="w-full h-full object-cover" />
@@ -206,7 +206,7 @@ export default function SupplierTable({
                     <td className="py-3 px-4 font-medium text-gray-900">{item.email || '-'}</td>
                     <td className="py-3 px-4 text-gray-500">
                       <div className="flex items-center gap-2">
-                        <span className="truncate max-w-[120px]">{item.address || '-'}</span>
+                        <span className="truncate max-w-30">{item.address || '-'}</span>
                         {item.address && <span className="text-gray-300">•••</span>}
                       </div>
                     </td>

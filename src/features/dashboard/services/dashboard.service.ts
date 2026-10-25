@@ -8,6 +8,6 @@ export type DashboardStats = Awaited<ReturnType<typeof getDashboardStats>>;
 /**
  * BUSINESS LOGIC LAYER — mengambil dan memformat data dashboard.
  */
-export async function fetchDashboardStats(): Promise<DashboardStats> {
-  return getDashboardStats();
+export async function fetchDashboardStats(selectedMonth?: string): Promise<DashboardStats> {
+  return getDashboardStats(selectedMonth);
 }

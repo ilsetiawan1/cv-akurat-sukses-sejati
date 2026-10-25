@@ -36,13 +36,25 @@ export interface DashboardInventoryItem {
 /**
  * DATA ACCESS LAYER — query statistik, mutasi terkini, dan persediaan untuk dashboard.
  */
-export async function getDashboardStats() {
+export async function getDashboardStats(selectedMonthParam?: string) {
   const supabase = createAdminClient();
 
   const now = new Date();
-  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
-  const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59).toISOString();
+  let targetYear = now.getFullYear();
+  let targetMonth = now.getMonth(); // 0-based
+
+  if (selectedMonthParam && /^\d{4}-\d{2}$/.test(selectedMonthParam)) {
+    const [y, m] = selectedMonthParam.split('-').map(Number);
+    if (!isNaN(y) && !isNaN(m) && m >= 1 && m <= 12) {
+      targetYear = y;
+      targetMonth = m - 1;
+    }
+  }
+
+  const startOfSelectedMonth = new Date(targetYear, targetMonth, 1).toISOString();
+  const endOfSelectedMonth = new Date(targetYear, targetMonth + 1, 0, 23, 59, 59, 999).toISOString();
+  const startOfPrevMonth = new Date(targetYear, targetMonth - 1, 1).toISOString();
+  const endOfPrevMonth = new Date(targetYear, targetMonth, 0, 23, 59, 59, 999).toISOString();
 
   const [
     { count: categoryCount },
@@ -69,31 +81,33 @@ export async function getDashboardStats() {
     // Supplier
     supabase.from('suppliers').select('*', { count: 'exact', head: true }),
 
-    // Barang Masuk bulan ini
+    // Barang Masuk bulan yang dipilih
     supabase
       .from('goods_receipts')
       .select('quantity')
-      .gte('receipt_date', startOfThisMonth),
+      .gte('receipt_date', startOfSelectedMonth)
+      .lte('receipt_date', endOfSelectedMonth),
 
-    // Barang Masuk bulan lalu
+    // Barang Masuk bulan sebelumnya
     supabase
       .from('goods_receipts')
       .select('quantity')
-      .gte('receipt_date', startOfLastMonth)
-      .lte('receipt_date', endOfLastMonth),
+      .gte('receipt_date', startOfPrevMonth)
+      .lte('receipt_date', endOfPrevMonth),
 
-    // Barang Keluar bulan ini
+    // Barang Keluar bulan yang dipilih
     supabase
       .from('goods_issues')
       .select('quantity')
-      .gte('issue_date', startOfThisMonth),
+      .gte('issue_date', startOfSelectedMonth)
+      .lte('issue_date', endOfSelectedMonth),
 
-    // Barang Keluar bulan lalu
+    // Barang Keluar bulan sebelumnya
     supabase
       .from('goods_issues')
       .select('quantity')
-      .gte('issue_date', startOfLastMonth)
-      .lte('issue_date', endOfLastMonth),
+      .gte('issue_date', startOfPrevMonth)
+      .lte('issue_date', endOfPrevMonth),
 
     // Data Persediaan lengkap
     supabase.from('inventory').select(`
@@ -269,7 +283,21 @@ export async function getDashboardStats() {
     date,
   }));
 
+  const monthNames = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  const selectedMonthLabel = `${monthNames[targetMonth]} ${targetYear}`;
+  const selectedMonthKey = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}`;
+  const isCurrentMonth = targetYear === now.getFullYear() && targetMonth === now.getMonth();
+
   return {
+    selectedMonth: {
+      key: selectedMonthKey,
+      label: selectedMonthLabel,
+      shortLabel: `${monthNames[targetMonth].slice(0, 3)} ${targetYear}`,
+      isCurrentMonth,
+    },
     kategoriBarang: { value: categoryCount ?? 0, change: 12 },
     totalItem: { value: itemCount ?? 0, change: 5 },
     pengguna: { value: userCount ?? 0, change: 0 },

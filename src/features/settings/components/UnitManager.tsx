@@ -64,7 +64,7 @@ export default function UnitManager({ units }: { units: Unit[] }) {
         </div>
         <button 
           onClick={() => { setIsAdding(true); setFormData({name: '', description: ''}); }}
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#7C3AED] to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-md shadow-purple-200"
+          className="flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-[#7C3AED] to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-md shadow-purple-200"
         >
           <Plus size={18} /> Tambah Data
         </button>

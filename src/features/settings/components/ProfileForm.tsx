@@ -183,7 +183,7 @@ export default function ProfileForm({ user, companyName, companyAddress }: Props
         <button
           type="submit"
           disabled={loading}
-          className="flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-[#7C3AED] to-purple-600 text-white font-bold rounded-xl hover:from-purple-600 hover:to-purple-700 shadow-md shadow-purple-200 transition-all active:scale-[0.98] disabled:opacity-70"
+          className="flex items-center gap-2 px-8 py-3.5 bg-linear-to-r from-[#7C3AED] to-purple-600 text-white font-bold rounded-xl hover:from-purple-600 hover:to-purple-700 shadow-md shadow-purple-200 transition-all active:scale-[0.98] disabled:opacity-70"
         >
           {loading ? (
             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

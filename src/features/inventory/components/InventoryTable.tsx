@@ -98,11 +98,11 @@ export default function InventoryTable({
 
         {/* Table Section */}
         <div className="overflow-x-auto w-full">
-          <table className="w-full text-left border-collapse min-w-[900px]">
+          <table className="w-full text-left border-collapse min-w-225">
             <thead>
               <tr className="bg-[#F8F9FA] text-[#8E95A9] text-xs font-semibold border-b border-gray-100 uppercase tracking-wider">
                 <th className="py-4 px-5">Kode Barang</th>
-                <th className="py-4 px-5 min-w-[200px]">Nama Barang</th>
+                <th className="py-4 px-5 min-w-50">Nama Barang</th>
                 <th className="py-4 px-5">Kategori / Satuan</th>
                 <th className="py-4 px-5 text-right">HPP</th>
                 <th className="py-4 px-5 text-center">Stok Tersedia</th>
@@ -137,12 +137,12 @@ export default function InventoryTable({
                           {inv.item?.item_code || '-'}
                         </span>
                       </td>
-                      <td className="py-4 px-5 font-semibold text-gray-900 truncate max-w-[250px]">
+                      <td className="py-4 px-5 font-semibold text-gray-900 truncate max-w-62.5">
                         {inv.item?.name || '-'}
                       </td>
                       <td className="py-4 px-5">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-gray-600 truncate max-w-[100px]">
+                          <span className="text-xs text-gray-600 truncate max-w-25">
                             {inv.item?.category?.name || '-'}
                           </span>
                           <span className="text-gray-300">•</span>

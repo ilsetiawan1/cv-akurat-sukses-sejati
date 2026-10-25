@@ -1,14 +1,14 @@
 // app/(dashboard)/transaksi/barang-keluar/page.tsx
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/services/user.service';
-import GoodsIssueTable from '@/components/transaksi/GoodsIssueTable';
-import { listGoodsIssues } from '@/lib/services/goods-issue.service';
-import { getAllItems } from '@/lib/repositories/item.repository';
-import { listInventory } from '@/lib/services/inventory.service';
+import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentUser } from '@/features/users/services/user.service';
+import GoodsIssueTable from '@/features/goods-issue/components/GoodsIssueTable';
+import { listGoodsIssues } from '@/features/goods-issue/services/goods-issue.service';
+import { getAllItems } from '@/features/items/repositories/item.repository';
+import { listInventory } from '@/features/inventory/services/inventory.service';
 
-import type { UserPermission } from '@/types/user.types';
-import type { ItemWithRelations } from '@/types/item.types';
+import type { UserPermission } from '@/features/users/types/user.types';
+import type { ItemWithRelations } from '@/features/items/types/item.types';
 
 export default async function BarangKeluarPage(props: {
   searchParams?: Promise<{ search?: string; page?: string; }>;

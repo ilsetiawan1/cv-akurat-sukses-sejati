@@ -1,0 +1,6 @@
+// src/features/goods-issue/index.ts
+export { default as GoodsIssueTable } from './components/GoodsIssueTable';
+export { default as GoodsIssueFormModal } from './components/GoodsIssueFormModal';
+export * from './services/goods-issue.service';
+export * from './repositories/goods-issue.repository';
+export * from './actions/goods-issue.actions';

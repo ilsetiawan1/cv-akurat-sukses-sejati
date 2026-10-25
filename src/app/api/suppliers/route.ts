@@ -1,7 +1,7 @@
 // app/api/suppliers/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { listSuppliers, addSupplier } from '@/lib/services/supplier.service';
-import { authenticateApiRequest } from '@/lib/supabase/api-guard';
+import { listSuppliers, addSupplier } from '@/features/suppliers/services/supplier.service';
+import { authenticateApiRequest } from '@/shared/lib/supabase/api-guard';
 
 export async function GET(request: NextRequest) {
   try {

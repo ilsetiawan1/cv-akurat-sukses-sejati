@@ -1,7 +1,7 @@
 // app/api/goods-issue/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { listGoodsIssues, addGoodsIssue } from '@/lib/services/goods-issue.service';
-import { authenticateApiRequest } from '@/lib/supabase/api-guard';
+import { listGoodsIssues, addGoodsIssue } from '@/features/goods-issue/services/goods-issue.service';
+import { authenticateApiRequest } from '@/shared/lib/supabase/api-guard';
 
 export async function GET(request: NextRequest) {
   try {

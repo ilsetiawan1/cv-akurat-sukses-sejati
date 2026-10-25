@@ -1,7 +1,7 @@
 // app/api/suppliers/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupplier, editSupplier, removeSupplier } from '@/lib/services/supplier.service';
-import { authenticateApiRequest } from '@/lib/supabase/api-guard';
+import { getSupplier, editSupplier, removeSupplier } from '@/features/suppliers/services/supplier.service';
+import { authenticateApiRequest } from '@/shared/lib/supabase/api-guard';
 
 export async function GET(
   _request: NextRequest,

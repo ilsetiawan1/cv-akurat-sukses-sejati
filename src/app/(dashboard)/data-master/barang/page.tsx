@@ -1,12 +1,12 @@
 // app/(dashboard)/data-master/barang/page.tsx
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/services/user.service';
-import ItemTable from '@/components/data-master/ItemTable';
-import { listItems } from '@/lib/services/item.service';
-import { getAllCategories } from '@/lib/repositories/category.repository';
-import { getAllUnits } from '@/lib/repositories/unit.repository';
-import type { UserRole, UserPermission } from '@/types/user.types';
+import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentUser } from '@/features/users/services/user.service';
+import ItemTable from '@/features/items/components/ItemTable';
+import { listItems } from '@/features/items/services/item.service';
+import { getAllCategories } from '@/features/settings/repositories/category.repository';
+import { getAllUnits } from '@/features/settings/repositories/unit.repository';
+import type { UserRole, UserPermission } from '@/features/users/types/user.types';
 
 export default async function DataBarangPage(props: {
   searchParams?: Promise<{

@@ -1,15 +1,15 @@
 // app/(dashboard)/transaksi/barang-masuk/page.tsx
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/services/user.service';
-import GoodsReceiptTable from '@/components/transaksi/GoodsReceiptTable';
-import { listGoodsReceipts } from '@/lib/services/goods-receipt.service';
-import { getAllItems } from '@/lib/repositories/item.repository';
-import { getAllSuppliers } from '@/lib/repositories/supplier.repository';
-import { listInventory } from '@/lib/services/inventory.service';
+import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentUser } from '@/features/users/services/user.service';
+import GoodsReceiptTable from '@/features/goods-receipt/components/GoodsReceiptTable';
+import { listGoodsReceipts } from '@/features/goods-receipt/services/goods-receipt.service';
+import { getAllItems } from '@/features/items/repositories/item.repository';
+import { getAllSuppliers } from '@/features/suppliers/repositories/supplier.repository';
+import { listInventory } from '@/features/inventory/services/inventory.service';
 
-import type { UserPermission } from '@/types/user.types';
-import type { ItemWithRelations } from '@/types/item.types';
+import type { UserPermission } from '@/features/users/types/user.types';
+import type { ItemWithRelations } from '@/features/items/types/item.types';
 
 export default async function BarangMasukPage(props: {
   searchParams?: Promise<{ search?: string; page?: string; }>;

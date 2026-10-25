@@ -4,7 +4,7 @@
 
 import Image from 'next/image';
 import { Eye, EyeOff, Loader2, Lock, Mail, AlertCircle } from 'lucide-react';
-import { useLogin } from '@/lib/hooks/useLogin';
+import { useLogin } from '@/features/auth/hooks/useLogin';
 
 export default function LoginPage() {
   const {

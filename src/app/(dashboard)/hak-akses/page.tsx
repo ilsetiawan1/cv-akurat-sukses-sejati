@@ -1,9 +1,9 @@
 // app/(dashboard)/hak-akses/page.tsx
 
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/services/user.service';
-import { UserTable } from '@/components/hak-akses/UserTable';
+import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentUser } from '@/features/users/services/user.service';
+import { UserTable } from '@/features/users/components/UserTable';
 
 export default async function HakAksesPage() {
   const supabase = await createClient();

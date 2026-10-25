@@ -1,10 +1,10 @@
 // app/(dashboard)/transaksi/persediaan/page.tsx
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/services/user.service';
-import InventoryTable from '@/components/transaksi/InventoryTable';
-import { listInventory } from '@/lib/services/inventory.service';
-import type { UserPermission } from '@/types/user.types';
+import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentUser } from '@/features/users/services/user.service';
+import InventoryTable from '@/features/inventory/components/InventoryTable';
+import { listInventory } from '@/features/inventory/services/inventory.service';
+import type { UserPermission } from '@/features/users/types/user.types';
 
 export default async function DataPersediaanPage(props: {
   searchParams?: Promise<{

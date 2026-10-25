@@ -53,7 +53,7 @@ export default function ExportButton({ targetId, filename }: Props) {
       </button>
       <button 
         onClick={exportPrint}
-        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#7C3AED] to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 text-sm font-semibold transition-all shadow-md shadow-purple-200"
+        className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-linear-to-r from-[#7C3AED] to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 text-sm font-semibold transition-all shadow-md shadow-purple-200"
       >
         <Printer size={18} />
         <span>Ekspor PDF</span>

@@ -66,12 +66,12 @@ export default function GoodsIssueTable({
         </div>
 
         <div className="overflow-x-auto w-full">
-          <table className="w-full text-left border-collapse min-w-[900px]">
+          <table className="w-full text-left border-collapse min-w-225">
             <thead>
               <tr className="bg-[#F8F9FA] text-[#8E95A9] text-xs font-semibold border-b border-gray-100 uppercase tracking-wider">
                 <th className="py-4 px-5">Kode Transaksi</th>
                 <th className="py-4 px-5">Tanggal</th>
-                <th className="py-4 px-5 min-w-[200px]">Barang</th>
+                <th className="py-4 px-5 min-w-50">Barang</th>
                 <th className="py-4 px-5 text-center">Qty Keluar</th>
                 <th className="py-4 px-5 text-right">Total HPP</th>
                 <th className="py-4 px-5">Admin</th>

@@ -174,7 +174,7 @@ export default function ItemTable({
 
         {/* Table Section */}
         <div className="overflow-x-auto w-full">
-          <table className="w-full text-left border-collapse min-w-[800px]">
+          <table className="w-full text-left border-collapse min-w-200">
             <thead>
               <tr className="bg-[#F8F9FA] text-[#8E95A9] text-xs font-semibold border-b border-gray-100 uppercase tracking-wider">
                 <th className="py-4 px-5">Kode</th>

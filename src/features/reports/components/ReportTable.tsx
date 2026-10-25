@@ -43,7 +43,7 @@ export default function ReportTable({ receipts, issues, summary, dateRangeText, 
             <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Total HPP Keluar (Beban)</p>
             <p className="text-3xl font-bold text-red-500 mt-3">Rp {summary.totalOutgoingValue.toLocaleString('id-ID')}</p>
           </div>
-          <div className="bg-gradient-to-br from-[#7C3AED] to-purple-700 p-6 rounded-2xl shadow-lg flex flex-col justify-between text-white">
+          <div className="bg-linear-to-br from-[#7C3AED] to-purple-700 p-6 rounded-2xl shadow-lg flex flex-col justify-between text-white">
             <p className="text-sm font-semibold text-purple-100 uppercase tracking-wider">Selisih Transaksi (Margin)</p>
             <p className="text-3xl font-bold mt-3">Rp {summary.margin.toLocaleString('id-ID')}</p>
           </div>
@@ -88,12 +88,12 @@ export default function ReportTable({ receipts, issues, summary, dateRangeText, 
           {/* TABEL DATA */}
           <div className="overflow-x-auto w-full print:overflow-visible">
             {activeTab === 'masuk' ? (
-              <table className="w-full text-left min-w-[1000px]">
+              <table className="w-full text-left min-w-250">
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 text-xs font-bold border-b border-gray-200 uppercase tracking-widest">
                     <th className="py-4 px-6">ID / Kode</th>
                     <th className="py-4 px-6">Tanggal</th>
-                    <th className="py-4 px-6 min-w-[220px]">Nama Barang</th>
+                    <th className="py-4 px-6 min-w-55">Nama Barang</th>
                     <th className="py-4 px-6">Supplier</th>
                     <th className="py-4 px-6 text-center">Jumlah</th>
                     <th className="py-4 px-6 text-right">Total Harga</th>
@@ -119,12 +119,12 @@ export default function ReportTable({ receipts, issues, summary, dateRangeText, 
                 </tbody>
               </table>
             ) : (
-              <table className="w-full text-left min-w-[1000px]">
+              <table className="w-full text-left min-w-250">
                 <thead>
                   <tr className="bg-slate-50 text-slate-500 text-xs font-bold border-b border-gray-200 uppercase tracking-widest">
                     <th className="py-4 px-6">ID / Kode</th>
                     <th className="py-4 px-6">Tanggal</th>
-                    <th className="py-4 px-6 min-w-[220px]">Nama Barang</th>
+                    <th className="py-4 px-6 min-w-55">Nama Barang</th>
                     <th className="py-4 px-6 text-center">Jumlah Keluar</th>
                     <th className="py-4 px-6 text-right">HPP / Unit</th>
                     <th className="py-4 px-6 text-right">Total HPP</th>

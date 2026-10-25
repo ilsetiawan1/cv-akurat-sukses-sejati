@@ -5,8 +5,6 @@ import Link from 'next/link';
 import {
   RotateCw,
   Search,
-  Filter,
-  Boxes,
   Clock,
   ArrowRight,
   AlertTriangle,
@@ -377,111 +375,6 @@ export default async function DashboardPage() {
               <ArrowRight size={13} />
             </Link>
           </div>
-        </div>
-      </div>
-
-      {/* ── 4. Bottom Row: Tabel Ketersediaan Suku Cadang Gudang ── */}
-      <div className="bg-white rounded-2xl border border-slate-100 shadow-[0_1px_3px_rgba(0,0,0,0.02)] p-6 space-y-4">
-        {/* Table Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h3 className="text-sm font-bold text-slate-900 tracking-tight">
-              Ketersediaan Suku Cadang Hari Ini
-            </h3>
-            <p className="text-xs text-slate-400 mt-0.5">
-              Ringkasan status persediaan suku cadang CV Akurat Sukses Sejati
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Filter Dropdown */}
-            <div className="h-8 px-3 rounded-xl border border-slate-200/60 bg-white text-xs font-medium text-slate-700 shadow-2xs flex items-center gap-1.5 cursor-pointer">
-              <Filter size={12} className="text-slate-400" />
-              <span>Semua Status</span>
-            </div>
-
-            {/* Direct Link */}
-            <Link
-              href="/transaksi/persediaan"
-              className="h-8 px-3 rounded-xl border border-slate-200/60 bg-white hover:bg-slate-50 text-xs font-medium text-slate-700 shadow-2xs transition-colors flex items-center gap-1.5 cursor-pointer"
-            >
-              <span>Kelola Status Barang ↗</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* Table Content */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-white text-slate-400 font-semibold border-b border-slate-100 uppercase tracking-wider text-[10px]">
-              <tr>
-                <th className="py-3 px-4 font-bold">KODE BARANG</th>
-                <th className="py-3 px-4 font-bold">NAMA SUKU CADANG</th>
-                <th className="py-3 px-4 font-bold">KATEGORI / SATUAN</th>
-                <th className="py-3 px-4 font-bold">STOK FISIK</th>
-                <th className="py-3 px-4 font-bold">STATUS STOK</th>
-                <th className="py-3 px-4 text-right font-bold">AKSI</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-              {stats.inventoryList.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-10 text-center text-slate-400">
-                    <Boxes size={24} className="mx-auto mb-2 text-slate-300" />
-                    Belum ada data barang dalam inventaris.
-                  </td>
-                </tr>
-              ) : (
-                stats.inventoryList.map((item) => {
-                  const isSafe = item.stock > 5;
-                  const isLow = item.stock > 0 && item.stock <= 5;
-
-                  return (
-                    <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="py-3.5 px-4 font-bold text-slate-900 font-mono">
-                        {item.itemCode}
-                      </td>
-                      <td className="py-3.5 px-4 font-semibold text-slate-800">
-                        {item.name}
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-500">
-                        {item.category} ({item.unit})
-                      </td>
-                      <td className="py-3.5 px-4 font-bold tabular-nums text-slate-900">
-                        {item.stock} {item.unit}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        {isSafe ? (
-                          <span className="bg-slate-100 text-slate-700 text-[11px] font-medium px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                            Siap Kirim (Ready)
-                          </span>
-                        ) : isLow ? (
-                          <span className="bg-amber-50 text-amber-700 text-[11px] font-medium px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                            Stok Menipis
-                          </span>
-                        ) : (
-                          <span className="bg-rose-50 text-rose-700 text-[11px] font-medium px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
-                            Habis
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-4 text-right">
-                        <Link
-                          href={`/transaksi/barang-masuk?item_id=${item.id}`}
-                          className="text-xs font-semibold text-slate-800 hover:text-slate-900 hover:underline cursor-pointer"
-                        >
-                          Restock
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>

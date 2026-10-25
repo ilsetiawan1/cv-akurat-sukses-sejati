@@ -1,6 +1,6 @@
 // app/api/health/route.ts
 import { NextResponse } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server-admin';
+import { createAdminClient } from '@/shared/lib/supabase/server-admin';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,12 +1,12 @@
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import { createAdminClient } from '@/lib/supabase/server-admin';
-import { getCurrentUser } from '@/lib/services/user.service';
-import ProfileForm from '@/components/pengaturan/ProfileForm';
-import CategoryManager from '@/components/pengaturan/CategoryManager';
-import UnitManager from '@/components/pengaturan/UnitManager';
+import { createClient } from '@/shared/lib/supabase/server';
+import { createAdminClient } from '@/shared/lib/supabase/server-admin';
+import { getCurrentUser } from '@/features/users/services/user.service';
+import ProfileForm from '@/features/settings/components/ProfileForm';
+import CategoryManager from '@/features/settings/components/CategoryManager';
+import UnitManager from '@/features/settings/components/UnitManager';
 import { cookies } from 'next/headers';
-import type { UserPermission } from '@/types/user.types';
+import type { UserPermission } from '@/features/users/types/user.types';
 
 export default async function PengaturanPage(props: {
   searchParams?: Promise<{ tab?: string }>;

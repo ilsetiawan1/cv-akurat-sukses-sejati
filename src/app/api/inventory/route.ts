@@ -1,7 +1,7 @@
 // app/api/inventory/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { listInventory } from '@/lib/services/inventory.service';
-import { authenticateApiRequest } from '@/lib/supabase/api-guard';
+import { listInventory } from '@/features/inventory/services/inventory.service';
+import { authenticateApiRequest } from '@/shared/lib/supabase/api-guard';
 
 export async function GET(request: NextRequest) {
   try {

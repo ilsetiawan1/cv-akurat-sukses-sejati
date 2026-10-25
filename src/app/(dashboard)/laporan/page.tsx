@@ -1,12 +1,12 @@
 // app/(dashboard)/laporan/page.tsx
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/services/user.service';
-import ReportFilterBar from '@/components/laporan/ReportFilterBar';
-import ReportTable from '@/components/laporan/ReportTable';
-import { generateReportData } from '@/lib/services/report.service';
-import type { ReportFilterPeriod } from '@/types/report.types';
-import type { UserPermission } from '@/types/user.types';
+import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentUser } from '@/features/users/services/user.service';
+import ReportFilterBar from '@/features/reports/components/ReportFilterBar';
+import ReportTable from '@/features/reports/components/ReportTable';
+import { generateReportData } from '@/features/reports/services/report.service';
+import type { ReportFilterPeriod } from '@/features/reports/types/report.types';
+import type { UserPermission } from '@/features/users/types/user.types';
 import { cookies } from 'next/headers';
 
 function getDateRanges(period: ReportFilterPeriod, start?: string, end?: string) {

@@ -10,9 +10,9 @@ import {
   AlertTriangle,
   CheckCircle2,
 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/services/user.service';
-import { fetchDashboardStats } from '@/lib/services/dashboard.service';
+import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentUser } from '@/features/users/services/user.service';
+import { fetchDashboardStats } from '@/features/dashboard/services/dashboard.service';
 
 export default async function DashboardPage() {
   const supabase = await createClient();

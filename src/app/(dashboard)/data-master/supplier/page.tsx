@@ -1,9 +1,9 @@
-import { listSuppliers } from '@/lib/services/supplier.service';
-import SupplierTable from '@/components/data-master/SupplierTable';
-import { createClient } from '@/lib/supabase/server';
-import { getCurrentUser } from '@/lib/services/user.service';
+import { listSuppliers } from '@/features/suppliers/services/supplier.service';
+import SupplierTable from '@/features/suppliers/components/SupplierTable';
+import { createClient } from '@/shared/lib/supabase/server';
+import { getCurrentUser } from '@/features/users/services/user.service';
 import { redirect } from 'next/navigation';
-import type { UserPermission } from '@/types/user.types';
+import type { UserPermission } from '@/features/users/types/user.types';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

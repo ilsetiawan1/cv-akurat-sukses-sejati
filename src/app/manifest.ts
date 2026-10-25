@@ -5,10 +5,10 @@ export default function manifest(): MetadataRoute.Manifest {
     name: 'CV Akurat Sukses Sejati',
     short_name: 'Akurat Suksestama',
     description: 'Sistem Informasi Persediaan Barang Otomotif CV Akurat Sukses Sejati',
-    start_url: '/beranda',
+    start_url: '/dashboard',
     display: 'standalone',
     background_color: '#FFFFFF',
-    theme_color: '#7C3AED',
+    theme_color: '#0f172a',
     icons: [
       {
         src: '/icon-192.png',

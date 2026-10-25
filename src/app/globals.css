@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: #f1f5f9;
+  }
+
+  body {
+    background-color: #f8f9fc;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@theme {
+  --color-border: #f1f5f9;
+}

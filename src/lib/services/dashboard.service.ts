@@ -1,6 +1,7 @@
 // lib/services/dashboard.service.ts
 
 import { getDashboardStats } from '@/lib/repositories/dashboard.repository';
+export type { RecentMovement, LowStockItem } from '@/lib/repositories/dashboard.repository';
 
 export type DashboardStats = Awaited<ReturnType<typeof getDashboardStats>>;
 

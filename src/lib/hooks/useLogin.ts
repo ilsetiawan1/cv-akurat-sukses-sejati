@@ -52,7 +52,7 @@ export function useLogin() {
       }
 
       // Hard redirect: browser akan membawa cookie session Supabase
-      window.location.replace('/beranda');
+      window.location.replace('/dashboard');
     } catch {
       setError('Terjadi kesalahan saat masuk ke sistem.');
       setIsPending(false);
@@ -103,7 +103,7 @@ export function useLogin() {
         return;
       }
 
-      window.location.replace('/beranda');
+      window.location.replace('/dashboard');
     } catch {
       setError('Terjadi kesalahan saat masuk ke akun demo.');
       setIsDemoLoading(false);

@@ -32,7 +32,7 @@ export async function loginAction(formData: { email: string; password: string })
   revalidatePath('/', 'layout');
 
   // REDIRECT: Pastikan berada di paling akhir fungsi
-  redirect('/beranda');
+  redirect('/dashboard');
 }
 
 export async function logoutAction(): Promise<void> {

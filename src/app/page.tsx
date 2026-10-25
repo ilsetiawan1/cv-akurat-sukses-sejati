@@ -7,5 +7,5 @@ import { redirect } from 'next/navigation';
  * Middleware akan menangani redirect ke /login jika belum login.
  */
 export default function RootPage() {
-  redirect('/beranda');
+  redirect('/dashboard');
 }

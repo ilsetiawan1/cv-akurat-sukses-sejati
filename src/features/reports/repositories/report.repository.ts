@@ -1,5 +1,5 @@
 // lib/repositories/report.repository.ts
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
+import { createAdminClient } from '@/lib/supabase/server-admin';
 import type { GoodsReceiptWithRelations, GoodsIssueWithRelations } from '@/features/transactions/types/transaction.types';
 
 export async function getGoodsReceiptReport(startDate: string, endDate: string) {

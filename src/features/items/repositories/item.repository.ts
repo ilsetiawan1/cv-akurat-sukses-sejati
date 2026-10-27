@@ -1,5 +1,5 @@
 // lib/repositories/item.repository.ts
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
+import { createAdminClient } from '@/lib/supabase/server-admin';
 import type { CreateItemInput, UpdateItemInput } from '@/features/items/types/item.types';
 
 export async function getItemsPaginated(page: number, limit: number, search?: string, categoryId?: string) {

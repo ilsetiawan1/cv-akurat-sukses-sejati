@@ -1,6 +1,6 @@
 // lib/repositories/goods-receipt.repository.ts
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
-import type { GoodsReceiptWithRelations, InsertGoodsReceiptPayload } from '@/features/transactions/types/transaction.types';
+import { createAdminClient } from '@/lib/supabase/server-admin';
+import type { GoodsReceiptWithRelations, InsertGoodsReceiptPayload } from '@/types';
 
 export async function getGoodsReceiptsPaginated(page: number, limit: number, search?: string) {
   const supabase = createAdminClient();

@@ -1,7 +1,7 @@
 // lib/actions/inventory.actions.ts
 'use server';
 
-import { createClient } from '@/shared/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import { listInventory } from '@/features/inventory/services/inventory.service';
 import type { ActionResult } from '@/features/users/types/user.types';

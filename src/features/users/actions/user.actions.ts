@@ -3,7 +3,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/shared/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import { createUserSchema, updateUserSchema, upsertPermissionsSchema } from '@/features/users/validations/user.schema';
 import { listUsers, addUser, editUser, removeUser, savePermissions } from '@/features/users/services/user.service';

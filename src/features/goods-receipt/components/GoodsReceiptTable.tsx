@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Search, Plus, Archive } from 'lucide-react';
 import type { GoodsReceiptWithRelations } from '@/features/transactions/types/transaction.types';
 import GoodsReceiptFormModal, { type ReceiptModalItem } from './GoodsReceiptFormModal';
-import { Pagination } from '@/shared/components/ui/Pagination';
+import { Pagination } from '@/components/ui/Pagination';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import type { Supplier } from '@/features/suppliers/types/supplier.types';
 

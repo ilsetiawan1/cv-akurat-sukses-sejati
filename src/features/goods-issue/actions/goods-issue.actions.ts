@@ -2,7 +2,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/shared/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import { goodsIssueSchema } from '@/features/transactions/validations/transaction.schema';
 import { addGoodsIssue } from '@/features/goods-issue/services/goods-issue.service';

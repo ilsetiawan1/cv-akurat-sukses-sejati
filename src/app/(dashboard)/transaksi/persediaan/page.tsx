@@ -1,6 +1,6 @@
 // app/(dashboard)/transaksi/persediaan/page.tsx
 import { redirect } from 'next/navigation';
-import { createClient } from '@/shared/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import InventoryTable from '@/features/inventory/components/InventoryTable';
 import { listInventory } from '@/features/inventory/services/inventory.service';

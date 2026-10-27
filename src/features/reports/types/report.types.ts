@@ -1,4 +1,5 @@
-// types/report.types.ts
+// src/features/reports/types/report.types.ts
+
 export type ReportFilterPeriod = 'hari_ini' | 'minggu_ini' | 'bulan_ini' | 'kustom';
 
 export interface ReportFilter {

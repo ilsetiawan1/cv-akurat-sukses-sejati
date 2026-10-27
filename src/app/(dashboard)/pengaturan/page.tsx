@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { createClient } from '@/shared/lib/supabase/server';
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
+import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server-admin';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import ProfileForm from '@/features/settings/components/ProfileForm';
 import CategoryManager from '@/features/settings/components/CategoryManager';

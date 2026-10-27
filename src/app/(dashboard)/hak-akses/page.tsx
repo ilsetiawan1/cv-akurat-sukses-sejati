@@ -1,7 +1,7 @@
 // app/(dashboard)/hak-akses/page.tsx
 
 import { redirect } from 'next/navigation';
-import { createClient } from '@/shared/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import { UserTable } from '@/features/users/components/UserTable';
 

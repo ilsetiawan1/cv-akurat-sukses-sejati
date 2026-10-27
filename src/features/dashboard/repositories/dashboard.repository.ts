@@ -1,37 +1,13 @@
-// lib/repositories/dashboard.repository.ts
+// src/features/dashboard/repositories/dashboard.repository.ts
+import { createAdminClient } from '@/lib/supabase/server-admin';
+import type {
+  RecentMovement,
+  LowStockItem,
+  DashboardInventoryItem,
+  DashboardStats,
+} from '../types/dashboard.types';
 
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
-
-export interface RecentMovement {
-  id: string;
-  type: 'IN' | 'OUT';
-  code: string;
-  itemName: string;
-  itemCode: string;
-  quantity: number;
-  date: string;
-}
-
-export interface LowStockItem {
-  id: string;
-  itemCode: string;
-  name: string;
-  category: string;
-  unit: string;
-  stock: number;
-  hpp: number;
-}
-
-export interface DashboardInventoryItem {
-  id: string;
-  inventoryCode: string;
-  itemCode: string;
-  name: string;
-  category: string;
-  unit: string;
-  stock: number;
-  hpp: number;
-}
+export type { RecentMovement, LowStockItem, DashboardInventoryItem, DashboardStats };
 
 /**
  * DATA ACCESS LAYER — query statistik, mutasi terkini, dan persediaan untuk dashboard.

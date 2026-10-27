@@ -1,5 +1,5 @@
 // lib/repositories/unit.repository.ts
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
+import { createAdminClient } from '@/lib/supabase/server-admin';
 import type { Unit } from '@/features/items/types/item.types';
 
 export async function getAllUnits(): Promise<Unit[]> {

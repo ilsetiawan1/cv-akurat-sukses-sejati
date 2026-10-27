@@ -1,7 +1,7 @@
 // app/api/reports/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { generateReportData } from '@/features/reports/services/report.service';
-import { authenticateApiRequest } from '@/shared/lib/supabase/api-guard';
+import { authenticateApiRequest } from '@/lib/supabase/api-guard';
 
 export async function GET(request: NextRequest) {
   try {

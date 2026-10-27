@@ -11,12 +11,44 @@ import {
   generateInventoryCode, 
   insertInventoryRecord 
 } from '@/features/inventory/repositories/inventory.repository';
+import { getAllItems } from '@/features/items/repositories/item.repository';
+import { getAllSuppliers } from '@/features/suppliers/repositories/supplier.repository';
+import { listInventory } from '@/features/inventory/services/inventory.service';
 import type { CreateGoodsReceiptInput } from '@/features/transactions/types/transaction.types';
+import type { GoodsReceiptPageData, ReceiptModalItem } from '../types/goods-receipt.types';
+import type { ItemWithRelations } from '@/types';
 
 export async function listGoodsReceipts(page: number, limit: number, search?: string) {
   const { data, count, error } = await getGoodsReceiptsPaginated(page, limit, search);
   if (error) throw new Error(`Gagal mengambil data barang masuk: ${error.message}`);
   return { data: data ?? [], total: count ?? 0, page, limit };
+}
+
+export async function getGoodsReceiptPageData(
+  page: number, 
+  limit: number, 
+  search?: string
+): Promise<GoodsReceiptPageData> {
+  const [receiptsResult, rawItemsResult, suppliersResult, invData] = await Promise.all([
+    listGoodsReceipts(page, limit, search),
+    getAllItems(),
+    getAllSuppliers(),
+    listInventory(1, 1000)
+  ]);
+
+  const stockMap = new Map((invData.data ?? []).map(inv => [inv.item_id, inv.stock]));
+  const typedRawItems = (rawItemsResult.data ?? []) as unknown as ItemWithRelations[];
+  const items: ReceiptModalItem[] = typedRawItems.map((item) => ({
+    ...item,
+    current_stock: stockMap.get(item.id) ?? 0
+  }));
+
+  return {
+    receipts: receiptsResult.data,
+    totalReceipts: receiptsResult.total,
+    items,
+    suppliers: suppliersResult.data || []
+  };
 }
 
 export async function addGoodsReceipt(userId: string, input: CreateGoodsReceiptInput) {

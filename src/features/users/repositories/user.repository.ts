@@ -1,6 +1,6 @@
 // lib/repositories/user.repository.ts
 
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
+import { createAdminClient } from '@/lib/supabase/server-admin';
 
 /**
  * DATA ACCESS LAYER — query tabel users & user_permissions.

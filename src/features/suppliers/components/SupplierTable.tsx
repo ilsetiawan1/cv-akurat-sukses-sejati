@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { Edit2, Trash2, Search, Plus, Download, FileText } from 'lucide-react';
 import type { Supplier } from '@/features/suppliers/types/supplier.types';
 import SupplierFormModal from './SupplierFormModal';
-import { Pagination } from '@/shared/components/ui/Pagination';
-import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog';
+import { Pagination } from '@/components/ui/Pagination';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { deleteSupplierAction } from '@/features/suppliers/actions/supplier.actions';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 

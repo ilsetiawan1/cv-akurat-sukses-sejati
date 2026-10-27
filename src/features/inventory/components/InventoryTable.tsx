@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Search, Download, PackageOpen } from 'lucide-react';
 import type { InventoryWithItem } from '@/features/inventory/types/inventory.types';
-import { Pagination } from '@/shared/components/ui/Pagination';
+import { Pagination } from '@/components/ui/Pagination';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 

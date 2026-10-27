@@ -1,9 +1,8 @@
-// lib/services/dashboard.service.ts
-
+// src/features/dashboard/services/dashboard.service.ts
 import { getDashboardStats } from '@/features/dashboard/repositories/dashboard.repository';
-export type { RecentMovement, LowStockItem } from '@/features/dashboard/repositories/dashboard.repository';
+import type { DashboardStats } from '../types/dashboard.types';
 
-export type DashboardStats = Awaited<ReturnType<typeof getDashboardStats>>;
+export type { RecentMovement, LowStockItem, DashboardStats } from '../types/dashboard.types';
 
 /**
  * BUSINESS LOGIC LAYER — mengambil dan memformat data dashboard.

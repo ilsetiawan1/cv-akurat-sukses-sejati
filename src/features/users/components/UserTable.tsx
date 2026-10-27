@@ -8,8 +8,8 @@ import { Plus, Search, Download, Pencil, Trash2, Shield } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { getUsersAction, deleteUserAction } from '@/features/users/actions/user.actions';
 import { UserFormModal } from '@/features/users/components/UserFormModal';
-import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog';
-import { Pagination } from '@/shared/components/ui/Pagination';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { Pagination } from '@/components/ui/Pagination';
 import type { UserWithPermissions } from '@/features/users/types/user.types';
 
 const LIMIT = 10;

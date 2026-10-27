@@ -1,7 +1,7 @@
 'use server';
 
-import { createClient } from '@/shared/lib/supabase/server';
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
+import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server-admin';
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 

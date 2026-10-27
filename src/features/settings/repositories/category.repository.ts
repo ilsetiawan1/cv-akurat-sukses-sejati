@@ -1,5 +1,5 @@
 // lib/repositories/category.repository.ts
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
+import { createAdminClient } from '@/lib/supabase/server-admin';
 import type { Category } from '@/features/items/types/item.types';
 
 export async function getAllCategories(): Promise<Category[]> {

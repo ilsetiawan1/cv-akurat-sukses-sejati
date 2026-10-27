@@ -1,7 +1,7 @@
 // lib/hooks/useLogin.ts
 
 import { useState } from 'react';
-import { createClient } from '@/shared/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 // Kredensial akun demo — menggunakan akun superadmin yang aktif
 const DEMO_EMAIL    = 'superadmin@gmail.com';

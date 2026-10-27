@@ -1,6 +1,6 @@
 // app/(dashboard)/data-master/barang/page.tsx
 import { redirect } from 'next/navigation';
-import { createClient } from '@/shared/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import ItemTable from '@/features/items/components/ItemTable';
 import { listItems } from '@/features/items/services/item.service';

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Search, Plus, ExternalLink } from 'lucide-react';
 import type { GoodsIssueWithRelations } from '@/features/transactions/types/transaction.types';
 import GoodsIssueFormModal, { type IssueModalItem } from './GoodsIssueFormModal';
-import { Pagination } from '@/shared/components/ui/Pagination';
+import { Pagination } from '@/components/ui/Pagination';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 
 interface Props {

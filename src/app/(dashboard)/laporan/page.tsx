@@ -1,6 +1,6 @@
 // app/(dashboard)/laporan/page.tsx
 import { redirect } from 'next/navigation';
-import { createClient } from '@/shared/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import ReportFilterBar from '@/features/reports/components/ReportFilterBar';
 import ReportTable from '@/features/reports/components/ReportTable';

@@ -1,6 +1,6 @@
 // lib/repositories/goods-issue.repository.ts
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
-import type { GoodsIssueWithRelations, InsertGoodsIssuePayload } from '@/features/transactions/types/transaction.types';
+import { createAdminClient } from '@/lib/supabase/server-admin';
+import type { GoodsIssueWithRelations, InsertGoodsIssuePayload } from '@/types';
 
 export async function getGoodsIssuesPaginated(page: number, limit: number, search?: string) {
   const supabase = createAdminClient();

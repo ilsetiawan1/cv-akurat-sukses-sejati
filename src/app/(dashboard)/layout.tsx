@@ -1,11 +1,11 @@
 // app/(dashboard)/layout.tsx
 
 import { redirect } from 'next/navigation';
-import { createClient } from '@/shared/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
-import { Sidebar } from '@/shared/components/layout/Sidebar';
-import { Header } from '@/shared/components/layout/Header';
-import { MobileNavProvider } from '@/shared/components/layout/MobileNavProvider';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { Header } from '@/components/layout/Header';
+import { MobileNavProvider } from '@/components/layout/MobileNavProvider';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();

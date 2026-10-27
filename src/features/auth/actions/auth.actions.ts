@@ -2,7 +2,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { createClient } from '@/shared/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { loginSchema } from '@/features/users/validations/user.schema';
 import type { ActionResult } from '@/features/users/types/user.types';
 import { revalidatePath } from 'next/cache';

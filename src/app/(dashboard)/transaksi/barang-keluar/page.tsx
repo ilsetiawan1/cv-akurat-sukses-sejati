@@ -1,6 +1,6 @@
 // app/(dashboard)/transaksi/barang-keluar/page.tsx
 import { redirect } from 'next/navigation';
-import { createClient } from '@/shared/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import GoodsIssueTable from '@/features/goods-issue/components/GoodsIssueTable';
 import { listGoodsIssues } from '@/features/goods-issue/services/goods-issue.service';

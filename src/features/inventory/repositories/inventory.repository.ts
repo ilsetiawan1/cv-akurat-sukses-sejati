@@ -1,5 +1,5 @@
 // lib/repositories/inventory.repository.ts
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
+import { createAdminClient } from '@/lib/supabase/server-admin';
 import type { InventoryWithItem } from '@/features/inventory/types/inventory.types';
 
 export async function getInventoryPaginated(page: number, limit: number, search?: string) {

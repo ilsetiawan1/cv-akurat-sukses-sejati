@@ -1,6 +1,6 @@
 // lib/services/user.service.ts
 
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
+import { createAdminClient } from '@/lib/supabase/server-admin';
 import { getUsers, getUserById, updateUser, deleteUserById, upsertUserPermissions } from '@/features/users/repositories/user.repository';
 import type { UserWithPermissions, PaginatedUsers, PermissionInput } from '@/features/users/types/user.types';
 

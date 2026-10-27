@@ -1,7 +1,7 @@
 // app/api/goods-receipt/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { listGoodsReceipts, addGoodsReceipt } from '@/features/goods-receipt/services/goods-receipt.service';
-import { authenticateApiRequest } from '@/shared/lib/supabase/api-guard';
+import { authenticateApiRequest } from '@/lib/supabase/api-guard';
 
 export async function GET(request: NextRequest) {
   try {

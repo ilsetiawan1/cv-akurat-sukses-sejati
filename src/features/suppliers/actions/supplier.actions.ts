@@ -6,7 +6,7 @@ import { supplierSchema } from '@/features/suppliers/validations/supplier.schema
 import { addSupplier, editSupplier, removeSupplier } from '@/features/suppliers/services/supplier.service';
 import { revalidatePath } from 'next/cache';
 import type { ActionResult } from '@/features/users/types/user.types';
-import { createClient } from '@/shared/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 
 async function checkSession() {
   const supabase = await createClient();

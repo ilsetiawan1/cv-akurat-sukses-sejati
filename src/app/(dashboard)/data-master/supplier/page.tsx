@@ -1,6 +1,6 @@
 import { listSuppliers } from '@/features/suppliers/services/supplier.service';
 import SupplierTable from '@/features/suppliers/components/SupplierTable';
-import { createClient } from '@/shared/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import { redirect } from 'next/navigation';
 import type { UserPermission } from '@/features/users/types/user.types';

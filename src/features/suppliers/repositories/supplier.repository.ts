@@ -1,7 +1,7 @@
 // lib/repositories/supplier.repository.ts
 
-import { createClient } from '@/shared/lib/supabase/server';
-import { createAdminClient } from '@/shared/lib/supabase/server-admin';
+import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server-admin';
 import type { CreateSupplierInput, UpdateSupplierInput } from '@/features/suppliers/types/supplier.types';
 
 export async function getSuppliersPaginated(page: number, limit: number, search?: string) {

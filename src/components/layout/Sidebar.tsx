@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { logoutAction } from '@/features/auth/actions/auth.actions';
 import type { UserWithPermissions } from '@/features/users/types/user.types';
-import { cn } from '@/shared/lib/utils';
+import { cn } from '@/lib/utils';
 import { useMobileNav } from './MobileNavProvider';
 
 interface SidebarProps {

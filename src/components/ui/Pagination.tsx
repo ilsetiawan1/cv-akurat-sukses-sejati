@@ -33,14 +33,15 @@ export function Pagination({ page, total, limit, onPageChange }: PaginationProps
   };
 
   return (
-    <div className="flex items-center justify-between px-1">
+    <div className="flex items-center gap-1">
       <button
+        type="button"
         onClick={() => onPageChange(page - 1)}
         disabled={page === 1}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        aria-label="Sebelumnya"
+        className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg disabled:opacity-30 disabled:pointer-events-none transition-colors"
       >
-        <ChevronLeft size={14} />
-        Sebelumnya
+        <ChevronLeft size={16} />
       </button>
 
       <div className="flex items-center gap-1">
@@ -48,15 +49,21 @@ export function Pagination({ page, total, limit, onPageChange }: PaginationProps
           p === '...' ? (
             <span
               key={`dot-${i}`}
-              className="px-2 text-gray-400 text-sm"
+              className="w-8 h-8 flex items-center justify-center text-slate-400 text-xs"
             >
               ...
             </span>
           ) : (
             <button
               key={p}
+              type="button"
               onClick={() => onPageChange(p as number)}
-              className={cn('w-8 h-8 text-sm rounded-lg transition-colors', p === page ? 'bg-purple-600 text-white font-semibold' : 'text-gray-600 hover:bg-gray-100')}
+              className={cn(
+                'w-8 h-8 text-xs sm:text-sm rounded-lg transition-all',
+                p === page
+                  ? 'bg-[#1E3A8A] text-white font-semibold shadow-xs'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
+              )}
             >
               {p}
             </button>
@@ -65,12 +72,13 @@ export function Pagination({ page, total, limit, onPageChange }: PaginationProps
       </div>
 
       <button
+        type="button"
         onClick={() => onPageChange(page + 1)}
         disabled={page === totalPages}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        aria-label="Selanjutnya"
+        className="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg disabled:opacity-30 disabled:pointer-events-none transition-colors"
       >
-        Selanjutnya
-        <ChevronRight size={14} />
+        <ChevronRight size={16} />
       </button>
     </div>
   );

@@ -1,10 +1,45 @@
 // lib/services/inventory.service.ts
-import { getInventoryPaginated, getInventoryByItemId } from '@/features/inventory/repositories/inventory.repository';
+import { 
+  getInventoryPaginated, 
+  getInventoryByItemId, 
+  getInventorySummaryStats 
+} from '@/features/inventory/repositories/inventory.repository';
+import { getAllCategories } from '@/features/settings/repositories/category.repository';
+import type { InventoryPageData } from '../types/inventory.types';
 
-export async function listInventory(page: number, limit: number, search?: string) {
-  const { data, count, error } = await getInventoryPaginated(page, limit, search);
+export async function listInventory(
+  page: number, 
+  limit: number, 
+  search?: string,
+  categoryId?: string,
+  status?: string
+) {
+  const { data, count, error } = await getInventoryPaginated(page, limit, search, categoryId, status);
   if (error) throw new Error(`Gagal mengambil data persediaan: ${error.message}`);
   return { data: data ?? [], total: count ?? 0, page, limit };
+}
+
+export async function getInventoryPageData(
+  page: number,
+  limit: number,
+  search?: string,
+  categoryId?: string,
+  status?: string
+): Promise<InventoryPageData> {
+  const [invResult, categories, stats] = await Promise.all([
+    listInventory(page, limit, search, categoryId, status),
+    getAllCategories(),
+    getInventorySummaryStats()
+  ]);
+
+  return {
+    data: invResult.data,
+    total: invResult.total,
+    categories,
+    stats,
+    page,
+    limit
+  };
 }
 
 export async function getInventoryStatus(itemId: string) {

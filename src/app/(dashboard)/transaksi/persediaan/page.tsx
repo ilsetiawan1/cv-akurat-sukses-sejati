@@ -1,20 +1,23 @@
-// app/(dashboard)/transaksi/persediaan/page.tsx
+// src/app/(dashboard)/transaksi/persediaan/page.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
-import InventoryTable from '@/features/inventory/components/InventoryTable';
-import { listInventory } from '@/features/inventory/services/inventory.service';
+import { InventoryTable, getInventoryPageData } from '@/features/inventory';
 import type { UserPermission } from '@/features/users/types/user.types';
 
 export default async function DataPersediaanPage(props: {
   searchParams?: Promise<{
     search?: string;
     page?: string;
+    category?: string;
+    status?: string;
   }>;
 }) {
   const searchParams = await props.searchParams;
   const search = searchParams?.search || '';
   const page = Number(searchParams?.page) || 1;
+  const category = searchParams?.category || '';
+  const status = searchParams?.status || '';
   const limit = 10;
 
   const supabase = await createClient();
@@ -29,20 +32,20 @@ export default async function DataPersediaanPage(props: {
 
   if (!canRead) {
     return (
-      <div className="flex items-center justify-center h-64 bg-white rounded-xl border border-gray-200">
-        <p className="text-red-500 font-medium">Anda tidak memiliki akses untuk melihat halaman ini.</p>
+      <div className="flex items-center justify-center h-64 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+        <p className="text-rose-500 font-medium text-sm">Anda tidak memiliki akses untuk melihat halaman ini.</p>
       </div>
     );
   }
 
-  const { data, total } = await listInventory(page, limit, search);
+  const { data, total, categories, stats } = await getInventoryPageData(page, limit, search, category, status);
 
   return (
-    <div className="w-full">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Data Persediaan Barang</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Pantau sisa stok dan Nilai Harga Pokok Penjualan (HPP) untuk setiap barang.
+    <div className="w-full space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Data Persediaan Barang</h1>
+        <p className="text-sm text-slate-500 mt-1">
+          Pantau sisa stok dan Nilai Harga Pokok Penjualan (HPP) berjalan untuk setiap barang.
         </p>
       </div>
 
@@ -52,6 +55,10 @@ export default async function DataPersediaanPage(props: {
         currentPage={page}
         limit={limit}
         searchQuery={search}
+        selectedCategory={category}
+        selectedStatus={status}
+        categories={categories}
+        stats={stats}
       />
     </div>
   );

@@ -2,7 +2,13 @@
 import { createAdminClient } from '@/lib/supabase/server-admin';
 import type { InventoryWithItem } from '@/features/inventory/types/inventory.types';
 
-export async function getInventoryPaginated(page: number, limit: number, search?: string) {
+export async function getInventoryPaginated(
+  page: number, 
+  limit: number, 
+  search?: string,
+  categoryId?: string,
+  status?: string
+) {
   const supabase = createAdminClient();
   
   let query = supabase.from('inventory').select(`
@@ -12,6 +18,7 @@ export async function getInventoryPaginated(page: number, limit: number, search?
       item_code,
       name,
       price,
+      category_id,
       category:categories(id, name),
       unit:units(id, name)
     )
@@ -19,6 +26,18 @@ export async function getInventoryPaginated(page: number, limit: number, search?
 
   if (search) {
     query = query.ilike('items.name', `%${search}%`);
+  }
+
+  if (categoryId) {
+    query = query.eq('items.category_id', categoryId);
+  }
+
+  if (status === 'empty') {
+    query = query.eq('stock', 0);
+  } else if (status === 'low') {
+    query = query.gt('stock', 0).lt('stock', 5);
+  } else if (status === 'safe') {
+    query = query.gte('stock', 5);
   }
 
   const from = (page - 1) * limit;
@@ -38,6 +57,21 @@ export async function getInventoryPaginated(page: number, limit: number, search?
   })) as unknown as InventoryWithItem[];
 
   return { data: mappedData, count, error: null };
+}
+
+export async function getInventorySummaryStats() {
+  const supabase = createAdminClient();
+  const [totalRes, emptyRes, lowRes] = await Promise.all([
+    supabase.from('inventory').select('*', { count: 'exact', head: true }),
+    supabase.from('inventory').select('*', { count: 'exact', head: true }).eq('stock', 0),
+    supabase.from('inventory').select('*', { count: 'exact', head: true }).gt('stock', 0).lt('stock', 5)
+  ]);
+
+  return {
+    totalSku: totalRes.count ?? 0,
+    emptyStock: emptyRes.count ?? 0,
+    lowStock: lowRes.count ?? 0,
+  };
 }
 
 export async function getInventoryByItemId(itemId: string) {

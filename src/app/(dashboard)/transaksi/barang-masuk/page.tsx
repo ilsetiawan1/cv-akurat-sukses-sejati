@@ -6,11 +6,14 @@ import { GoodsReceiptTable, getGoodsReceiptPageData } from '@/features/goods-rec
 import type { UserPermission } from '@/features/users/types/user.types';
 
 export default async function BarangMasukPage(props: {
-  searchParams?: Promise<{ search?: string; page?: string }>;
+  searchParams?: Promise<{ search?: string; category?: string; month?: string; page?: string; item_id?: string }>;
 }) {
   const searchParams = await props.searchParams;
   const search = searchParams?.search || '';
+  const category = searchParams?.category || '';
+  const month = searchParams?.month || '';
   const page = Number(searchParams?.page) || 1;
+  const itemId = searchParams?.item_id || '';
   const limit = 10;
 
   const supabase = await createClient();
@@ -26,6 +29,7 @@ export default async function BarangMasukPage(props: {
   // Kasir (P03) hanya berwenang mencatat Barang Keluar, bukan Barang Masuk
   const isKasir = currentUser.user_code === 'P03' || currentUser.name.toLowerCase().includes('kasir');
   const canCreate = (currentUser.role === 'super_admin' || !!perm?.can_create) && !isKasir;
+  const canDelete = currentUser.role === 'super_admin';
 
   if (!canRead) {
     return (
@@ -35,7 +39,21 @@ export default async function BarangMasukPage(props: {
     );
   }
 
-  const { receipts, totalReceipts, items, suppliers } = await getGoodsReceiptPageData(page, limit, search);
+  const { 
+    receipts, 
+    totalReceipts, 
+    stats,
+    monthOptions,
+    items, 
+    suppliers, 
+    categories 
+  } = await getGoodsReceiptPageData(
+    page, 
+    limit, 
+    search, 
+    category,
+    month
+  );
 
   return (
     <div className="w-full space-y-6">
@@ -52,9 +70,16 @@ export default async function BarangMasukPage(props: {
         currentPage={page}
         limit={limit}
         searchQuery={search}
+        selectedCategory={category}
+        selectedMonth={month}
+        categories={categories}
+        monthOptions={monthOptions}
+        stats={stats}
         items={items}
         suppliers={suppliers}
         canCreate={canCreate}
+        canDelete={canDelete}
+        initialItemId={itemId}
       />
     </div>
   );

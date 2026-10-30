@@ -13,29 +13,31 @@ export interface GoodsReceiptFormModalProps {
   onClose: () => void;
   items: ReceiptModalItem[];
   suppliers: Supplier[];
+  initialItemId?: string;
 }
 
 export default function GoodsReceiptFormModal({ 
   isOpen, 
   onClose, 
   items, 
-  suppliers 
+  suppliers,
+  initialItemId 
 }: GoodsReceiptFormModalProps) {
   const {
     formData,
     isSubmitting,
     selectedItem,
+    quantityNum,
+    unitPriceNum,
     totalPrice,
     currentStock,
     estimatedNewStock,
+    isFormValid,
     handleChange,
     handleSubmit,
-  } = useGoodsReceiptForm({ items, suppliers, onClose });
+  } = useGoodsReceiptForm({ items, suppliers, initialItemId, onClose });
 
   if (!isOpen) return null;
-
-  const quantityNum = Number(formData.quantity) || 0;
-  const unitPriceNum = Number(formData.harga_satuan) || 0;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -54,7 +56,7 @@ export default function GoodsReceiptFormModal({
           <button 
             type="button"
             onClick={onClose} 
-            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -71,7 +73,7 @@ export default function GoodsReceiptFormModal({
               name="item_id"
               value={formData.item_id}
               onChange={handleChange}
-              className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition-all bg-white text-slate-900"
+              className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all bg-white text-slate-900 cursor-pointer"
             >
               <option value="">Pilih data barang...</option>
               {items.map((item) => (
@@ -97,14 +99,21 @@ export default function GoodsReceiptFormModal({
           {/* Supplier & Receipt Date */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Supplier <span className="text-rose-500">*</span>
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Supplier <span className="text-rose-500">*</span>
+                </label>
+                {selectedItem?.last_supplier_id && formData.supplier_id === selectedItem.last_supplier_id && (
+                  <span className="text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-medium">
+                    Otomatis supplier terakhir
+                  </span>
+                )}
+              </div>
               <select
                 name="supplier_id"
                 value={formData.supplier_id}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition-all bg-white text-slate-900"
+                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all bg-white text-slate-900 cursor-pointer"
               >
                 <option value="">Pilih Supplier...</option>
                 {suppliers.map((sup) => (
@@ -122,7 +131,7 @@ export default function GoodsReceiptFormModal({
                 name="receipt_date"
                 value={formData.receipt_date}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition-all text-slate-900"
+                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-900"
               />
             </div>
           </div>
@@ -137,17 +146,25 @@ export default function GoodsReceiptFormModal({
                 type="number"
                 name="quantity"
                 min="1"
+                autoFocus={Boolean(initialItemId)}
                 value={formData.quantity}
                 onChange={handleChange}
                 placeholder="0"
-                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition-all text-slate-900 tabular-nums"
+                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-900 tabular-nums"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Harga Beli Satuan (Rp) <span className="text-rose-500">*</span>
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Harga Beli Satuan (Rp) <span className="text-rose-500">*</span>
+                </label>
+                {Boolean(selectedItem?.last_purchase_price) && (
+                  <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-mono">
+                    HPP/beli terakhir
+                  </span>
+                )}
+              </div>
               <input
                 type="number"
                 name="harga_satuan"
@@ -155,7 +172,7 @@ export default function GoodsReceiptFormModal({
                 value={formData.harga_satuan}
                 onChange={handleChange}
                 placeholder="0"
-                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition-all text-slate-900 font-mono tabular-nums"
+                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-900 font-mono tabular-nums"
               />
             </div>
           </div>
@@ -181,14 +198,14 @@ export default function GoodsReceiptFormModal({
               type="button" 
               onClick={onClose} 
               disabled={isSubmitting} 
-              className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+              className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Batal
             </button>
             <button 
               type="submit" 
-              disabled={isSubmitting} 
-              className="w-full sm:w-auto px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              disabled={isSubmitting || !isFormValid} 
+              className="w-full sm:w-auto px-5 py-2.5 text-sm font-semibold text-white bg-[#1E3A8A] rounded-xl hover:bg-blue-800 transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
             >
               {isSubmitting ? (
                 <>

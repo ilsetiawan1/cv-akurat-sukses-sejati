@@ -189,7 +189,7 @@ export async function getDashboardStats(selectedMonthParam?: string) {
 
       if (s <= 5) {
         lowStockList.push({
-          id: inv.id,
+          id: inv.items.id,
           itemCode: inv.items.item_code || '-',
           name: inv.items.name || '-',
           category: inv.items.category?.name || 'UMUM',

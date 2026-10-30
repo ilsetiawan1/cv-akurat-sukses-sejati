@@ -1,16 +1,17 @@
-// lib/actions/goods-receipt.actions.ts
+// src/features/goods-receipt/actions/goods-receipt.actions.ts
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import { goodsReceiptSchema } from '@/features/transactions/validations/transaction.schema';
-import { addGoodsReceipt } from '@/features/goods-receipt/services/goods-receipt.service';
+import { addGoodsReceipt, cancelGoodsReceipt } from '@/features/goods-receipt/services/goods-receipt.service';
 import type { ActionResult } from '@/features/users/types/user.types';
 
 const REVALIDATE = () => {
   revalidatePath('/transaksi/barang-masuk');
-  revalidatePath('/transaksi/persediaan'); // Update dashboard persediaan juga
+  revalidatePath('/transaksi/persediaan');
+  revalidatePath('/dashboard');
 };
 
 async function checkAccess(action: 'can_create') {
@@ -50,5 +51,27 @@ export async function addGoodsReceiptAction(formData: unknown): Promise<ActionRe
     return { success: true };
   } catch (error: unknown) {
     return { success: false, error: (error as Error).message || 'Terjadi kesalahan sistem' };
+  }
+}
+
+export async function deleteGoodsReceiptAction(receiptId: string): Promise<ActionResult> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Unauthorized');
+
+    const currentUser = await getCurrentUser(user.id);
+    if (!currentUser) throw new Error('Unauthorized');
+
+    if (currentUser.role !== 'super_admin') {
+      return { success: false, error: 'Hanya Super Admin yang berwenang membatalkan transaksi barang masuk.' };
+    }
+
+    await cancelGoodsReceipt(receiptId);
+
+    REVALIDATE();
+    return { success: true };
+  } catch (error: unknown) {
+    return { success: false, error: (error as Error).message || 'Terjadi kesalahan saat membatalkan transaksi' };
   }
 }

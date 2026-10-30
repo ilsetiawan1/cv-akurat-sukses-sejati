@@ -5,6 +5,7 @@ import { Search, Download, PackageOpen, RotateCcw } from 'lucide-react';
 import { useInventoryTable } from '../hooks/useInventoryTable';
 import { Pagination } from '@/components/ui/Pagination';
 import InventoryStatCards from './InventoryStatCards';
+import InventoryMobileCardList from './InventoryMobileCardList';
 import type { InventoryTableProps } from '../types/inventory.types';
 
 export default function InventoryTable({ 
@@ -12,7 +13,7 @@ export default function InventoryTable({
   total, 
   currentPage, 
   limit, 
-  searchQuery,
+  searchQuery, 
   selectedCategory,
   selectedStatus,
   categories,
@@ -58,42 +59,43 @@ export default function InventoryTable({
                 placeholder="Cari nama barang..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition-all placeholder:text-slate-400 text-slate-900 bg-white"
+                className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all placeholder:text-slate-400 text-slate-900 bg-white"
               />
             </form>
 
-            {/* Category Dropdown */}
-            <select
-              value={selectedCategory}
-              onChange={(e) => handleCategoryChange(e.target.value)}
-              className="px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition-all text-slate-900 bg-white shrink-0"
-            >
-              <option value="">Semua Kategori</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
+            {/* Filter Dropdowns (2 columns on mobile, flex on tablet/desktop) */}
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-2.5 w-full sm:w-auto">
+              <select
+                value={selectedCategory}
+                onChange={(e) => handleCategoryChange(e.target.value)}
+                className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-800 bg-white cursor-pointer truncate"
+              >
+                <option value="">Semua Kategori</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
 
-            {/* Status Dropdown (Tampil di mobile, tersembunyi di desktop/tablet) */}
-            <select
-              value={selectedStatus}
-              onChange={(e) => handleStatusChange(e.target.value)}
-              className="md:hidden px-3 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition-all text-slate-900 bg-white shrink-0"
-            >
-              <option value="">Semua Status</option>
-              <option value="safe">Stok Aman (≥ 5)</option>
-              <option value="low">Stok Menipis (&lt; 5)</option>
-              <option value="empty">Stok Habis (0)</option>
-            </select>
+              <select
+                value={selectedStatus}
+                onChange={(e) => handleStatusChange(e.target.value)}
+                className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-800 bg-white cursor-pointer truncate"
+              >
+                <option value="">Semua Status</option>
+                <option value="safe">Stok Aman (≥ 5)</option>
+                <option value="low">Stok Menipis (&lt; 5)</option>
+                <option value="empty">Stok Habis (0)</option>
+              </select>
+            </div>
 
             {/* Reset Filter Button */}
             {hasActiveFilters && (
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors shrink-0"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors shrink-0 cursor-pointer self-start sm:self-auto"
                 title="Reset semua filter"
               >
                 <RotateCcw size={13} />
@@ -106,15 +108,24 @@ export default function InventoryTable({
           <button 
             type="button"
             onClick={exportToCSV}
-            className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors text-sm font-medium shadow-xs shrink-0 whitespace-nowrap"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors text-xs sm:text-sm font-medium shadow-xs shrink-0 whitespace-nowrap cursor-pointer"
           >
-            <Download size={16} className="text-slate-500" />
+            <Download size={15} className="text-slate-500" />
             <span>Export CSV</span>
           </button>
         </div>
 
-        {/* Responsive Table */}
-        <div className="overflow-x-auto w-full">
+        {/* 1. Mobile View: Card List (< md) */}
+        <div className="block md:hidden">
+          <InventoryMobileCardList
+            data={data}
+            hasActiveFilters={hasActiveFilters}
+            getStockStatus={getStockStatus}
+          />
+        </div>
+
+        {/* 2. Desktop View: Full Table (>= md) */}
+        <div className="hidden md:block overflow-x-auto w-full">
           <table className="w-full text-left border-collapse min-w-190">
             <thead>
               <tr className="bg-slate-50/75 text-slate-500 text-xs font-semibold border-b border-slate-200/70 uppercase tracking-wider">
@@ -134,7 +145,7 @@ export default function InventoryTable({
                       <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-2.5 border border-slate-100">
                         <PackageOpen className="h-6 w-6 text-slate-300" />
                       </div>
-                      <p className="font-semibold text-slate-800 text-sm">Tidak ada barang yang cocok</p>
+                      <p className="font-medium text-slate-800 text-sm">Tidak ada barang yang cocok</p>
                       <p className="text-slate-400 text-xs mt-0.5">
                         {hasActiveFilters 
                           ? 'Coba sesuaikan kata kunci pencarian atau filter kategori/status.' 
@@ -155,7 +166,7 @@ export default function InventoryTable({
                         </span>
                       </td>
                       <td className="py-3.5 px-5">
-                        <span className="font-medium text-slate-900 block leading-tight max-w-64 truncate">
+                        <span className="font-medium text-slate-800 block leading-tight max-w-64 truncate">
                           {inv.item?.name || '-'}
                         </span>
                       </td>
@@ -167,16 +178,16 @@ export default function InventoryTable({
                           Satuan: {inv.item?.unit?.name || '-'}
                         </span>
                       </td>
-                      <td className="py-3.5 px-5 font-semibold text-slate-900 text-right tabular-nums whitespace-nowrap">
+                      <td className="py-3.5 px-5 font-medium text-slate-800 text-right tabular-nums whitespace-nowrap">
                         Rp {Number(inv.hpp).toLocaleString('id-ID')}
                       </td>
                       <td className="py-3.5 px-5 text-center">
-                        <span className={`text-sm font-bold tabular-nums ${stockStatus.textClass}`}>
+                        <span className={`text-sm font-medium tabular-nums ${stockStatus.textClass}`}>
                           {inv.stock}
                         </span>
                       </td>
                       <td className="py-3.5 px-5">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${stockStatus.badgeClass}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${stockStatus.badgeClass}`}>
                           {stockStatus.label}
                         </span>
                       </td>
@@ -192,8 +203,8 @@ export default function InventoryTable({
         {total > 0 && (
           <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white">
             <div className="text-xs text-slate-500 text-center sm:text-left">
-              <span className="font-semibold text-slate-700 tabular-nums">{(currentPage - 1) * limit + 1}–{Math.min(currentPage * limit, total)}</span> dari{' '}
-              <span className="font-semibold text-slate-700 tabular-nums">{total}</span> data
+              Menampilkan <span className="font-medium text-slate-800 tabular-nums">{(currentPage - 1) * limit + 1}–{Math.min(currentPage * limit, total)}</span> dari{' '}
+              <span className="font-medium text-slate-800 tabular-nums">{total}</span> data
             </div>
             <Pagination
               page={currentPage}

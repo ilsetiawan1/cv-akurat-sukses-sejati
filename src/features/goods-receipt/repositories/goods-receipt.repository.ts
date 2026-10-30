@@ -1,14 +1,24 @@
-// lib/repositories/goods-receipt.repository.ts
+// src/features/goods-receipt/repositories/goods-receipt.repository.ts
 import { createAdminClient } from '@/lib/supabase/server-admin';
-import type { GoodsReceiptWithRelations, InsertGoodsReceiptPayload } from '@/types';
+import type { 
+  GoodsReceiptWithRelations, 
+  InsertGoodsReceiptPayload, 
+  ReceiptSummaryStats 
+} from '../types/goods-receipt.types';
 
-export async function getGoodsReceiptsPaginated(page: number, limit: number, search?: string) {
+export async function getGoodsReceiptsPaginated(
+  page: number, 
+  limit: number, 
+  search?: string, 
+  categoryId?: string,
+  month?: string
+) {
   const supabase = createAdminClient();
   
   let query = supabase.from('goods_receipts').select(`
     *,
     item:items!inner (
-      id, item_code, name,
+      id, item_code, name, category_id,
       category:categories(name),
       unit:units(name)
     ),
@@ -18,6 +28,20 @@ export async function getGoodsReceiptsPaginated(page: number, limit: number, sea
 
   if (search) {
     query = query.ilike('items.name', `%${search}%`);
+  }
+
+  if (categoryId) {
+    query = query.eq('items.category_id', categoryId);
+  }
+
+  if (month && /^\d{4}-\d{2}$/.test(month)) {
+    const [yStr, mStr] = month.split('-');
+    const y = Number(yStr);
+    const m = Number(mStr);
+    const start = `${yStr}-${mStr.padStart(2, '0')}-01`;
+    const lastDay = new Date(y, m, 0).getDate();
+    const end = `${yStr}-${mStr.padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    query = query.gte('receipt_date', start).lte('receipt_date', end);
   }
 
   const from = (page - 1) * limit;
@@ -37,6 +61,79 @@ export async function getGoodsReceiptsPaginated(page: number, limit: number, sea
   }));
 
   return { data: mappedData, count, error: null };
+}
+
+export async function getGoodsReceiptStats(
+  search?: string, 
+  categoryId?: string, 
+  month?: string
+): Promise<ReceiptSummaryStats> {
+  const supabase = createAdminClient();
+  
+  let query = supabase.from('goods_receipts').select(`
+    quantity,
+    total_price,
+    item:items!inner (
+      name,
+      category_id
+    )
+  `);
+
+  if (search) {
+    query = query.ilike('items.name', `%${search}%`);
+  }
+
+  if (categoryId) {
+    query = query.eq('items.category_id', categoryId);
+  }
+
+  if (month && /^\d{4}-\d{2}$/.test(month)) {
+    const [yStr, mStr] = month.split('-');
+    const y = Number(yStr);
+    const m = Number(mStr);
+    const start = `${yStr}-${mStr.padStart(2, '0')}-01`;
+    const lastDay = new Date(y, m, 0).getDate();
+    const end = `${yStr}-${mStr.padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    query = query.gte('receipt_date', start).lte('receipt_date', end);
+  }
+
+  const { data, error } = await query;
+  if (error || !data) {
+    return { totalTransactions: 0, totalQuantity: 0, totalAmount: 0 };
+  }
+
+  return {
+    totalTransactions: data.length,
+    totalQuantity: data.reduce((acc, r) => acc + (Number(r.quantity) || 0), 0),
+    totalAmount: data.reduce((acc, r) => acc + (Number(r.total_price) || 0), 0),
+  };
+}
+
+export async function getLastReceiptPerItemMap(): Promise<Record<string, { supplierId: string; purchasePrice: number }>> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from('goods_receipts')
+    .select('item_id, supplier_id, quantity, total_price, created_at')
+    .order('created_at', { ascending: false });
+
+  if (error || !data) {
+    return {};
+  }
+
+  const result: Record<string, { supplierId: string; purchasePrice: number }> = {};
+  for (const row of data) {
+    if (row.item_id && !result[row.item_id]) {
+      const qty = Number(row.quantity) || 1;
+      const totalPrice = Number(row.total_price) || 0;
+      const unitPrice = qty > 0 ? Math.round(totalPrice / qty) : 0;
+      result[row.item_id] = {
+        supplierId: row.supplier_id,
+        purchasePrice: unitPrice,
+      };
+    }
+  }
+
+  return result;
 }
 
 export async function generateReceiptCode(): Promise<string> {

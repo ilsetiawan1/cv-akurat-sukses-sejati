@@ -4,12 +4,17 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { addGoodsReceiptAction } from '@/features/goods-receipt/actions/goods-receipt.actions';
-import type { GoodsReceiptFormData, ReceiptModalItem } from '../types/goods-receipt.types';
+import type { 
+  GoodsReceiptFormData, 
+  ReceiptModalItem,
+  UseGoodsReceiptFormReturn 
+} from '../types/goods-receipt.types';
 import type { Supplier } from '@/types';
 
 export interface UseGoodsReceiptFormOptions {
   items: ReceiptModalItem[];
   suppliers: Supplier[];
+  initialItemId?: string;
   onClose: () => void;
 }
 
@@ -21,8 +26,25 @@ const INITIAL_FORM_DATA: GoodsReceiptFormData = {
   receipt_date: new Date().toISOString().split('T')[0],
 };
 
-export function useGoodsReceiptForm({ items, onClose }: UseGoodsReceiptFormOptions) {
-  const [formData, setFormData] = useState<GoodsReceiptFormData>(INITIAL_FORM_DATA);
+export function useGoodsReceiptForm({ 
+  items, 
+  initialItemId,
+  onClose 
+}: UseGoodsReceiptFormOptions): UseGoodsReceiptFormReturn {
+  const initialItem = initialItemId 
+    ? items.find((item) => item.id === initialItemId || item.inventory_id === initialItemId) 
+    : undefined;
+
+  const resolvedItemId = initialItem ? initialItem.id : (initialItemId || '');
+
+  const [formData, setFormData] = useState<GoodsReceiptFormData>(() => ({
+    ...INITIAL_FORM_DATA,
+    item_id: resolvedItemId,
+    supplier_id: initialItem?.last_supplier_id || '',
+    harga_satuan: initialItem?.last_purchase_price ? String(initialItem.last_purchase_price) : '',
+    receipt_date: new Date().toISOString().split('T')[0],
+  }));
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedItem = items.find((item) => item.id === formData.item_id);
@@ -32,8 +54,27 @@ export function useGoodsReceiptForm({ items, onClose }: UseGoodsReceiptFormOptio
   const currentStock = selectedItem?.current_stock ?? 0;
   const estimatedNewStock = currentStock + quantityNum;
 
+  // Reactive validation contract matching useGoodsIssueForm standard
+  const isFormValid = Boolean(
+    formData.item_id && 
+    formData.supplier_id && 
+    quantityNum > 0 && 
+    unitPriceNum >= 0 &&
+    Boolean(formData.receipt_date)
+  );
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    if (name === 'item_id') {
+      const selected = items.find((item) => item.id === value);
+      setFormData((prev) => ({
+        ...prev,
+        item_id: value,
+        supplier_id: selected?.last_supplier_id || prev.supplier_id,
+        harga_satuan: selected?.last_purchase_price ? String(selected.last_purchase_price) : prev.harga_satuan,
+      }));
+      return;
+    }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -47,18 +88,8 @@ export function useGoodsReceiptForm({ items, onClose }: UseGoodsReceiptFormOptio
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.item_id || !formData.supplier_id || !formData.quantity || !formData.harga_satuan) {
+    if (!isFormValid) {
       toast.error('Harap lengkapi semua data barang, supplier, kuantitas, dan harga satuan!');
-      return;
-    }
-
-    if (quantityNum <= 0) {
-      toast.error('Kuantitas barang masuk harus lebih dari 0!');
-      return;
-    }
-
-    if (unitPriceNum < 0) {
-      toast.error('Harga satuan tidak boleh bernilai negatif!');
       return;
     }
 
@@ -91,9 +122,12 @@ export function useGoodsReceiptForm({ items, onClose }: UseGoodsReceiptFormOptio
     formData,
     isSubmitting,
     selectedItem,
+    quantityNum,
+    unitPriceNum,
     totalPrice,
     currentStock,
     estimatedNewStock,
+    isFormValid,
     handleChange,
     handleSubmit,
     resetForm,

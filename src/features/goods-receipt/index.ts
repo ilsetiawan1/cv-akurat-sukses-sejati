@@ -1,6 +1,9 @@
 // src/features/goods-receipt/index.ts
 export { default as GoodsReceiptTable } from './components/GoodsReceiptTable';
 export { default as GoodsReceiptFormModal } from './components/GoodsReceiptFormModal';
+export { default as ReceiptDetailModal } from './components/ReceiptDetailModal';
+export { default as ReceiptStatCards } from './components/ReceiptStatCards';
+export { default as ReceiptMobileCardList } from './components/ReceiptMobileCardList';
 export * from './hooks/useGoodsReceiptTable';
 export * from './hooks/useGoodsReceiptForm';
 export * from './types/goods-receipt.types';

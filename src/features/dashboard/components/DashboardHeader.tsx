@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { RotateCw } from 'lucide-react';
+import { RotateCw, Plus } from 'lucide-react';
 import { useDashboardHeader } from '../hooks/useDashboardHeader';
 
 export function DashboardHeader() {
@@ -20,19 +20,14 @@ export function DashboardHeader() {
       </div>
 
       {/* Right Action Group */}
-      <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-        {/* Status Online Pill */}
-        <div className="h-9 px-3.5 rounded-full bg-white border border-slate-100 shadow-2xs text-xs font-medium text-slate-700 flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Sistem Aktif (Online)</span>
-        </div>
-
-        {/* Primary Action Button */}
+      <div className="flex items-center gap-2.5 self-start sm:self-auto shrink-0">
+        {/* Soft Glass Action Button */}
         <Link
           href="/transaksi/barang-masuk"
-          className="h-9 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition-all flex items-center gap-1.5 shadow-xs cursor-pointer active:scale-95"
+          className="h-9 px-3.5 rounded-xl bg-linear-to-r from-blue-50/90 via-white/80 to-blue-50/90 hover:from-blue-100 hover:to-sky-100 border border-blue-200/90 text-blue-900 font-semibold text-xs transition-all flex items-center gap-1.5 shadow-2xs backdrop-blur-md cursor-pointer active:scale-95"
         >
-          <span>+ Catat Barang Masuk</span>
+          <Plus size={14} className="text-blue-700 stroke-[2.5]" />
+          <span>Catat Barang Masuk</span>
         </Link>
 
         {/* Refresh Icon Button */}

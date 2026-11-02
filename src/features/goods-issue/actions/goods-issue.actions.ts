@@ -1,16 +1,17 @@
-// lib/actions/goods-issue.actions.ts
+// src/features/goods-issue/actions/goods-issue.actions.ts
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import { goodsIssueSchema } from '@/features/transactions/validations/transaction.schema';
-import { addGoodsIssue } from '@/features/goods-issue/services/goods-issue.service';
+import { addGoodsIssue, cancelGoodsIssue } from '@/features/goods-issue/services/goods-issue.service';
 import type { ActionResult } from '@/features/users/types/user.types';
 
 const REVALIDATE = () => {
   revalidatePath('/transaksi/barang-keluar');
   revalidatePath('/transaksi/persediaan');
+  revalidatePath('/dashboard');
 };
 
 async function checkAccess(action: 'can_create') {
@@ -46,5 +47,27 @@ export async function addGoodsIssueAction(formData: unknown): Promise<ActionResu
     return { success: true };
   } catch (error: unknown) {
     return { success: false, error: (error as Error).message || 'Terjadi kesalahan sistem' };
+  }
+}
+
+export async function deleteGoodsIssueAction(issueId: string): Promise<ActionResult> {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Unauthorized');
+
+    const currentUser = await getCurrentUser(user.id);
+    if (!currentUser) throw new Error('Unauthorized');
+
+    if (currentUser.role !== 'super_admin') {
+      return { success: false, error: 'Hanya Super Admin yang berwenang membatalkan transaksi barang keluar.' };
+    }
+
+    await cancelGoodsIssue(issueId);
+
+    REVALIDATE();
+    return { success: true };
+  } catch (error: unknown) {
+    return { success: false, error: (error as Error).message || 'Terjadi kesalahan saat membatalkan transaksi' };
   }
 }

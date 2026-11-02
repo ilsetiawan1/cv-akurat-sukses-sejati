@@ -6,10 +6,12 @@ import { GoodsIssueTable, getGoodsIssuePageData } from '@/features/goods-issue';
 import type { UserPermission } from '@/features/users/types/user.types';
 
 export default async function BarangKeluarPage(props: {
-  searchParams?: Promise<{ search?: string; page?: string }>;
+  searchParams?: Promise<{ search?: string; page?: string; category?: string; month?: string }>;
 }) {
   const searchParams = await props.searchParams;
   const search = searchParams?.search || '';
+  const category = searchParams?.category || '';
+  const month = searchParams?.month || '';
   const page = Number(searchParams?.page) || 1;
   const limit = 10;
 
@@ -23,6 +25,7 @@ export default async function BarangKeluarPage(props: {
   const perm = currentUser.user_permissions?.find((p: UserPermission) => p.feature === 'transaksi');
   const canRead = currentUser.role === 'super_admin' || !!perm?.can_read;
   const canCreate = currentUser.role === 'super_admin' || !!perm?.can_create;
+  const canDelete = currentUser.role === 'super_admin';
 
   if (!canRead) {
     return (
@@ -32,7 +35,14 @@ export default async function BarangKeluarPage(props: {
     );
   }
 
-  const { issues, totalIssues, items } = await getGoodsIssuePageData(page, limit, search);
+  const { 
+    issues, 
+    totalIssues, 
+    stats,
+    categories,
+    monthOptions,
+    items 
+  } = await getGoodsIssuePageData(page, limit, search, category, month);
 
   return (
     <div className="w-full space-y-6">
@@ -49,8 +59,14 @@ export default async function BarangKeluarPage(props: {
         currentPage={page}
         limit={limit}
         searchQuery={search}
+        selectedCategory={category}
+        selectedMonth={month}
+        categories={categories}
+        monthOptions={monthOptions}
+        stats={stats}
         items={items}
         canCreate={canCreate}
+        canDelete={canDelete}
       />
     </div>
   );

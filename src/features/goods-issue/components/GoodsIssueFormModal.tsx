@@ -46,13 +46,13 @@ export default function GoodsIssueFormModal({
         {/* Modal Header */}
         <div className="sticky top-0 bg-white flex items-center justify-between px-6 py-4 border-b border-slate-100 z-20">
           <div>
-            <h2 className="text-lg font-bold text-slate-900">Catat Barang Keluar</h2>
+            <h2 className="text-base font-medium text-slate-900">Catat Barang Keluar</h2>
             <p className="text-xs text-slate-500 mt-0.5">Kurangi stok persediaan dan catat HPP transaksi otomatis</p>
           </div>
           <button 
             type="button"
             onClick={onClose} 
-            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -62,14 +62,14 @@ export default function GoodsIssueFormModal({
         <form noValidate onSubmit={handleSubmit} className="p-6 flex flex-col gap-5">
           {/* Item Selector */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-medium text-slate-700 uppercase tracking-wider mb-1.5">
               Pilih Barang Persediaan <span className="text-rose-500">*</span>
             </label>
             <select
               name="item_id"
               value={formData.item_id}
               onChange={handleChange}
-              className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition-all bg-white text-slate-900"
+              className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all bg-white text-slate-900 cursor-pointer"
             >
               <option value="">Pilih data barang dari persediaan...</option>
               {items.filter((i) => i.current_stock > 0).map((item) => (
@@ -81,12 +81,12 @@ export default function GoodsIssueFormModal({
 
             {selectedItem && (
               <div className="mt-2 flex items-center gap-2 text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
-                <span>Stok Gudang: <strong className="text-slate-900">{currentStock}</strong></span>
-                <span>• HPP: <strong className="text-slate-900">Rp {currentHpp.toLocaleString('id-ID')}</strong></span>
+                <span>Stok Gudang: <strong className="font-medium text-slate-900">{currentStock}</strong></span>
+                <span>• HPP: <strong className="font-medium text-slate-900">Rp {currentHpp.toLocaleString('id-ID')}</strong></span>
                 {quantityNum > 0 && !isQuantityExceeds && (
                   <>
                     <ArrowRight size={12} className="text-slate-400" />
-                    <span>Sisa Nanti: <strong className="text-emerald-700">{remainingStock}</strong></span>
+                    <span>Sisa Nanti: <strong className="font-medium text-emerald-700">{remainingStock}</strong></span>
                   </>
                 )}
               </div>
@@ -96,7 +96,7 @@ export default function GoodsIssueFormModal({
           {/* Date & Quantity */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 uppercase tracking-wider mb-1.5">
                 Tanggal Keluar <span className="text-rose-500">*</span>
               </label>
               <input
@@ -104,12 +104,12 @@ export default function GoodsIssueFormModal({
                 name="issue_date"
                 value={formData.issue_date}
                 onChange={handleChange}
-                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition-all text-slate-900"
+                className="w-full px-3.5 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-900"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 uppercase tracking-wider mb-1.5">
                 Kuantitas Keluar <span className="text-rose-500">*</span>
               </label>
               <input
@@ -123,7 +123,7 @@ export default function GoodsIssueFormModal({
                 className={`w-full px-3.5 py-2.5 text-sm border rounded-xl outline-none transition-all tabular-nums ${
                   isQuantityExceeds
                     ? 'border-rose-300 focus:ring-2 focus:ring-rose-500/10 focus:border-rose-500 bg-rose-50/50 text-rose-900'
-                    : 'border-slate-200 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 bg-white text-slate-900'
+                    : 'border-slate-200 focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 bg-white text-slate-900'
                 }`}
               />
               {isQuantityExceeds && (
@@ -139,12 +139,12 @@ export default function GoodsIssueFormModal({
           {selectedItem && !isQuantityExceeds && quantityNum > 0 && (
             <div className="p-4 bg-slate-50/80 rounded-xl border border-slate-200/70 flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500">Total HPP Berjalan (Pengeluaran)</p>
+                <p className="text-xs font-normal text-slate-500">Total HPP Berjalan (Pengeluaran)</p>
                 <p className="text-xs text-slate-400 mt-0.5">
                   {quantityNum.toLocaleString('id-ID')} unit × Rp {currentHpp.toLocaleString('id-ID')}
                 </p>
               </div>
-              <p className="text-xl font-bold tabular-nums text-slate-900">
+              <p className="text-lg font-medium tabular-nums text-slate-900">
                 Rp {totalHpp.toLocaleString('id-ID')}
               </p>
             </div>
@@ -156,14 +156,14 @@ export default function GoodsIssueFormModal({
               type="button" 
               onClick={onClose} 
               disabled={isSubmitting} 
-              className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
+              className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Batal
             </button>
             <button 
               type="submit" 
               disabled={isSubmitting || !isFormValid} 
-              className="w-full sm:w-auto px-5 py-2.5 text-sm font-semibold text-white bg-slate-900 rounded-xl hover:bg-slate-800 transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-5 py-2.5 text-sm font-medium text-white bg-[#1E3A8A] rounded-xl hover:bg-blue-800 transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
             >
               {isSubmitting ? (
                 <>

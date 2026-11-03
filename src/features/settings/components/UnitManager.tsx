@@ -1,3 +1,4 @@
+// src/features/settings/components/UnitManager.tsx
 'use client';
 
 import { useState } from 'react';
@@ -25,7 +26,7 @@ export default function UnitManager({ units }: { units: Unit[] }) {
     try {
       const res = await manageUnitAction(action, { id, ...formData });
       if (res.success) {
-        toast.success(action === 'add' ? 'Satuan ditambahkan' : 'Satuan diperbarui', { id: toastId });
+        toast.success(action === 'add' ? 'Satuan berhasil ditambahkan' : 'Satuan berhasil diperbarui', { id: toastId });
         setIsAdding(false);
         setEditingId(null);
         setFormData({ name: '', description: '' });
@@ -42,7 +43,7 @@ export default function UnitManager({ units }: { units: Unit[] }) {
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Yakin ingin menghapus satuan "${name}"? Pastikan tidak ada barang yang menggunakannya.`)) return;
     
-    const toastId = toast.loading('Menghapus satuan...');
+    const toastId = toast.loading('Menyimpan perubahan...');
     try {
       const res = await manageUnitAction('delete', { id });
       if (res.success) {
@@ -56,84 +57,153 @@ export default function UnitManager({ units }: { units: Unit[] }) {
   };
 
   return (
-    <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 max-w-4xl">
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-slate-200/80 max-w-3xl">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-5">
         <div>
-          <h2 className="text-xl font-bold text-gray-900">Satuan Barang</h2>
-          <p className="text-sm text-gray-500 mt-1">Kelola ukuran satuan barang (Misal: PCS, BOX, UNIT).</p>
+          <h2 className="text-base font-semibold text-slate-900">Satuan Barang</h2>
+          <p className="text-xs text-slate-500 mt-0.5">Kelola satuan takaran suku cadang (Contoh: PCS, UNIT, BOX, SET, LITER).</p>
         </div>
         <button 
-          onClick={() => { setIsAdding(true); setFormData({name: '', description: ''}); }}
-          className="flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-[#7C3AED] to-purple-600 text-white text-sm font-semibold rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all shadow-md shadow-purple-200"
+          type="button"
+          onClick={() => { setIsAdding(true); setFormData({ name: '', description: '' }); }}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#1E3A8A] text-white text-xs font-medium rounded-xl hover:bg-blue-800 transition-colors shadow-2xs cursor-pointer"
         >
-          <Plus size={18} /> Tambah Data
+          <Plus size={15} />
+          <span>Tambah Satuan</span>
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-gray-200">
+      <div className="overflow-x-auto rounded-xl border border-slate-200/80">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-50 text-gray-500 text-xs uppercase tracking-widest border-b border-gray-200">
-              <th className="px-5 py-4 font-semibold">Nama Satuan</th>
-              <th className="px-5 py-4 font-semibold">Deskripsi</th>
-              <th className="px-5 py-4 text-right font-semibold">Aksi</th>
+            <tr className="bg-slate-50/75 text-slate-800 text-xs font-semibold border-b border-slate-200/70 uppercase tracking-wider">
+              <th className="px-4 py-3">Nama Satuan</th>
+              <th className="px-4 py-3">Deskripsi</th>
+              <th className="px-4 py-3 text-right w-24">Aksi</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 bg-white text-sm">
+          <tbody className="divide-y divide-slate-100 bg-white text-xs">
             {isAdding && (
-              <tr className="bg-purple-50/50">
-                <td className="px-5 py-4">
-                  <input autoFocus type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Nama..." className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm outline-none focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100" />
+              <tr className="bg-blue-50/40">
+                <td className="px-4 py-2.5">
+                  <input
+                    autoFocus
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="Nama satuan..."
+                    className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/10 bg-white"
+                  />
                 </td>
-                <td className="px-5 py-4">
-                  <input type="text" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} placeholder="Deskripsi..." className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm outline-none focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100" />
+                <td className="px-4 py-2.5">
+                  <input
+                    type="text"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    placeholder="Deskripsi..."
+                    className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/10 bg-white"
+                  />
                 </td>
-                <td className="px-5 py-4 text-right flex justify-end gap-2">
-                  <button onClick={() => handleSave('add')} disabled={loading} className="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors"><Check size={18}/></button>
-                  <button onClick={() => setIsAdding(false)} className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"><X size={18}/></button>
+                <td className="px-4 py-2.5 text-right">
+                  <div className="flex items-center justify-end gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleSave('add')}
+                      disabled={loading}
+                      className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
+                      title="Simpan"
+                    >
+                      <Check size={16} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsAdding(false)}
+                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                      title="Batal"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             )}
 
             {units.map((unit) => (
-              <tr key={unit.id} className="hover:bg-gray-50 transition-colors">
+              <tr key={unit.id} className="hover:bg-slate-50/60 transition-colors">
                 {editingId === unit.id ? (
                   <>
-                    <td className="px-5 py-4">
-                      <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm outline-none focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100" />
+                    <td className="px-4 py-2.5">
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/10 bg-white"
+                      />
                     </td>
-                    <td className="px-5 py-4">
-                      <input type="text" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm outline-none focus:border-[#7C3AED] focus:ring-2 focus:ring-purple-100" />
+                    <td className="px-4 py-2.5">
+                      <input
+                        type="text"
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        className="w-full px-3 py-1.5 rounded-lg border border-slate-200 text-xs outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/10 bg-white"
+                      />
                     </td>
-                    <td className="px-5 py-4 text-right flex justify-end gap-2">
-                      <button onClick={() => handleSave('edit', unit.id)} disabled={loading} className="p-2 bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors"><Check size={18}/></button>
-                      <button onClick={() => setEditingId(null)} className="p-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 transition-colors"><X size={18}/></button>
+                    <td className="px-4 py-2.5 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleSave('edit', unit.id)}
+                          disabled={loading}
+                          className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors cursor-pointer"
+                          title="Simpan"
+                        >
+                          <Check size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingId(null)}
+                          className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                          title="Batal"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
                     </td>
                   </>
                 ) : (
                   <>
-                    <td className="px-5 py-4 font-bold text-gray-900">{unit.name}</td>
-                    <td className="px-5 py-4 text-gray-600">{unit.description || '-'}</td>
-                    <td className="px-5 py-4 text-right">
-                      <button 
-                        onClick={() => { setEditingId(unit.id); setFormData({ name: unit.name, description: unit.description || '' }); }}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg inline-block mr-2 transition-colors"
-                      >
-                        <Edit2 size={16}/>
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(unit.id, unit.name)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg inline-block transition-colors"
-                      >
-                        <Trash2 size={16}/>
-                      </button>
+                    <td className="px-4 py-3 font-medium text-slate-900">{unit.name}</td>
+                    <td className="px-4 py-3 text-slate-600">{unit.description || '-'}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button 
+                          type="button"
+                          onClick={() => { setEditingId(unit.id); setFormData({ name: unit.name, description: unit.description || '' }); }}
+                          className="p-1.5 text-slate-400 hover:text-blue-900 hover:bg-blue-50/80 rounded-lg transition-colors cursor-pointer"
+                          title="Edit satuan"
+                        >
+                          <Edit2 size={15} />
+                        </button>
+                        <button 
+                          type="button"
+                          onClick={() => handleDelete(unit.id, unit.name)}
+                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50/80 rounded-lg transition-colors cursor-pointer"
+                          title="Hapus satuan"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </td>
                   </>
                 )}
               </tr>
             ))}
             {units.length === 0 && !isAdding && (
-              <tr><td colSpan={3} className="text-center py-8 text-gray-500 text-sm font-medium">Belum ada data satuan.</td></tr>
+              <tr>
+                <td colSpan={3} className="text-center py-8 text-slate-400 text-xs">
+                  Belum ada data satuan suku cadang.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

@@ -1,3 +1,4 @@
+// src/app/(dashboard)/data-master/supplier/page.tsx
 import { listSuppliers } from '@/features/suppliers/services/supplier.service';
 import SupplierTable from '@/features/suppliers/components/SupplierTable';
 import { createClient } from '@/lib/supabase/server';
@@ -28,14 +29,8 @@ export default async function SupplierPage({ searchParams }: PageProps) {
 
   if (!canRead) {
     return (
-      <div className="flex flex-col items-center justify-center h-72 bg-white rounded-2xl border border-gray-200 p-6 text-center shadow-xs">
-        <div className="w-14 h-14 rounded-full bg-red-50 text-red-500 flex items-center justify-center mb-3.5">
-          <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-        </div>
-        <h2 className="text-lg font-bold text-gray-900 mb-1">Akses Dibatasi</h2>
-        <p className="text-sm text-gray-500 max-w-md">Anda tidak memiliki hak akses untuk melihat Data Supplier.</p>
+      <div className="flex items-center justify-center h-64 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+        <p className="text-rose-500 font-medium text-sm">Anda tidak memiliki hak akses untuk melihat Data Supplier.</p>
       </div>
     );
   }
@@ -48,11 +43,11 @@ export default async function SupplierPage({ searchParams }: PageProps) {
   const { data, total } = await listSuppliers(page, limit, search);
 
   return (
-    <div className="w-full max-w-full">
-      <div className="mb-6 md:mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Data Supplier</h1>
-        <p className="text-sm md:text-base text-gray-500 mt-1">
-          Kelola data master supplier untuk keperluan pengadaan barang masuk.
+    <div className="w-full space-y-5 sm:space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Data Supplier</h1>
+        <p className="text-sm text-slate-500 mt-1">
+          Kelola data master supplier rekanan untuk keperluan pengadaan barang masuk.
         </p>
       </div>
       

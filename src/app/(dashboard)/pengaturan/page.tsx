@@ -1,4 +1,6 @@
+// src/app/(dashboard)/pengaturan/page.tsx
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/server-admin';
 import { getCurrentUser } from '@/features/users/services/user.service';
@@ -26,8 +28,8 @@ export default async function PengaturanPage(props: {
 
   if (!canRead) {
     return (
-      <div className="flex items-center justify-center h-64 bg-white rounded-xl border border-gray-200">
-        <p className="text-red-500 font-medium">Anda tidak memiliki akses untuk melihat pengaturan.</p>
+      <div className="flex items-center justify-center h-64 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+        <p className="text-rose-500 font-medium text-sm">Anda tidak memiliki hak akses untuk melihat Pengaturan Sistem.</p>
       </div>
     );
   }
@@ -44,22 +46,46 @@ export default async function PengaturanPage(props: {
   const companyAddress = cookieStore.get('company_address')?.value || '';
 
   return (
-    <div className="w-full">
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Pengaturan Sistem</h1>
-        <p className="text-base text-gray-500 mt-2 max-w-2xl">Kelola profil pengguna, kredensial, parameter master data, dan identitas laporan perusahaan Anda.</p>
+    <div className="w-full space-y-5 sm:space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Pengaturan Sistem</h1>
+        <p className="text-sm text-slate-500 mt-1 max-w-2xl">
+          Kelola profil pengguna, kredensial keamanan, parameter master kategori & satuan, serta identitas kop laporan resmi.
+        </p>
       </div>
 
-      <div className="flex gap-4 border-b border-gray-200 mb-8 overflow-x-auto">
-        <a href="?tab=profil" className={`px-6 py-3.5 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${tab === 'profil' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}>
+      {/* Segmented Toggle Pills Tab Bar */}
+      <div className="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/60 max-w-full overflow-x-auto">
+        <Link 
+          href="/pengaturan?tab=profil" 
+          className={`px-4 py-2 text-xs font-medium rounded-lg transition-all whitespace-nowrap cursor-pointer ${
+            tab === 'profil' 
+              ? 'bg-white text-slate-900 shadow-2xs font-semibold' 
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
           Profil & Keamanan Akun
-        </a>
-        <a href="?tab=kategori" className={`px-6 py-3.5 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${tab === 'kategori' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}>
+        </Link>
+        <Link 
+          href="/pengaturan?tab=kategori" 
+          className={`px-4 py-2 text-xs font-medium rounded-lg transition-all whitespace-nowrap cursor-pointer ${
+            tab === 'kategori' 
+              ? 'bg-white text-slate-900 shadow-2xs font-semibold' 
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
           Manajemen Kategori
-        </a>
-        <a href="?tab=satuan" className={`px-6 py-3.5 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${tab === 'satuan' ? 'border-[#7C3AED] text-[#7C3AED]' : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}`}>
+        </Link>
+        <Link 
+          href="/pengaturan?tab=satuan" 
+          className={`px-4 py-2 text-xs font-medium rounded-lg transition-all whitespace-nowrap cursor-pointer ${
+            tab === 'satuan' 
+              ? 'bg-white text-slate-900 shadow-2xs font-semibold' 
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
           Manajemen Satuan
-        </a>
+        </Link>
       </div>
 
       <div className="pb-10">

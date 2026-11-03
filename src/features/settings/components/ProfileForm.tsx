@@ -1,3 +1,4 @@
+// src/features/settings/components/ProfileForm.tsx
 'use client';
 
 import { useState, useRef } from 'react';
@@ -19,7 +20,7 @@ function formatUpdatedAt(updatedAt: string): string {
   const year = date.getFullYear();
   const hour = String(date.getHours()).padStart(2, '0');
   const min = String(date.getMinutes()).padStart(2, '0');
-  return `${day}/${month}/${year} - Jam ${hour}:${min} WIB`;
+  return `${day}/${month}/${year}, ${hour}:${min} WIB`;
 }
 
 export default function ProfileForm({ user, companyName, companyAddress }: Props) {
@@ -29,7 +30,21 @@ export default function ProfileForm({ user, companyName, companyAddress }: Props
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setPreviewAvatar(URL.createObjectURL(file));
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Ukuran foto profil maksimal 5 MB');
+      e.target.value = '';
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('File harus berupa gambar (JPG, PNG, WebP)');
+      e.target.value = '';
+      return;
+    }
+
+    setPreviewAvatar(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -40,14 +55,15 @@ export default function ProfileForm({ user, companyName, companyAddress }: Props
       const formData = new FormData(e.currentTarget);
       const res = await updateProfileAction(formData);
       if (res.success) {
-        toast.success('Profil dan Pengaturan berhasil diperbarui!', { id: toastId });
+        toast.success('Profil dan identitas perusahaan berhasil disimpan!', { id: toastId });
         const passInput = document.getElementById('password') as HTMLInputElement;
         if (passInput) passInput.value = '';
       } else {
-        toast.error(res.error || 'Terjadi kesalahan', { id: toastId });
+        toast.error(res.error || 'Terjadi kesalahan saat menyimpan', { id: toastId });
       }
-    } catch {
-      toast.error('Gagal memproses form', { id: toastId });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Gagal memproses form';
+      toast.error(message, { id: toastId });
     } finally {
       setLoading(false);
     }
@@ -56,30 +72,30 @@ export default function ProfileForm({ user, companyName, companyAddress }: Props
   const updatedAtText = user.updated_at ? formatUpdatedAt(user.updated_at) : null;
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 max-w-4xl">
+    <form onSubmit={handleSubmit} className="bg-white p-5 md:p-6 rounded-2xl shadow-xs border border-slate-200/80 max-w-3xl">
       <input type="hidden" name="current_avatar" value={user.avatar_url || ''} />
 
-      {/* Avatar Section */}
-      <div className="flex flex-col md:flex-row gap-8 mb-10 pb-10 border-b border-gray-100">
-        <div className="flex flex-col items-center gap-4">
-          <div className="relative w-32 h-32 rounded-full border-4 border-purple-50 bg-gray-100 overflow-hidden flex items-center justify-center shrink-0">
+      {/* Avatar & Identitas Akun */}
+      <div className="flex flex-col sm:flex-row gap-6 mb-8 pb-6 border-b border-slate-100">
+        <div className="flex flex-col items-center gap-2.5">
+          <div className="relative w-24 h-24 rounded-full border-4 border-slate-100 bg-slate-50 overflow-hidden flex items-center justify-center shrink-0">
             {previewAvatar ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={previewAvatar} alt="Avatar Preview" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-4xl font-bold text-gray-300">{user.name.charAt(0).toUpperCase()}</span>
+              <span className="text-2xl font-semibold text-slate-400">{user.name.charAt(0).toUpperCase()}</span>
             )}
             <div
-              className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
+              className="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Camera className="text-white" size={24} />
+              <Camera className="text-white" size={20} />
             </div>
           </div>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="text-sm font-medium text-[#7C3AED] hover:text-purple-700"
+            className="text-xs font-medium text-slate-600 hover:text-blue-900 transition-colors cursor-pointer"
           >
             Ubah Foto Profil
           </button>
@@ -93,102 +109,100 @@ export default function ProfileForm({ user, companyName, companyAddress }: Props
           />
         </div>
 
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="md:col-span-2">
-            <h3 className="text-lg font-bold text-gray-900 mb-1">Informasi Akun</h3>
-            <p className="text-sm text-gray-500 mb-3">Kelola identitas dan kredensial login Anda.</p>
+        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="sm:col-span-2">
+            <h3 className="text-sm font-semibold text-slate-900">Informasi Akun</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Kelola identitas diri dan kredensial login akun Anda.</p>
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">Nama Lengkap</label>
             <input
               type="text"
               name="name"
               defaultValue={user.name}
               required
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] transition-colors outline-none"
+              className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 transition-colors outline-none"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">Email</label>
             <input
               type="email"
               name="email"
               defaultValue={user.email}
               required
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] transition-colors outline-none"
+              className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 transition-colors outline-none"
             />
           </div>
-          <div className="md:col-span-2">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">
               Password Baru{' '}
-              <span className="text-gray-400 font-normal">(Kosongkan jika tidak ingin ganti)</span>
+              <span className="text-slate-400 font-normal">(Kosongkan jika tidak ingin mengganti)</span>
             </label>
             <input
               type="password"
               name="password"
               id="password"
               placeholder="••••••••"
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] transition-colors outline-none"
+              className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 transition-colors outline-none"
             />
           </div>
         </div>
       </div>
 
       {/* Informasi Perusahaan */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div className="md:col-span-2">
-          <h3 className="text-lg font-bold text-gray-900 mb-1">Informasi Perusahaan</h3>
-          <p className="text-sm text-gray-500 mb-4">
-            Data ini akan digunakan secara global sebagai Kop Surat Laporan PDF.
-          </p>
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-semibold text-gray-700">Nama Perusahaan</label>
-            {updatedAtText && (
-              <span className="text-xs text-gray-400 font-normal">(Terakhir diperbarui: {updatedAtText})</span>
-            )}
+      <div className="mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 mb-4">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900">Identitas Perusahaan</h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Informasi ini digunakan sebagai kop surat resmi laporan persediaan (PDF/Cetak).
+            </p>
           </div>
-          <input
-            type="text"
-            name="company_name"
-            defaultValue={companyName}
-            placeholder="CV. AKURAT SUKSES SEJATI"
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] transition-colors outline-none"
-          />
+          {updatedAtText && (
+            <span className="text-xs text-slate-400 font-normal shrink-0">
+              Terakhir diperbarui: {updatedAtText}
+            </span>
+          )}
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-semibold text-gray-700">
-              Alamat Perusahaan{' '}
-              <span className="text-gray-400 font-normal">(Opsional)</span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">Nama Perusahaan</label>
+            <input
+              type="text"
+              name="company_name"
+              defaultValue={companyName}
+              placeholder="CV. AKURAT SUKSES SEJATI"
+              className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 transition-colors outline-none font-medium text-slate-900"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">
+              Alamat Perusahaan <span className="text-slate-400 font-normal">(Opsional)</span>
             </label>
-            {updatedAtText && (
-              <span className="text-xs text-gray-400 font-normal">(Terakhir diperbarui: {updatedAtText})</span>
-            )}
+            <input
+              type="text"
+              name="company_address"
+              defaultValue={companyAddress}
+              placeholder="Alamat kantor..."
+              className="w-full px-3.5 py-2 text-xs sm:text-sm rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 transition-colors outline-none text-slate-900"
+            />
           </div>
-          <input
-            type="text"
-            name="company_address"
-            defaultValue={companyAddress}
-            placeholder="Alamat kantor..."
-            className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] transition-colors outline-none"
-          />
         </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-end pt-3 border-t border-slate-100">
         <button
           type="submit"
           disabled={loading}
-          className="flex items-center gap-2 px-8 py-3.5 bg-linear-to-r from-[#7C3AED] to-purple-600 text-white font-bold rounded-xl hover:from-purple-600 hover:to-purple-700 shadow-md shadow-purple-200 transition-all active:scale-[0.98] disabled:opacity-70"
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#1E3A8A] text-white text-xs sm:text-sm font-medium rounded-xl hover:bg-blue-800 shadow-2xs transition-all active:scale-[0.99] disabled:opacity-70 cursor-pointer"
         >
           {loading ? (
-            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
           ) : (
-            <Save size={18} />
+            <Save size={15} />
           )}
           <span>Simpan Perubahan</span>
         </button>

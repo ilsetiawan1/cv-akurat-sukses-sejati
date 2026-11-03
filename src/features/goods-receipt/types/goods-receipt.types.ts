@@ -27,10 +27,20 @@ export interface GoodsReceiptFormData {
   receipt_date: string;
 }
 
+export interface ReceiptCategoryBreakdown {
+  name: string;
+  quantity: number;
+  percentage: number;
+  barColor: string;
+  dotColor: string;
+  textColor: string;
+}
+
 export interface ReceiptSummaryStats {
   totalTransactions: number;
   totalQuantity: number;
   totalAmount: number;
+  categoryBreakdown: ReceiptCategoryBreakdown[];
 }
 
 export interface SelectedMonthOption {

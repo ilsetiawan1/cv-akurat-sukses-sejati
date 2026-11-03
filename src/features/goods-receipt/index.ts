@@ -2,6 +2,7 @@
 export { default as GoodsReceiptTable } from './components/GoodsReceiptTable';
 export { default as GoodsReceiptFormModal } from './components/GoodsReceiptFormModal';
 export { default as ReceiptDetailModal } from './components/ReceiptDetailModal';
+export { default as ReceiptFunnelCard } from './components/ReceiptFunnelCard';
 export { default as ReceiptStatCards } from './components/ReceiptStatCards';
 export { default as ReceiptMobileCardList } from './components/ReceiptMobileCardList';
 export * from './hooks/useGoodsReceiptTable';

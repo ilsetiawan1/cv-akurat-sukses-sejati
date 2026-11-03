@@ -1,7 +1,8 @@
 // src/features/inventory/components/InventoryStatCards.tsx
 'use client';
 
-import { Boxes, AlertTriangle, PackageX } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Info } from 'lucide-react';
 import type { InventoryStats } from '../types/inventory.types';
 
 export interface InventoryStatCardsProps {
@@ -15,104 +16,319 @@ export default function InventoryStatCards({
   selectedStatus,
   onStatusChange,
 }: InventoryStatCardsProps) {
+  const [activeTooltip, setActiveTooltip] = useState<'sku' | 'low' | 'empty' | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!activeTooltip) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setActiveTooltip(null);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [activeTooltip]);
+
+  const isAllActive = !selectedStatus;
+  const isLowActive = selectedStatus === 'low';
+  const isEmptyActive = selectedStatus === 'empty';
+
   return (
-    <div className="flex md:grid md:grid-cols-3 gap-2.5 lg:gap-4 overflow-x-auto md:overflow-visible pb-1 md:pb-0 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden select-none">
+    <div 
+      ref={containerRef}
+      className="relative z-30 grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4 select-none"
+    >
       {/* CARD 1: TOTAL KATALOG SKU */}
       <div 
         onClick={() => onStatusChange('')}
-        className={`w-[210px] md:w-auto shrink-0 snap-start relative overflow-hidden rounded-xl md:rounded-2xl p-3 md:p-4 lg:p-5 transition-all duration-300 cursor-pointer group border shadow-xs ${
-          !selectedStatus 
-            ? 'bg-linear-to-br from-white via-blue-50/70 to-blue-100/50 border-blue-300 ring-2 ring-blue-500/20' 
-            : 'bg-linear-to-br from-white via-slate-50 to-blue-50/40 border-slate-200/80 hover:border-blue-200/80 hover:shadow-xs'
+        className={`relative bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-xs transition-all flex flex-col justify-between cursor-pointer border ${
+          isAllActive 
+            ? 'border-blue-400/80 bg-blue-50/10 ring-1 ring-blue-400/20' 
+            : 'border-slate-200/80 hover:border-slate-300'
         }`}
       >
-        <svg className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-30" viewBox="0 0 400 200" fill="none" preserveAspectRatio="none">
-          <path d="M-20 140 C100 60, 240 200, 420 80 L420 220 L-20 220 Z" fill="#3B82F6" fillOpacity="0.08"/>
-          <path d="M140 -20 C220 90, 120 160, 280 220 L420 220 L420 -20 Z" fill="#2563EB" fillOpacity="0.06"/>
-          <circle cx="330" cy="145" r="85" fill="#60A5FA" fillOpacity="0.08"/>
-        </svg>
+        {/* Top Header: Title & Info Button */}
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-medium text-slate-600 tracking-tight truncate">
+            Total Katalog SKU
+          </span>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTooltip((prev) => (prev === 'sku' ? null : 'sku'));
+              }}
+              onMouseEnter={() => setActiveTooltip('sku')}
+              onMouseLeave={() => setActiveTooltip(null)}
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                activeTooltip === 'sku'
+                  ? 'bg-slate-100 border-slate-300 text-slate-900 shadow-2xs'
+                  : 'border-slate-200/90 text-slate-400 hover:text-slate-800 hover:border-slate-300 hover:bg-slate-50'
+              }`}
+              title="Penjelasan Total Katalog SKU"
+              aria-label="Info Total Katalog SKU"
+            >
+              <Info size={14} />
+            </button>
 
-        <div className="relative z-10 flex flex-col justify-between">
-          <div className="flex items-center justify-between gap-1.5">
-            <span className="text-slate-600 font-medium text-xs sm:text-sm tracking-tight truncate">
-              Total Katalog SKU
-            </span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-blue-100/80 text-blue-700 flex items-center justify-center shrink-0 border border-blue-200/70 shadow-2xs">
-              <Boxes size={13} />
+            {/* FLOATING CARD: LIGHT MONOCHROME GLASS */}
+            {activeTooltip === 'sku' && (
+              <div 
+                onMouseEnter={() => setActiveTooltip('sku')}
+                onMouseLeave={() => setActiveTooltip(null)}
+                className="absolute right-0 top-9 sm:top-10 w-68 sm:w-72 bg-white/95 backdrop-blur-md text-slate-800 p-3.5 rounded-xl sm:rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-200/90 text-xs z-50 pointer-events-auto animate-in fade-in zoom-in-95 duration-150 select-text"
+                role="tooltip"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                  <span className="font-medium text-slate-900 text-xs">Total Katalog SKU</span>
+                  <span className="text-3xs px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-mono border border-slate-200/70">
+                    MASTER DATA
+                  </span>
+                </div>
+                <p className="mt-2 text-slate-600 text-2xs leading-relaxed font-normal">
+                  Jumlah seluruh varian suku cadang unik (Stock Keeping Unit) yang terdaftar aktif dalam katalog persediaan gudang.
+                </p>
+                <div className="mt-2.5 p-2 rounded-lg bg-slate-50/90 border border-slate-200/80">
+                  <span className="text-3xs text-slate-400 font-normal uppercase tracking-wider block">
+                    Keterangan:
+                  </span>
+                  <code className="text-2xs text-slate-800 font-mono font-medium block mt-0.5">
+                    Count (Unique Item SKU)
+                  </code>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Body: Value on left, Waveform on right */}
+        <div className="mt-4 flex items-center justify-between gap-2">
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-medium text-slate-900 tabular-nums">
+                {stats.totalSku.toLocaleString('id-ID')}
+              </span>
+              <span className={`text-xs font-medium select-none ${stats.totalSku > 0 ? 'text-blue-600' : 'text-slate-300'}`}>
+                ●
+              </span>
+            </div>
+            <div className="mt-1 flex flex-col">
+              <span className={`text-xs font-medium ${stats.totalSku > 0 ? 'text-blue-700' : 'text-slate-500'}`}>
+                Varian SKU
+              </span>
+              <span className="text-xs text-slate-400 font-normal">
+                katalog persediaan
+              </span>
             </div>
           </div>
 
-          <div className="mt-2 sm:mt-2.5 flex items-baseline gap-1.5">
-            <span className="text-lg sm:text-2xl lg:text-3xl font-medium text-slate-900 tabular-nums">
-              {stats.totalSku.toLocaleString('id-ID')}
-            </span>
-            <span className="text-xs text-slate-400 font-normal">item SKU</span>
+          {/* Mini Waveform Sparkline */}
+          <div className="flex items-end gap-1 sm:gap-1.5 h-10 sm:h-11 pb-0.5" aria-hidden="true">
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-6" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
+            <span className={`w-2 sm:w-2.5 rounded-full ${stats.totalSku > 0 ? 'bg-[#2E82F6]' : 'bg-slate-200'} h-10`} />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-7" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-4" />
           </div>
         </div>
       </div>
 
       {/* CARD 2: STOK MENIPIS (< 5) */}
       <div 
-        onClick={() => onStatusChange(selectedStatus === 'low' ? '' : 'low')}
-        className={`w-[210px] md:w-auto shrink-0 snap-start relative overflow-hidden rounded-xl md:rounded-2xl p-3 md:p-4 lg:p-5 transition-all duration-300 cursor-pointer group border shadow-xs ${
-          selectedStatus === 'low'
-            ? 'bg-linear-to-br from-white via-amber-50 to-amber-100/60 border-amber-300 ring-2 ring-amber-500/20'
-            : 'bg-linear-to-br from-white via-slate-50 to-amber-50/40 border-slate-200/80 hover:border-amber-200/80 hover:shadow-xs'
+        onClick={() => onStatusChange(isLowActive ? '' : 'low')}
+        className={`relative bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-xs transition-all flex flex-col justify-between cursor-pointer border ${
+          isLowActive 
+            ? 'border-amber-400/80 bg-amber-50/10 ring-1 ring-amber-400/20' 
+            : 'border-slate-200/80 hover:border-slate-300'
         }`}
       >
-        <svg className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-30" viewBox="0 0 400 200" fill="none" preserveAspectRatio="none">
-          <path d="M-20 160 C120 120, 180 20, 420 50 L420 220 L-20 220 Z" fill="#F59E0B" fillOpacity="0.08"/>
-          <circle cx="335" cy="140" r="80" fill="#FBBF24" fillOpacity="0.08"/>
-        </svg>
+        {/* Top Header: Title & Info Button */}
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-medium text-slate-600 tracking-tight truncate">
+            Stok Menipis (&lt; 5)
+          </span>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTooltip((prev) => (prev === 'low' ? null : 'low'));
+              }}
+              onMouseEnter={() => setActiveTooltip('low')}
+              onMouseLeave={() => setActiveTooltip(null)}
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                activeTooltip === 'low'
+                  ? 'bg-slate-100 border-slate-300 text-slate-900 shadow-2xs'
+                  : 'border-slate-200/90 text-slate-400 hover:text-slate-800 hover:border-slate-300 hover:bg-slate-50'
+              }`}
+              title="Penjelasan Stok Menipis"
+              aria-label="Info Stok Menipis"
+            >
+              <Info size={14} />
+            </button>
 
-        <div className="relative z-10 flex flex-col justify-between">
-          <div className="flex items-center justify-between gap-1.5">
-            <span className="text-slate-600 font-medium text-xs sm:text-sm tracking-tight truncate">
-              Stok Menipis (&lt; 5)
-            </span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-amber-100/80 text-amber-800 flex items-center justify-center shrink-0 border border-amber-200/70 shadow-2xs">
-              <AlertTriangle size={13} />
+            {/* FLOATING CARD: LIGHT MONOCHROME GLASS */}
+            {activeTooltip === 'low' && (
+              <div 
+                onMouseEnter={() => setActiveTooltip('low')}
+                onMouseLeave={() => setActiveTooltip(null)}
+                className="absolute right-0 top-9 sm:top-10 w-68 sm:w-72 bg-white/95 backdrop-blur-md text-slate-800 p-3.5 rounded-xl sm:rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-200/90 text-xs z-50 pointer-events-auto animate-in fade-in zoom-in-95 duration-150 select-text"
+                role="tooltip"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                  <span className="font-medium text-slate-900 text-xs">Stok Menipis (&lt; 5)</span>
+                  <span className="text-3xs px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-mono border border-amber-200/70">
+                    PERINGATAN
+                  </span>
+                </div>
+                <p className="mt-2 text-slate-600 text-2xs leading-relaxed font-normal">
+                  Suku cadang dengan sisa stok fisik di bawah batas minimum (kurang dari 5 unit). Disarankan segera melakukan restock pemesanan ke supplier.
+                </p>
+                <div className="mt-2.5 p-2 rounded-lg bg-slate-50/90 border border-slate-200/80">
+                  <span className="text-3xs text-slate-400 font-normal uppercase tracking-wider block">
+                    Kriteria:
+                  </span>
+                  <code className="text-2xs text-slate-800 font-mono font-medium block mt-0.5">
+                    1 ≤ Sisa Fisik &lt; 5 Unit
+                  </code>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Body: Value on left, Waveform on right */}
+        <div className="mt-4 flex items-center justify-between gap-2">
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-medium text-slate-900 tabular-nums">
+                {stats.lowStock.toLocaleString('id-ID')}
+              </span>
+              <span className={`text-xs font-medium select-none ${stats.lowStock > 0 ? 'text-amber-500' : 'text-slate-300'}`}>
+                ▲
+              </span>
+            </div>
+            <div className="mt-1 flex flex-col">
+              <span className={`text-xs font-medium ${stats.lowStock > 0 ? 'text-amber-700' : 'text-slate-500'}`}>
+                Perlu Restock
+              </span>
+              <span className="text-xs text-slate-400 font-normal">
+                di bawah ambang batas
+              </span>
             </div>
           </div>
 
-          <div className="mt-2 sm:mt-2.5 flex items-baseline gap-1.5">
-            <span className="text-lg sm:text-2xl lg:text-3xl font-medium text-amber-700 tabular-nums">
-              {stats.lowStock.toLocaleString('id-ID')}
-            </span>
-            <span className="text-xs text-amber-600/80 font-normal">perlu restock</span>
+          {/* Mini Waveform Sparkline */}
+          <div className="flex items-end gap-1 sm:gap-1.5 h-10 sm:h-11 pb-0.5" aria-hidden="true">
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-4" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
+            <span className={`w-2 sm:w-2.5 rounded-full ${stats.lowStock > 0 ? 'bg-amber-400' : 'bg-slate-200'} h-10`} />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-6" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-4" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3" />
           </div>
         </div>
       </div>
 
       {/* CARD 3: STOK HABIS (0) */}
       <div 
-        onClick={() => onStatusChange(selectedStatus === 'empty' ? '' : 'empty')}
-        className={`w-[210px] md:w-auto shrink-0 snap-start relative overflow-hidden rounded-xl md:rounded-2xl p-3 md:p-4 lg:p-5 transition-all duration-300 cursor-pointer group border shadow-xs ${
-          selectedStatus === 'empty'
-            ? 'bg-linear-to-br from-white via-rose-50 to-rose-100/60 border-rose-300 ring-2 ring-rose-500/20'
-            : 'bg-linear-to-br from-white via-slate-50 to-rose-50/40 border-slate-200/80 hover:border-rose-200/80 hover:shadow-xs'
+        onClick={() => onStatusChange(isEmptyActive ? '' : 'empty')}
+        className={`relative bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-xs transition-all flex flex-col justify-between cursor-pointer border ${
+          isEmptyActive 
+            ? 'border-rose-400/80 bg-rose-50/10 ring-1 ring-rose-400/20' 
+            : 'border-slate-200/80 hover:border-slate-300'
         }`}
       >
-        <svg className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-30" viewBox="0 0 400 200" fill="none" preserveAspectRatio="none">
-          <path d="M-20 120 C90 190, 240 60, 420 130 L420 220 L-20 220 Z" fill="#F43F5E" fillOpacity="0.08"/>
-          <circle cx="330" cy="145" r="82" fill="#FB7185" fillOpacity="0.08"/>
-        </svg>
+        {/* Top Header: Title & Info Button */}
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-medium text-slate-600 tracking-tight truncate">
+            Stok Habis (0)
+          </span>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTooltip((prev) => (prev === 'empty' ? null : 'empty'));
+              }}
+              onMouseEnter={() => setActiveTooltip('empty')}
+              onMouseLeave={() => setActiveTooltip(null)}
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                activeTooltip === 'empty'
+                  ? 'bg-slate-100 border-slate-300 text-slate-900 shadow-2xs'
+                  : 'border-slate-200/90 text-slate-400 hover:text-slate-800 hover:border-slate-300 hover:bg-slate-50'
+              }`}
+              title="Penjelasan Stok Habis"
+              aria-label="Info Stok Habis"
+            >
+              <Info size={14} />
+            </button>
 
-        <div className="relative z-10 flex flex-col justify-between">
-          <div className="flex items-center justify-between gap-1.5">
-            <span className="text-slate-600 font-medium text-xs sm:text-sm tracking-tight truncate">
-              Stok Habis (0)
-            </span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-rose-100/80 text-rose-800 flex items-center justify-center shrink-0 border border-rose-200/70 shadow-2xs">
-              <PackageX size={13} />
+            {/* FLOATING CARD: LIGHT MONOCHROME GLASS */}
+            {activeTooltip === 'empty' && (
+              <div 
+                onMouseEnter={() => setActiveTooltip('empty')}
+                onMouseLeave={() => setActiveTooltip(null)}
+                className="absolute right-0 top-9 sm:top-10 w-68 sm:w-72 bg-white/95 backdrop-blur-md text-slate-800 p-3.5 rounded-xl sm:rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-200/90 text-xs z-50 pointer-events-auto animate-in fade-in zoom-in-95 duration-150 select-text"
+                role="tooltip"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                  <span className="font-medium text-slate-900 text-xs">Stok Habis (0)</span>
+                  <span className="text-3xs px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 font-mono border border-rose-200/70">
+                    KRITIS
+                  </span>
+                </div>
+                <p className="mt-2 text-slate-600 text-2xs leading-relaxed font-normal">
+                  Suku cadang dengan sisa persediaan fisik 0 unit di gudang. Tidak dapat dikeluarkan sebelum ada penerimaan barang baru.
+                </p>
+                <div className="mt-2.5 p-2 rounded-lg bg-slate-50/90 border border-slate-200/80">
+                  <span className="text-3xs text-slate-400 font-normal uppercase tracking-wider block">
+                    Kriteria:
+                  </span>
+                  <code className="text-2xs text-slate-800 font-mono font-medium block mt-0.5">
+                    Sisa Fisik = 0 Unit
+                  </code>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Body: Value on left, Waveform on right */}
+        <div className="mt-4 flex items-center justify-between gap-2">
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-medium text-slate-900 tabular-nums">
+                {stats.emptyStock.toLocaleString('id-ID')}
+              </span>
+              <span className={`text-xs font-medium select-none ${stats.emptyStock > 0 ? 'text-rose-500' : 'text-slate-300'}`}>
+                ●
+              </span>
+            </div>
+            <div className="mt-1 flex flex-col">
+              <span className={`text-xs font-medium ${stats.emptyStock > 0 ? 'text-rose-700' : 'text-slate-500'}`}>
+                Stok Kosong
+              </span>
+              <span className="text-xs text-slate-400 font-normal">
+                ketersediaan nol
+              </span>
             </div>
           </div>
 
-          <div className="mt-2 sm:mt-2.5 flex items-baseline gap-1.5">
-            <span className="text-lg sm:text-2xl lg:text-3xl font-medium text-rose-700 tabular-nums">
-              {stats.emptyStock.toLocaleString('id-ID')}
-            </span>
-            <span className="text-xs text-rose-600/80 font-normal">stok habis</span>
+          {/* Mini Waveform Sparkline */}
+          <div className="flex items-end gap-1 sm:gap-1.5 h-10 sm:h-11 pb-0.5" aria-hidden="true">
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-4" />
+            <span className={`w-2 sm:w-2.5 rounded-full ${stats.emptyStock > 0 ? 'bg-rose-500' : 'bg-slate-200'} h-10`} />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-4" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3" />
           </div>
         </div>
       </div>

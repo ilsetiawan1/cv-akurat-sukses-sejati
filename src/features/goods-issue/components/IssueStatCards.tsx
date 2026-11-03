@@ -94,10 +94,12 @@ export default function IssueStatCards({ stats }: IssueStatCardsProps) {
               <span className="text-xl sm:text-2xl font-medium text-slate-900 tabular-nums">
                 {stats.totalHppAmount.toLocaleString('id-ID')}
               </span>
-              <span className="text-xs text-emerald-500 font-medium ml-1.5 select-none">▲</span>
+              <span className={`text-xs font-medium ml-1.5 select-none ${stats.totalHppAmount > 0 ? 'text-emerald-500' : 'text-slate-300'}`}>
+                ▲
+              </span>
             </div>
             <div className="mt-1 flex flex-col">
-              <span className="text-xs text-emerald-600 font-medium">
+              <span className={`text-xs font-medium ${stats.totalHppAmount > 0 ? 'text-emerald-600' : 'text-slate-500'}`}>
                 HPP Berjalan
               </span>
               <span className="text-xs text-slate-400 font-normal">
@@ -111,7 +113,7 @@ export default function IssueStatCards({ stats }: IssueStatCardsProps) {
             <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3.5" />
             <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-6" />
             <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
-            <span className="w-2 sm:w-2.5 rounded-full bg-indigo-500 h-10" />
+            <span className={`w-2 sm:w-2.5 rounded-full ${stats.totalHppAmount > 0 ? 'bg-indigo-500' : 'bg-slate-200'} h-10`} />
             <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-7" />
             <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-8" />
             <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-4" />
@@ -183,10 +185,12 @@ export default function IssueStatCards({ stats }: IssueStatCardsProps) {
               <span className="text-xl sm:text-2xl font-medium text-slate-900 tabular-nums">
                 {stats.totalTransactions.toLocaleString('id-ID')}
               </span>
-              <span className="text-xs text-emerald-500 font-medium select-none">▲</span>
+              <span className={`text-xs font-medium select-none ${stats.totalTransactions > 0 ? 'text-emerald-500' : 'text-slate-300'}`}>
+                ▲
+              </span>
             </div>
             <div className="mt-1 flex flex-col">
-              <span className="text-xs text-emerald-600 font-medium">
+              <span className={`text-xs font-medium ${stats.totalTransactions > 0 ? 'text-emerald-600' : 'text-slate-500'}`}>
                 Tercatat
               </span>
               <span className="text-xs text-slate-400 font-normal">
@@ -200,7 +204,7 @@ export default function IssueStatCards({ stats }: IssueStatCardsProps) {
             <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3" />
             <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
             <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-7" />
-            <span className="w-2 sm:w-2.5 rounded-full bg-[#2E82F6] h-10" />
+            <span className={`w-2 sm:w-2.5 rounded-full ${stats.totalTransactions > 0 ? 'bg-[#2E82F6]' : 'bg-slate-200'} h-10`} />
             <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-6" />
             <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
             <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3.5" />

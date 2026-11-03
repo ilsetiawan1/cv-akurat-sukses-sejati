@@ -1,48 +1,37 @@
-// app/(dashboard)/laporan/page.tsx
+// src/app/(dashboard)/laporan/page.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import ReportFilterBar from '@/features/reports/components/ReportFilterBar';
 import ReportTable from '@/features/reports/components/ReportTable';
 import { generateReportData } from '@/features/reports/services/report.service';
-import type { ReportFilterPeriod } from '@/features/reports/types/report.types';
 import type { UserPermission } from '@/features/users/types/user.types';
 import { cookies } from 'next/headers';
 
-function getDateRanges(period: ReportFilterPeriod, start?: string, end?: string) {
-  const today = new Date();
-  let startDate = new Date();
-  let endDate = new Date();
-  let text = '';
-
-  if (period === 'hari_ini') {
-    text = today.toLocaleDateString('id-ID');
-  } else if (period === 'minggu_ini') {
-    const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-    startDate = new Date(today.setDate(diff));
-    text = `Minggu Ini (${startDate.toLocaleDateString('id-ID')} - ${endDate.toLocaleDateString('id-ID')})`;
-  } else if (period === 'bulan_ini') {
-    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-    text = `Bulan Ini (${startDate.toLocaleDateString('id-ID')} - ${endDate.toLocaleDateString('id-ID')})`;
-  } else if (period === 'kustom') {
-    startDate = start ? new Date(start) : new Date(today.getFullYear(), today.getMonth(), 1);
-    endDate = end ? new Date(end) : new Date();
-    text = `${startDate.toLocaleDateString('id-ID')} - ${endDate.toLocaleDateString('id-ID')}`;
+function getDateRangeText(month?: string, start?: string, end?: string): string {
+  if (month && month.length === 7 && month.includes('-')) {
+    const parts = month.split('-');
+    const y = Number(parts[0]);
+    const m = Number(parts[1]);
+    if (!Number.isNaN(y) && !Number.isNaN(m) && m >= 1 && m <= 12) {
+      const d = new Date(y, m - 1, 1);
+      return d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    }
   }
-
-  return {
-    startDate: startDate.toISOString().split('T')[0],
-    endDate: endDate.toISOString().split('T')[0],
-    text
-  };
+  if (start && end) {
+    const s = new Date(start);
+    const e = new Date(end);
+    return `${s.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })} - ${e.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}`;
+  }
+  return 'Semua Periode';
 }
 
 export default async function LaporanPage(props: {
-  searchParams?: Promise<{ period?: string; start?: string; end?: string; }>;
+  searchParams?: Promise<{ month?: string; start?: string; end?: string; }>;
 }) {
   const searchParams = await props.searchParams;
-  const period = (searchParams?.period as ReportFilterPeriod) || 'bulan_ini';
+  // Default ke '' (Semua Periode) agar konsisten dengan menu Barang Masuk & Barang Keluar
+  const month = searchParams?.month || '';
   const startParam = searchParams?.start;
   const endParam = searchParams?.end;
 
@@ -58,8 +47,8 @@ export default async function LaporanPage(props: {
 
   if (!canRead) {
     return (
-      <div className="flex items-center justify-center h-64 bg-white rounded-xl border border-gray-200">
-        <p className="text-red-500 font-medium">Anda tidak memiliki akses untuk melihat laporan.</p>
+      <div className="flex items-center justify-center h-64 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+        <p className="text-rose-500 font-medium text-sm">Anda tidak memiliki akses untuk melihat laporan.</p>
       </div>
     );
   }
@@ -69,25 +58,29 @@ export default async function LaporanPage(props: {
   const companyName = cookieStore.get('company_name')?.value || 'CV. AKURAT SUKSES SEJATI';
   const companyAddress = cookieStore.get('company_address')?.value || '';
 
-  const ranges = getDateRanges(period, startParam, endParam);
-  const { summary, receipts, issues } = await generateReportData(ranges.startDate, ranges.endDate);
+  const { summary, mutations, monthOptions } = await generateReportData(month, startParam, endParam);
+  const dateRangeText = getDateRangeText(month, startParam, endParam);
 
   return (
-    <div className="w-full">
-      <div className="mb-6 print:hidden print-hide-all">
-        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Laporan & Analitik</h1>
-        <p className="text-base text-gray-500 mt-2 max-w-2xl">Pantau pergerakan uang masuk-keluar persediaan, margin HPP secara real-time dan ekspor laporan ke format cetak resmi.</p>
+    <div className="w-full space-y-5 sm:space-y-6">
+      <div className="print:hidden print-hide-all">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Laporan & Analitik</h1>
+        <p className="text-sm text-slate-500 mt-1 max-w-2xl">
+          Pantau pergerakan uang masuk-keluar persediaan, margin HPP secara real-time dan ekspor laporan ke format cetak resmi.
+        </p>
       </div>
 
       <div className="print:hidden print-hide-all">
-        <ReportFilterBar />
+        <ReportFilterBar 
+          selectedMonth={month}
+          monthOptions={monthOptions}
+        />
       </div>
       
       <ReportTable 
-        receipts={receipts}
-        issues={issues}
+        mutations={mutations}
         summary={summary}
-        dateRangeText={ranges.text}
+        dateRangeText={dateRangeText}
         companyName={companyName}
         companyAddress={companyAddress}
       />

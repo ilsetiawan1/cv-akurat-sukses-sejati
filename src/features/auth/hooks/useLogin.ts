@@ -1,4 +1,4 @@
-// lib/hooks/useLogin.ts
+// src/features/auth/hooks/useLogin.ts
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
@@ -39,14 +39,17 @@ export function useLogin() {
     const password = fd.get('password') as string;
 
     try {
-      const supabase = createClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      // Gunakan server-side route handler /api/auth/login untuk kestabilan koneksi & cookies
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (signInError) {
-        setError(signInError.message || 'Email atau password salah.');
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || data.error) {
+        setError(data.error || 'Email atau password salah.');
         setIsPending(false);
         return;
       }
@@ -91,14 +94,17 @@ export function useLogin() {
     setIsDemoLoading(true);
 
     try {
-      const supabase = createClient();
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: DEMO_EMAIL,
-        password: DEMO_PASSWORD,
+      // Gunakan server-side route handler /api/auth/login untuk login demo bebas blokir CORS/network
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: DEMO_EMAIL, password: DEMO_PASSWORD }),
       });
 
-      if (signInError) {
-        setError(signInError.message || 'Gagal masuk dengan akun demo.');
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || data.error) {
+        setError(data.error || 'Gagal masuk dengan akun demo.');
         setIsDemoLoading(false);
         return;
       }

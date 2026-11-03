@@ -11,35 +11,34 @@ export function DashboardHeader() {
   return (
     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 className="text-2xl sm:text-[26px] font-bold text-slate-900 tracking-tight leading-snug">
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
           Dashboard Operasional
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-          Pantau pergerakan mutasi, stok persediaan, dan evaluasi HPP dalam satu layar.
+        <p className="text-sm text-slate-500 mt-1">
+          Pantau pergerakan mutasi, stok persediaan, dan evaluasi HPP dalam satu layar terpadu.
         </p>
       </div>
 
       {/* Right Action Group */}
-      <div className="flex items-center gap-2.5 self-start sm:self-auto shrink-0">
-        {/* Soft Glass Action Button */}
-        <Link
-          href="/transaksi/barang-masuk"
-          className="h-9 px-3.5 rounded-xl bg-linear-to-r from-blue-50/90 via-white/80 to-blue-50/90 hover:from-blue-100 hover:to-sky-100 border border-blue-200/90 text-blue-900 font-semibold text-xs transition-all flex items-center gap-1.5 shadow-2xs backdrop-blur-md cursor-pointer active:scale-95"
-        >
-          <Plus size={14} className="text-blue-700 stroke-[2.5]" />
-          <span>Catat Barang Masuk</span>
-        </Link>
-
-        {/* Refresh Icon Button */}
+      <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
         <button
           type="button"
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className="w-9 h-9 rounded-xl bg-white hover:bg-slate-50 border border-slate-100 shadow-2xs flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors cursor-pointer disabled:opacity-50"
+          className="w-9 h-9 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 shadow-2xs flex items-center justify-center transition-colors cursor-pointer disabled:opacity-50"
           title="Muat ulang data"
         >
           <RotateCw size={14} className={isRefreshing ? 'animate-spin text-slate-900' : ''} />
         </button>
+
+        {/* Solid Brand Navy Primary Action Button */}
+        <Link
+          href="/transaksi/barang-masuk"
+          className="h-9 px-3.5 rounded-xl bg-[#1E3A8A] hover:bg-blue-800 text-white font-medium text-xs sm:text-sm transition-colors flex items-center gap-1.5 shadow-2xs cursor-pointer active:scale-[0.99]"
+        >
+          <Plus size={15} />
+          <span>Catat Barang Masuk</span>
+        </Link>
       </div>
     </div>
   );

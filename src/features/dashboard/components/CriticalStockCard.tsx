@@ -10,27 +10,25 @@ interface CriticalStockCardProps {
 
 export function CriticalStockCard({ lowStockCount, lowStockItems }: CriticalStockCardProps) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 lg:p-6 flex flex-col justify-between hover:border-slate-300/80 transition-all">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 lg:p-6 flex flex-col justify-between hover:border-slate-300/80 transition-colors">
       <div>
-        {/* Card Header */}
+        {/* Card Header (Clean & Minimalist Status) */}
         <div className="flex items-center justify-between pb-1">
-          <h3 className="text-sm lg:text-base font-bold text-slate-900 tracking-tight">
+          <h3 className="text-sm lg:text-base font-semibold text-slate-900 tracking-tight">
             Peringatan Stok Kritis
           </h3>
 
           {lowStockCount > 0 ? (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] lg:text-xs font-semibold bg-rose-100 text-rose-800 border border-rose-300 shadow-2xs ring-1 ring-rose-400/20">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
-              <span>{lowStockCount} Perlu Restock</span>
+            <span className="text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200/70 px-2 py-0.5 rounded-md">
+              {lowStockCount} barang menipis
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] lg:text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 shadow-2xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
-              <span>Semua Stok Aman</span>
+            <span className="text-xs font-normal text-slate-500">
+              Semua stok aman
             </span>
           )}
         </div>
-        <p className="text-xs lg:text-sm text-slate-400 mb-3.5">
+        <p className="text-xs text-slate-500 mt-0.5 mb-3.5">
           Daftar suku cadang dengan stok menipis di bawah ambang batas (≤ 5 unit)
         </p>
 
@@ -38,50 +36,50 @@ export function CriticalStockCard({ lowStockCount, lowStockItems }: CriticalStoc
         <div className="mt-1">
           {lowStockItems.length === 0 ? (
             <div className="py-12 text-center text-slate-400">
-              <div className="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-2.5">
-                <CheckCircle2 size={24} className="text-emerald-500 stroke-[2]" />
+              <div className="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center mx-auto mb-2">
+                <CheckCircle2 size={20} className="text-emerald-500 stroke-[2]" />
               </div>
-              <p className="text-xs lg:text-sm font-bold text-slate-800">Semua Persediaan Aman</p>
-              <p className="text-[11px] lg:text-xs text-slate-400 mt-0.5 leading-relaxed">
+              <p className="text-xs lg:text-sm font-medium text-slate-800">Semua Persediaan Aman</p>
+              <p className="text-2xs lg:text-xs text-slate-400 mt-0.5 leading-relaxed">
                 Tidak ada barang dengan stok di bawah batas minimum saat ini.
               </p>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {lowStockItems.map((item) => (
                 <div 
                   key={item.id} 
-                  className="p-2.5 lg:p-3 rounded-xl hover:bg-rose-50/40 transition-all flex items-center justify-between gap-3 border border-transparent hover:border-rose-100 group"
+                  className="p-2.5 rounded-xl hover:bg-slate-50/80 transition-colors flex items-center justify-between gap-3 border border-slate-100/70"
                 >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="w-8 h-8 lg:w-9.5 lg:h-9.5 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/70 flex items-center justify-center shrink-0">
-                      <AlertTriangle size={17} className="text-amber-600" />
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 border border-amber-200/60 flex items-center justify-center shrink-0">
+                      <AlertTriangle size={15} />
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs lg:text-sm font-semibold text-slate-800 truncate group-hover:text-slate-900">
+                      <p className="text-xs sm:text-sm font-medium text-slate-900 truncate">
                         {item.name}
                       </p>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-[10px] lg:text-xs font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/60">
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-2xs font-mono font-medium text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded border border-slate-200/60">
                           {item.itemCode}
                         </span>
-                        <span className="text-[10px] lg:text-xs px-2 py-0.5 bg-slate-100 text-slate-600 rounded-md border border-slate-200/50">
+                        <span className="text-2xs text-slate-500">
                           {item.category}
                         </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2.5 shrink-0">
-                    <span className="text-xs lg:text-sm font-medium text-slate-700 bg-slate-100 border border-slate-200/60 px-2.5 py-1 rounded-lg tabular-nums">
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-xs font-medium text-amber-800 bg-amber-50/80 border border-amber-200/70 px-2 py-0.5 rounded-md tabular-nums">
                       {item.stock} {item.unit}
                     </span>
                     <Link
                       href={`/transaksi/barang-masuk?item_id=${item.id}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-800 border border-emerald-300 text-xs font-medium rounded-xl shadow-2xs transition-all shrink-0"
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-medium rounded-lg shadow-2xs transition-colors shrink-0"
                     >
-                      <Plus size={13} className="text-emerald-700" />
+                      <Plus size={12} className="text-slate-500" />
                       <span>Restock</span>
                     </Link>
                   </div>
@@ -96,10 +94,10 @@ export function CriticalStockCard({ lowStockCount, lowStockItems }: CriticalStoc
       <div className="pt-3.5 mt-2">
         <Link
           href="/transaksi/persediaan"
-          className="inline-flex items-center justify-between w-full py-2.5 lg:py-3 px-3.5 lg:px-4 rounded-xl bg-slate-50/70 hover:bg-blue-50/70 hover:text-blue-700 hover:border-blue-200/60 border border-slate-200/70 text-xs lg:text-sm font-semibold text-slate-700 transition-all group shadow-2xs"
+          className="inline-flex items-center justify-between w-full py-2.5 px-3.5 rounded-xl bg-slate-50/70 hover:bg-slate-100/90 border border-slate-200/70 text-xs font-medium text-slate-700 transition-colors group shadow-2xs"
         >
           <span>Kelola Status Persediaan Lengkap</span>
-          <ArrowRight size={15} className="text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all" />
+          <ArrowRight size={14} className="text-slate-400 group-hover:text-slate-700 group-hover:translate-x-0.5 transition-all" />
         </Link>
       </div>
     </div>

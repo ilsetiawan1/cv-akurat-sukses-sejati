@@ -1,7 +1,8 @@
 // src/features/dashboard/components/DashboardStatCards.tsx
 'use client';
 
-import { ChevronDown } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { ChevronDown, Calendar, Info } from 'lucide-react';
 import type { DashboardStats } from '../services/dashboard.service';
 import { useDashboardMonthFilter } from '../hooks/useDashboardMonthFilter';
 
@@ -10,6 +11,9 @@ interface DashboardStatCardsProps {
 }
 
 export function DashboardStatCards({ stats }: DashboardStatCardsProps) {
+  const [activeTooltip, setActiveTooltip] = useState<'valuasi' | 'fisik' | 'keluar' | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const roundedValuasi = Math.round(stats.totalValuasi.value);
 
   const { selectedMonth, handleMonthChange, monthOptions, isPending } = useDashboardMonthFilter(
@@ -18,34 +22,46 @@ export function DashboardStatCards({ stats }: DashboardStatCardsProps) {
 
   const monthLabel = stats.selectedMonth?.label || 'Bulan Ini';
 
+  useEffect(() => {
+    if (!activeTooltip) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setActiveTooltip(null);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [activeTooltip]);
+
   return (
-    <div className="space-y-3.5">
+    <div ref={containerRef} className="space-y-3.5 select-none relative z-30">
       {/* Filter Bar Metrik Berdasarkan Bulan */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-slate-700 tracking-tight">
+          <span className="text-xs font-semibold text-slate-800 uppercase tracking-wider">
             Ringkasan Metrik
           </span>
-          <span className="text-[11px] text-slate-400 font-medium">
+          <span className="text-xs text-slate-400 font-normal">
             • Periode {monthLabel}
           </span>
           {isPending && (
-            <span className="text-[10px] text-blue-600 animate-pulse font-semibold">Memuat...</span>
+            <span className="text-2xs text-blue-700 animate-pulse font-medium">Memuat...</span>
           )}
         </div>
 
         {/* Month Selector Dropdown */}
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <label htmlFor="dashboard-month-filter" className="text-xs text-slate-500 font-medium">
-            Pilih Bulan:
-          </label>
+        <div className="flex items-center gap-1.5 self-start sm:self-auto">
           <div className="relative">
+            <Calendar
+              size={13}
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+            />
             <select
               id="dashboard-month-filter"
               value={selectedMonth}
               onChange={(e) => handleMonthChange(e.target.value)}
               disabled={isPending}
-              className="h-8.5 pl-3 pr-8 text-xs font-semibold text-slate-700 bg-white border border-slate-200/90 rounded-xl shadow-2xs hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-900/10 cursor-pointer transition-all appearance-none disabled:opacity-60"
+              className="h-8 pl-7 pr-7 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-xl shadow-2xs hover:border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-900/10 cursor-pointer transition-colors appearance-none disabled:opacity-60"
             >
               {monthOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -54,230 +70,325 @@ export function DashboardStatCards({ stats }: DashboardStatCardsProps) {
               ))}
             </select>
             <ChevronDown
-              size={13}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+              size={12}
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
             />
           </div>
         </div>
       </div>
 
-      {/* 3 Stat Cards Grid - Responsive Soft Glass & 3D Isometric Vectors */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 lg:gap-5 select-none">
+      {/* 3 Stat Cards: Horizontal Snap Carousel di Mobile (< md), Grid di Tablet/Desktop (>= md) */}
+      <div className="flex md:grid md:grid-cols-3 gap-3.5 overflow-x-auto snap-x snap-mandatory pb-1 md:pb-0 scrollbar-none">
         
         {/* CARD 1: TOTAL MODAL PERSEDIAAN */}
-        <div className="relative overflow-hidden rounded-2xl p-4 sm:p-5 md:p-4 lg:p-5 border border-emerald-200/80 bg-linear-to-br from-white via-emerald-50/70 to-emerald-100/60 shadow-xs hover:border-emerald-300 hover:shadow-sm transition-all group">
-          {/* Lapisan Gelombang Kurva SVG */}
-          <svg className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-40" viewBox="0 0 400 200" fill="none" preserveAspectRatio="none">
-            <path d="M-20 140 C100 60, 240 200, 420 80 L420 220 L-20 220 Z" fill="#10B981" fillOpacity="0.08"/>
-            <path d="M140 -20 C220 90, 120 160, 280 220 L420 220 L420 -20 Z" fill="#059669" fillOpacity="0.06"/>
-            <circle cx="330" cy="145" r="85" fill="#34D399" fillOpacity="0.08"/>
-          </svg>
+        <div className="w-[270px] sm:w-[290px] md:w-auto shrink-0 snap-start bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-5 flex flex-col justify-between hover:border-slate-300/80 transition-all">
+          {/* Header Card: Title & Tooltip Trigger */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-medium text-slate-600 tracking-tight truncate">
+              Total Modal Persediaan
+            </span>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveTooltip((prev) => (prev === 'valuasi' ? null : 'valuasi'));
+                }}
+                onMouseEnter={() => setActiveTooltip('valuasi')}
+                onMouseLeave={() => setActiveTooltip(null)}
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                  activeTooltip === 'valuasi'
+                    ? 'bg-slate-100 border-slate-300 text-slate-900 shadow-2xs'
+                    : 'border-slate-200/90 text-slate-400 hover:text-slate-800 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+                title="Penjelasan & rumus Total Modal Persediaan"
+                aria-label="Info rumus Total Modal Persediaan"
+              >
+                <Info size={14} />
+              </button>
 
-          {/* Konten Kiri */}
-          <div className="relative z-10 flex flex-col justify-between min-h-18 md:min-h-16 lg:min-h-20">
-            <div className="flex items-start justify-between gap-1.5">
-              <span className="text-slate-700 font-semibold text-xs sm:text-sm md:text-xs lg:text-sm tracking-tight whitespace-nowrap">
-                Total Modal Persediaan
-              </span>
-              <span className="inline-flex items-center gap-1 px-2 md:px-1.5 lg:px-2.5 py-0.5 rounded-full text-[10px] md:text-[10px] lg:text-xs font-semibold border transition-colors bg-emerald-100 text-emerald-800 border-emerald-300 shadow-xs ring-1 ring-emerald-400/20 shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
-                <span>Aset Aktif</span>
-              </span>
-            </div>
-
-            <div className="mt-2 md:mt-1.5 lg:mt-2">
-              <div className="flex items-baseline">
-                <span className="text-base sm:text-lg md:text-sm lg:text-lg font-medium text-emerald-700 mr-1">Rp</span>
-                <span className="text-2xl sm:text-3xl md:text-xl lg:text-3xl xl:text-4xl font-extrabold tracking-tight text-emerald-950 tabular-nums">
-                  {roundedValuasi.toLocaleString('id-ID')}
-                </span>
-              </div>
+              {/* Tooltip Card: Clean Monochrome Glass */}
+              {activeTooltip === 'valuasi' && (
+                <div
+                  onMouseEnter={() => setActiveTooltip('valuasi')}
+                  onMouseLeave={() => setActiveTooltip(null)}
+                  className="absolute right-0 top-9 sm:top-10 w-68 sm:w-72 bg-white/95 backdrop-blur-md text-slate-800 p-3.5 rounded-xl sm:rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-200/90 text-xs z-50 pointer-events-auto animate-in fade-in zoom-in-95 duration-150 select-text"
+                  role="tooltip"
+                >
+                  <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                    <span className="font-medium text-slate-900 text-xs">Total Modal Persediaan</span>
+                    <span className="text-3xs px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-mono border border-emerald-200/70">
+                      FINANSIAL
+                    </span>
+                  </div>
+                  <p className="mt-2 text-slate-600 text-2xs leading-relaxed font-normal">
+                    Akumulasi nilai total HPP persediaan dari seluruh suku cadang aktif di gudang dengan metode kalkulasi Moving Average.
+                  </p>
+                  <div className="mt-2.5 p-2 rounded-lg bg-slate-50/90 border border-slate-200/80">
+                    <span className="text-3xs text-slate-400 font-normal uppercase tracking-wider block">
+                      Rumus Perhitungan:
+                    </span>
+                    <code className="text-2xs text-slate-800 font-mono font-medium block mt-0.5">
+                      Σ (Stok Fisik × HPP Terkini)
+                    </code>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Ilustrasi 3D Isometric Gold & Emerald Coins Stack (Kanan Bawah) */}
-          <div className="absolute -right-2 -bottom-2 md:-right-2 md:-bottom-2 lg:-right-3 lg:-bottom-4 w-20 h-20 sm:w-24 sm:h-24 md:w-20 md:h-20 lg:w-28 lg:h-28 pointer-events-none transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3">
-            <svg viewBox="0 0 140 140" fill="none" className="drop-shadow-sm w-full h-full">
-              <defs>
-                {/* Gold Gradients */}
-                <linearGradient id="goldTop" x1="0" y1="0" x2="1" y2="1">
-                  <stop stopColor="#FEF3C7"/>
-                  <stop offset="0.6" stopColor="#FDE047"/>
-                  <stop offset="1" stopColor="#F59E0B"/>
-                </linearGradient>
-                <linearGradient id="goldSide" x1="0" y1="0" x2="0" y2="1">
-                  <stop stopColor="#F59E0B"/>
-                  <stop offset="1" stopColor="#B45309"/>
-                </linearGradient>
-                {/* Emerald Gradients */}
-                <linearGradient id="emTop" x1="0" y1="0" x2="1" y2="1">
-                  <stop stopColor="#D1FAE5"/>
-                  <stop offset="0.7" stopColor="#6EE7B7"/>
-                  <stop offset="1" stopColor="#10B981"/>
-                </linearGradient>
-                <linearGradient id="emSide" x1="0" y1="0" x2="0" y2="1">
-                  <stop stopColor="#059669"/>
-                  <stop offset="1" stopColor="#064E3B"/>
-                </linearGradient>
-                <linearGradient id="shinyMedal" x1="20" y1="20" x2="110" y2="110" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#FFFBEB"/>
-                  <stop offset="0.4" stopColor="#FDE68A"/>
-                  <stop offset="1" stopColor="#F59E0B"/>
-                </linearGradient>
-              </defs>
+          {/* Body: Value on left, Sparkline Waveform on right */}
+          <div className="mt-4 flex items-center justify-between gap-2">
+            <div>
+              <div className="flex items-baseline whitespace-nowrap">
+                <span className="text-xs font-normal text-slate-400 mr-1">Rp</span>
+                <span className="text-xl sm:text-2xl font-medium text-slate-900 tabular-nums">
+                  {roundedValuasi.toLocaleString('id-ID')}
+                </span>
+                <span
+                  className={`text-xs font-medium ml-1.5 select-none ${
+                    roundedValuasi > 0 ? 'text-emerald-500' : 'text-slate-300'
+                  }`}
+                >
+                  ▲
+                </span>
+              </div>
+              <div className="mt-1 flex flex-col">
+                <span
+                  className={`text-xs font-medium ${
+                    roundedValuasi > 0 ? 'text-emerald-600' : 'text-slate-500'
+                  }`}
+                >
+                  Nilai Berjalan HPP
+                </span>
+                <span className="text-xs text-slate-400 font-normal">
+                  akumulasi valuasi persediaan
+                </span>
+              </div>
+            </div>
 
-              <g transform="rotate(-10 70 70)">
-                {/* Drop Shadow Base */}
-                <ellipse cx="68" cy="115" rx="42" ry="14" fill="#065F46" fillOpacity="0.12"/>
-
-                {/* Back Stack: 3 Emerald Coins */}
-                <path d="M26 86 V92 C26 98 58 98 58 92 V86 Z" fill="url(#emSide)"/>
-                <ellipse cx="42" cy="86" rx="16" ry="6" fill="url(#emTop)"/>
-                <path d="M26 80 V86 C26 92 58 92 58 86 V80 Z" fill="url(#emSide)"/>
-                <ellipse cx="42" cy="80" rx="16" ry="6" fill="url(#emTop)"/>
-                <path d="M26 74 V80 C26 86 58 86 58 80 V74 Z" fill="url(#emSide)"/>
-                <ellipse cx="42" cy="74" rx="16" ry="6" fill="url(#emTop)"/>
-
-                {/* Right Stack: 4 Gold Coins */}
-                <path d="M72 90 V96 C72 103 108 103 108 96 V90 Z" fill="url(#goldSide)"/>
-                <ellipse cx="90" cy="90" rx="18" ry="7" fill="url(#goldTop)"/>
-                <path d="M72 83 V89 C72 96 108 96 108 89 V83 Z" fill="url(#goldSide)"/>
-                <ellipse cx="90" cy="83" rx="18" ry="7" fill="url(#goldTop)"/>
-                <path d="M72 76 V82 C72 89 108 89 108 82 V76 Z" fill="url(#goldSide)"/>
-                <ellipse cx="90" cy="76" rx="18" ry="7" fill="url(#goldTop)"/>
-                <path d="M72 69 V75 C72 82 108 82 108 75 V69 Z" fill="url(#goldSide)"/>
-                <ellipse cx="90" cy="69" rx="18" ry="7" fill="url(#goldTop)"/>
-
-                {/* Front Showcase Coin */}
-                <g transform="translate(10, 8)">
-                  <path d="M38 68 C38 86 54 99 74 97 C86 96 95 88 98 76 L104 78 C100 93 89 103 74 104 C51 106 32 91 32 68 Z" fill="#B45309"/>
-                  <ellipse cx="66" cy="68" rx="30" ry="32" fill="url(#shinyMedal)" stroke="#FEF3C7" strokeWidth="1.5"/>
-                  <ellipse cx="66" cy="68" rx="23" ry="25" fill="#F59E0B" fillOpacity="0.15" stroke="#F59E0B" strokeWidth="1.2" strokeDasharray="3 2"/>
-                  <path d="M66 52 L70 64 L82 68 L70 72 L66 84 L62 72 L50 68 L62 64 Z" fill="#D97706"/>
-                  <circle cx="66" cy="68" r="4" fill="#FEF3C7"/>
-                </g>
-              </g>
-            </svg>
+            {/* Mini Waveform Sparkline (Emerald Accent) */}
+            <div className="flex items-end gap-1 sm:gap-1.5 h-10 sm:h-11 pb-0.5 shrink-0" aria-hidden="true">
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3.5" />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-6" />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
+              <span
+                className={`w-2 sm:w-2.5 rounded-full ${
+                  roundedValuasi > 0 ? 'bg-emerald-500 shadow-2xs' : 'bg-slate-200'
+                } h-10`}
+              />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-7" />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-8" />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-4" />
+            </div>
           </div>
         </div>
 
         {/* CARD 2: TOTAL FISIK PERSEDIAAN */}
-        <div className="relative overflow-hidden rounded-2xl p-4 sm:p-5 md:p-4 lg:p-5 border border-sky-200/80 bg-linear-to-br from-white via-sky-50/70 to-blue-100/60 shadow-xs hover:border-sky-300 hover:shadow-sm transition-all group">
-          {/* Lapisan Gelombang Kurva SVG */}
-          <svg className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-40" viewBox="0 0 400 200" fill="none" preserveAspectRatio="none">
-            <path d="M-20 160 C120 120, 180 20, 420 50 L420 220 L-20 220 Z" fill="#0EA5E9" fillOpacity="0.08"/>
-            <path d="M160 220 C210 110, 290 40, 420 20 L420 220 Z" fill="#0284C7" fillOpacity="0.06"/>
-            <circle cx="335" cy="140" r="80" fill="#38BDF8" fillOpacity="0.08"/>
-          </svg>
+        <div className="w-[270px] sm:w-[290px] md:w-auto shrink-0 snap-start bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-5 flex flex-col justify-between hover:border-slate-300/80 transition-all">
+          {/* Header Card: Title & Tooltip Trigger */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-medium text-slate-600 tracking-tight truncate">
+              Total Fisik Persediaan
+            </span>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveTooltip((prev) => (prev === 'fisik' ? null : 'fisik'));
+                }}
+                onMouseEnter={() => setActiveTooltip('fisik')}
+                onMouseLeave={() => setActiveTooltip(null)}
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                  activeTooltip === 'fisik'
+                    ? 'bg-slate-100 border-slate-300 text-slate-900 shadow-2xs'
+                    : 'border-slate-200/90 text-slate-400 hover:text-slate-800 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+                title="Penjelasan Total Fisik Persediaan"
+                aria-label="Info Total Fisik Persediaan"
+              >
+                <Info size={14} />
+              </button>
 
-          {/* Konten Kiri */}
-          <div className="relative z-10 flex flex-col justify-between min-h-18 md:min-h-16 lg:min-h-20">
-            <div className="flex items-start justify-between gap-1.5">
-              <span className="text-slate-700 font-semibold text-xs sm:text-sm md:text-xs lg:text-sm tracking-tight whitespace-nowrap">
-                Total Fisik Persediaan
-              </span>
-              <span className="inline-flex items-center gap-1 px-2 md:px-1.5 lg:px-2.5 py-0.5 rounded-full text-[10px] md:text-[10px] lg:text-xs font-semibold border transition-colors bg-sky-100 text-sky-800 border-sky-300 shadow-xs ring-1 ring-sky-400/20 shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-sky-600" />
-                <span>Siap Kirim</span>
-              </span>
-            </div>
-
-            <div className="mt-2 md:mt-1.5 lg:mt-2">
-              <div className="text-2xl sm:text-3xl md:text-xl lg:text-3xl xl:text-4xl font-extrabold tracking-tight text-sky-950 tabular-nums">
-                {stats.persediaan.value.toLocaleString('id-ID')}
-              </div>
+              {/* Tooltip Card: Clean Monochrome Glass */}
+              {activeTooltip === 'fisik' && (
+                <div
+                  onMouseEnter={() => setActiveTooltip('fisik')}
+                  onMouseLeave={() => setActiveTooltip(null)}
+                  className="absolute right-0 top-9 sm:top-10 w-68 sm:w-72 bg-white/95 backdrop-blur-md text-slate-800 p-3.5 rounded-xl sm:rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-200/90 text-xs z-50 pointer-events-auto animate-in fade-in zoom-in-95 duration-150 select-text"
+                  role="tooltip"
+                >
+                  <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                    <span className="font-medium text-slate-900 text-xs">Total Fisik Persediaan</span>
+                    <span className="text-3xs px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-mono border border-blue-200/70">
+                      LOGISTIK
+                    </span>
+                  </div>
+                  <p className="mt-2 text-slate-600 text-2xs leading-relaxed font-normal">
+                    Jumlah total unit fisik seluruh suku cadang yang saat ini tersedia dan siap disalurkan dari rak gudang.
+                  </p>
+                  <div className="mt-2.5 p-2 rounded-lg bg-slate-50/90 border border-slate-200/80">
+                    <span className="text-3xs text-slate-400 font-normal uppercase tracking-wider block">
+                      Keterangan:
+                    </span>
+                    <code className="text-2xs text-slate-800 font-mono font-medium block mt-0.5">
+                      Σ Qty Fisik Seluruh Item
+                    </code>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Ilustrasi 3D Isometric Warehouse Pallet & Box (Kanan Bawah) */}
-          <div className="absolute -right-2 -bottom-2 md:-right-2 md:-bottom-2 lg:-right-3 lg:-bottom-4 w-20 h-20 sm:w-24 sm:h-24 md:w-20 md:h-20 lg:w-28 lg:h-28 pointer-events-none transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3">
-            <svg viewBox="0 0 140 140" fill="none" className="drop-shadow-sm w-full h-full">
-              <defs>
-                <linearGradient id="palTop" x1="20" y1="20" x2="120" y2="90" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#FFFFFF"/>
-                  <stop offset="1" stopColor="#E0F2FE"/>
-                </linearGradient>
-                <linearGradient id="palLeft" x1="20" y1="50" x2="70" y2="130" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#BAE6FD"/>
-                  <stop offset="1" stopColor="#7DD3FC"/>
-                </linearGradient>
-                <linearGradient id="palRight" x1="70" y1="50" x2="125" y2="130" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#E0F2FE"/>
-                  <stop offset="1" stopColor="#38BDF8"/>
-                </linearGradient>
-                <linearGradient id="woodBase" x1="0" y1="0" x2="1" y2="0">
-                  <stop stopColor="#94A3B8"/>
-                  <stop offset="1" stopColor="#64748B"/>
-                </linearGradient>
-              </defs>
-              <g transform="rotate(-14 75 75)">
-                <path d="M68 96L116 116L70 134L22 114L68 96Z" fill="url(#woodBase)" fillOpacity="0.7"/>
-                <path d="M22 114L70 134V138L22 118Z" fill="#475569"/>
-                <path d="M116 116L70 134V138L116 120Z" fill="#334155"/>
-                <path d="M70 28L114 50L70 72L26 50L70 28Z" fill="url(#palTop)"/>
-                <path d="M26 50L70 72V112L26 90V50Z" fill="url(#palLeft)" fillOpacity="0.95"/>
-                <path d="M114 50L70 72V112L114 90V50Z" fill="url(#palRight)" fillOpacity="0.95"/>
-                <path d="M48 39L92 61V74L76 82V69L32 47L48 39Z" fill="#0284C7" fillOpacity="0.35"/>
-                <path d="M26 50L70 72L114 50" stroke="#93C5FD" strokeWidth="1.5" strokeLinecap="round"/>
-              </g>
-            </svg>
+          {/* Body: Value on left, Sparkline Waveform on right */}
+          <div className="mt-4 flex items-center justify-between gap-2">
+            <div>
+              <div className="flex items-baseline whitespace-nowrap">
+                <span className="text-xl sm:text-2xl font-medium text-slate-900 tabular-nums">
+                  {stats.persediaan.value.toLocaleString('id-ID')}
+                </span>
+                <span className="text-xs font-normal text-slate-400 ml-1">unit</span>
+                <span
+                  className={`text-xs font-medium ml-1.5 select-none ${
+                    stats.persediaan.value > 0 ? 'text-blue-500' : 'text-slate-300'
+                  }`}
+                >
+                  ▲
+                </span>
+              </div>
+              <div className="mt-1 flex flex-col">
+                <span
+                  className={`text-xs font-medium ${
+                    stats.persediaan.value > 0 ? 'text-blue-600' : 'text-slate-500'
+                  }`}
+                >
+                  Siap Distribusi
+                </span>
+                <span className="text-xs text-slate-400 font-normal">
+                  volume suku cadang di gudang
+                </span>
+              </div>
+            </div>
+
+            {/* Mini Waveform Sparkline (Vibrant Blue Accent) */}
+            <div className="flex items-end gap-1 sm:gap-1.5 h-10 sm:h-11 pb-0.5 shrink-0" aria-hidden="true">
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3" />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-7" />
+              <span
+                className={`w-2 sm:w-2.5 rounded-full ${
+                  stats.persediaan.value > 0 ? 'bg-[#2E82F6] shadow-2xs' : 'bg-slate-200'
+                } h-10`}
+              />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-6" />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3.5" />
+            </div>
           </div>
         </div>
 
         {/* CARD 3: BARANG KELUAR */}
-        <div className="relative overflow-hidden rounded-2xl p-4 sm:p-5 md:p-4 lg:p-5 border border-purple-200/80 bg-linear-to-br from-white via-purple-50/70 to-violet-100/60 shadow-xs hover:border-purple-300 hover:shadow-sm transition-all group">
-          {/* Lapisan Gelombang Kurva SVG */}
-          <svg className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-40" viewBox="0 0 400 200" fill="none" preserveAspectRatio="none">
-            <path d="M-20 120 C90 190, 240 60, 420 130 L420 220 L-20 220 Z" fill="#8B5CF6" fillOpacity="0.08"/>
-            <path d="M180 -20 C240 80, 200 150, 360 220 L420 220 L420 -20 Z" fill="#7C3AED" fillOpacity="0.06"/>
-            <circle cx="330" cy="145" r="82" fill="#A78BFA" fillOpacity="0.08"/>
-          </svg>
+        <div className="w-[270px] sm:w-[290px] md:w-auto shrink-0 snap-start bg-white rounded-xl sm:rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-5 flex flex-col justify-between hover:border-slate-300/80 transition-all">
+          {/* Header Card: Title & Tooltip Trigger */}
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-xs font-medium text-slate-600 tracking-tight truncate">
+              Barang Keluar
+            </span>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveTooltip((prev) => (prev === 'keluar' ? null : 'keluar'));
+                }}
+                onMouseEnter={() => setActiveTooltip('keluar')}
+                onMouseLeave={() => setActiveTooltip(null)}
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                  activeTooltip === 'keluar'
+                    ? 'bg-slate-100 border-slate-300 text-slate-900 shadow-2xs'
+                    : 'border-slate-200/90 text-slate-400 hover:text-slate-800 hover:border-slate-300 hover:bg-slate-50'
+                }`}
+                title="Penjelasan Total Barang Keluar"
+                aria-label="Info Total Barang Keluar"
+              >
+                <Info size={14} />
+              </button>
 
-          {/* Konten Kiri */}
-          <div className="relative z-10 flex flex-col justify-between min-h-18 md:min-h-16 lg:min-h-20">
-            <div className="flex items-start justify-between gap-1.5">
-              <span className="text-slate-700 font-semibold text-xs sm:text-sm md:text-xs lg:text-sm tracking-tight whitespace-nowrap">
-                Barang Keluar
-              </span>
-              <span className="inline-flex items-center gap-1 px-2 md:px-1.5 lg:px-2.5 py-0.5 rounded-full text-[10px] md:text-[10px] lg:text-xs font-semibold border transition-colors bg-purple-100 text-purple-800 border-purple-300 shadow-xs ring-1 ring-purple-400/20 shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
-                <span>Distribusi</span>
-              </span>
-            </div>
-
-            <div className="mt-2 md:mt-1.5 lg:mt-2">
-              <div className="text-2xl sm:text-3xl md:text-xl lg:text-3xl xl:text-4xl font-extrabold tracking-tight text-purple-950 tabular-nums">
-                {stats.barangKeluar.value}
-              </div>
+              {/* Tooltip Card: Clean Monochrome Glass */}
+              {activeTooltip === 'keluar' && (
+                <div
+                  onMouseEnter={() => setActiveTooltip('keluar')}
+                  onMouseLeave={() => setActiveTooltip(null)}
+                  className="absolute right-0 top-9 sm:top-10 w-68 sm:w-72 bg-white/95 backdrop-blur-md text-slate-800 p-3.5 rounded-xl sm:rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-200/90 text-xs z-50 pointer-events-auto animate-in fade-in zoom-in-95 duration-150 select-text"
+                  role="tooltip"
+                >
+                  <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                    <span className="font-medium text-slate-900 text-xs">Total Barang Keluar</span>
+                    <span className="text-3xs px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 font-mono border border-rose-200/70">
+                      OPERASIONAL
+                    </span>
+                  </div>
+                  <p className="mt-2 text-slate-600 text-2xs leading-relaxed font-normal">
+                    Jumlah seluruh transaksi pengeluaran dan pengurangan persediaan suku cadang dari gudang pada periode ini.
+                  </p>
+                  <div className="mt-2.5 p-2 rounded-lg bg-slate-50/90 border border-slate-200/80">
+                    <span className="text-3xs text-slate-400 font-normal uppercase tracking-wider block">
+                      Keterangan:
+                    </span>
+                    <code className="text-2xs text-slate-800 font-mono font-medium block mt-0.5">
+                      Count (Dokumen BK)
+                    </code>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Ilustrasi 3D Isometric Logistics Outbound Cargo (Kanan Bawah) */}
-          <div className="absolute -right-2 -bottom-2 md:-right-2 md:-bottom-2 lg:-right-3 lg:-bottom-4 w-20 h-20 sm:w-24 sm:h-24 md:w-20 md:h-20 lg:w-28 lg:h-28 pointer-events-none transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3">
-            <svg viewBox="0 0 140 140" fill="none" className="drop-shadow-sm w-full h-full">
-              <defs>
-                <linearGradient id="truckTop" x1="20" y1="20" x2="120" y2="90" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#FFFFFF"/>
-                  <stop offset="1" stopColor="#EDE9FE"/>
-                </linearGradient>
-                <linearGradient id="truckLeft" x1="20" y1="50" x2="70" y2="130" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#DDD6FE"/>
-                  <stop offset="1" stopColor="#A78BFA"/>
-                </linearGradient>
-                <linearGradient id="truckRight" x1="70" y1="50" x2="125" y2="130" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#EDE9FE"/>
-                  <stop offset="1" stopColor="#8B5CF6"/>
-                </linearGradient>
-              </defs>
-              <g transform="rotate(-12 75 75)">
-                <path d="M70 24L118 48L70 72L22 48L70 24Z" fill="url(#truckTop)"/>
-                <path d="M22 48L70 72V122L22 98V48Z" fill="url(#truckLeft)" fillOpacity="0.95"/>
-                <path d="M118 48L70 72V122L118 98V48Z" fill="url(#truckRight)" fillOpacity="0.95"/>
-                <path d="M84 56L102 65L96 74L78 65Z" fill="#7C3AED" fillOpacity="0.4"/>
-                <path d="M22 48L70 72L118 48" stroke="#C4B5FD" strokeWidth="1.5" strokeLinecap="round"/>
-                <path d="M60 92L78 80L78 86L94 86L94 74L100 74L100 92L78 92L78 98Z" fill="#FFFFFF" fillOpacity="0.9"/>
-              </g>
-            </svg>
+          {/* Body: Value on left, Sparkline Waveform on right */}
+          <div className="mt-4 flex items-center justify-between gap-2">
+            <div>
+              <div className="flex items-baseline whitespace-nowrap">
+                <span className="text-xl sm:text-2xl font-medium text-slate-900 tabular-nums">
+                  {stats.barangKeluar.value.toLocaleString('id-ID')}
+                </span>
+                <span className="text-xs font-normal text-slate-400 ml-1">transaksi</span>
+                <span
+                  className={`text-xs font-medium ml-1.5 select-none ${
+                    stats.barangKeluar.value > 0 ? 'text-rose-500' : 'text-slate-300'
+                  }`}
+                >
+                  {stats.barangKeluar.value > 0 ? '▼' : '—'}
+                </span>
+              </div>
+              <div className="mt-1 flex flex-col">
+                <span
+                  className={`text-xs font-medium ${
+                    stats.barangKeluar.value > 0 ? 'text-rose-600' : 'text-slate-500'
+                  }`}
+                >
+                  Pengeluaran Stok
+                </span>
+                <span className="text-xs text-slate-400 font-normal">
+                  mutasi keluar periode ini
+                </span>
+              </div>
+            </div>
+
+            {/* Mini Waveform Sparkline (Rose Accent) */}
+            <div className="flex items-end gap-1 sm:gap-1.5 h-10 sm:h-11 pb-0.5 shrink-0" aria-hidden="true">
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-4" />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3.5" />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-6" />
+              <span
+                className={`w-2 sm:w-2.5 rounded-full ${
+                  stats.barangKeluar.value > 0 ? 'bg-rose-500 shadow-2xs' : 'bg-slate-200'
+                } h-10`}
+              />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-7" />
+              <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3" />
+            </div>
           </div>
         </div>
 

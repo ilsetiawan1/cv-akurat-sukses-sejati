@@ -1,4 +1,4 @@
-// app/(dashboard)/data-master/barang/page.tsx
+// src/app/(dashboard)/data-master/barang/page.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
@@ -30,19 +30,30 @@ export default async function DataBarangPage(props: {
 
   const perm = currentUser.user_permissions?.find((p: UserPermission) => p.feature === 'data_master');
   const role: UserRole = currentUser.role;
+  const canRead = role === 'super_admin' || !!perm?.can_read;
   const canCreate = role === 'super_admin' || !!perm?.can_create;
   const canUpdate = role === 'super_admin' || !!perm?.can_update;
   const canDelete = role === 'super_admin' || !!perm?.can_delete;
+
+  if (!canRead) {
+    return (
+      <div className="flex items-center justify-center h-64 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
+        <p className="text-rose-500 font-medium text-sm">Anda tidak memiliki hak akses untuk melihat Data Barang.</p>
+      </div>
+    );
+  }
 
   const { data, total } = await listItems(page, limit, search, category);
   const categories = await getAllCategories();
   const units = await getAllUnits();
 
   return (
-    <div className="w-full">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Data Master Barang</h1>
-        <p className="text-sm text-gray-500 mt-1">Kelola data seluruh barang, kategori, satuan, dan harga jual.</p>
+    <div className="w-full space-y-5 sm:space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Data Master Barang</h1>
+        <p className="text-sm text-slate-500 mt-1">
+          Kelola master data suku cadang otomotif, pengelompokan kategori, satuan, dan penentuan harga jual.
+        </p>
       </div>
 
       <ItemTable 

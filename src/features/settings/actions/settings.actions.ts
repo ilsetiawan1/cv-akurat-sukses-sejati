@@ -1,3 +1,4 @@
+// src/features/settings/actions/settings.actions.ts
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
@@ -14,22 +15,34 @@ export async function updateProfileAction(formData: FormData) {
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
-    const avatar = formData.get('avatar') as File;
+    const avatar = formData.get('avatar') as File | null;
 
     let avatar_url = formData.get('current_avatar') as string;
+    const adminSupabase = createAdminClient();
 
     // 1. Upload Avatar if exists
     if (avatar && avatar.size > 0) {
-      const fileExt = avatar.name.split('.').pop();
-      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+      if (avatar.size > 5 * 1024 * 1024) {
+        throw new Error('Ukuran foto profil maksimal 5 MB.');
+      }
+
+      const fileExt = avatar.name.split('.').pop() || 'jpg';
+      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
       
-      const { error: uploadError } = await supabase.storage
+      // Ensure avatars bucket exists
+      await adminSupabase.storage.createBucket('avatars', { public: true }).catch(() => {});
+
+      const fileBuffer = Buffer.from(await avatar.arrayBuffer());
+      const { error: uploadError } = await adminSupabase.storage
         .from('avatars')
-        .upload(fileName, avatar, { upsert: true });
+        .upload(fileName, fileBuffer, { 
+          upsert: true,
+          contentType: avatar.type || 'image/jpeg' 
+        });
 
       if (uploadError) throw new Error(`Gagal upload avatar: ${uploadError.message}`);
 
-      const { data: { publicUrl } } = supabase.storage
+      const { data: { publicUrl } } = adminSupabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
         
@@ -46,11 +59,10 @@ export async function updateProfileAction(formData: FormData) {
       if (authError) throw new Error(`Gagal update kredensial: ${authError.message}`);
     }
 
-    // 3. Update public.users table (Name & Avatar)
-    const adminSupabase = createAdminClient();
+    // 3. Update public.users table (Name, Avatar, updated_at)
     const { error: dbError } = await adminSupabase
       .from('users')
-      .update({ name, avatar_url })
+      .update({ name, avatar_url, updated_at: new Date().toISOString() })
       .eq('id', user.id);
 
     if (dbError) throw new Error(`Gagal update profil DB: ${dbError.message}`);

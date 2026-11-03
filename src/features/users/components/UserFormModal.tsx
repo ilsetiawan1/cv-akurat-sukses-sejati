@@ -1,5 +1,4 @@
-// components/hak-akses/UserFormModal.tsx
-
+// src/features/users/components/UserFormModal.tsx
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
@@ -25,10 +24,8 @@ const CRUD_LABELS: Record<CrudField, string> = {
   can_delete: 'Delete',
 };
 
-// Tipe eksplisit untuk permission state
 type PermissionState = Record<FeatureKey, Record<CrudField, boolean>>;
 
-// FIX: Buat object dengan key FeatureKey secara eksplisit
 function buildDefaultPermissions(): PermissionState {
   return {
     dashboard: { can_create: false, can_read: true, can_update: false, can_delete: false },
@@ -69,22 +66,16 @@ export function UserFormModal({ open, user, onClose, onSuccess }: UserFormModalP
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
 
-  // FIX: Inisialisasi state langsung dari props/user, bukan via useEffect
-  // Gunakan key prop di parent untuk re-mount komponen saat user berubah
   const [permissions, setPermissions] = useState<PermissionState>(() => initPermissions(user));
 
-  // FIX: Ganti useEffect + setState dengan derived state reset saat open berubah
-  // Pakai useEffect hanya untuk reset (tidak untuk derived state update)
   useEffect(() => {
     if (open) {
-      // Reset saat modal dibuka — ini adalah "sync with external prop", bukan cascading
       startTransition(() => {
         setPermissions(initPermissions(user));
         setError('');
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, user]);
 
   function togglePerm(feature: FeatureKey, field: CrudField) {
     setPermissions((prev) => ({
@@ -127,7 +118,6 @@ export function UserFormModal({ open, user, onClose, onSuccess }: UserFormModalP
           }
         }
 
-        // Simpan permissions
         const permArray: PermissionInput[] = FEATURES.map(({ key }) => ({
           feature: key,
           can_create: permissions[key].can_create,
@@ -153,45 +143,50 @@ export function UserFormModal({ open, user, onClose, onSuccess }: UserFormModalP
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
-      <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl mx-4 z-10 max-h-[90vh] overflow-y-auto">
+
+      <div className="relative bg-white rounded-2xl shadow-xl border border-slate-200/80 w-full max-w-2xl z-10 max-h-[90vh] overflow-y-auto flex flex-col animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-base font-semibold text-gray-900">{isEdit ? 'Edit Pengguna' : 'Tambah Pengguna Baru'}</h2>
+        <div className="sticky top-0 bg-white/95 backdrop-blur-xs flex items-center justify-between p-4 md:p-5 border-b border-slate-100 z-20">
+          <h2 className="text-base md:text-lg font-semibold text-slate-900">
+            {isEdit ? 'Edit Pengguna' : 'Tambah Pengguna Baru'}
+          </h2>
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
           >
             <X size={18} />
           </button>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="p-6 space-y-5"
-        >
-          {error && <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">{error}</div>}
+        <form onSubmit={handleSubmit} className="p-4 md:p-5 space-y-4">
+          {error && (
+            <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-xl px-3.5 py-2.5 text-xs">
+              {error}
+            </div>
+          )}
 
-          {/* ── Form Fields ── */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Nama Lengkap</label>
+          {/* Form Fields */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">Nama Lengkap</label>
               <input
                 name="name"
                 type="text"
                 required
                 defaultValue={user?.name}
-                placeholder="Masukkan nama lengkap"
-                className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                placeholder="Masukkan nama lengkap staf"
+                className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 transition-all placeholder:text-slate-400"
               />
             </div>
 
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">Email</label>
               <input
                 name="email"
                 type="email"
@@ -199,25 +194,25 @@ export function UserFormModal({ open, user, onClose, onSuccess }: UserFormModalP
                 defaultValue={user?.email}
                 disabled={isEdit}
                 placeholder="email@example.com"
-                className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all disabled:bg-gray-50 disabled:text-gray-400"
+                className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 transition-all disabled:bg-slate-50 disabled:text-slate-400 placeholder:text-slate-400"
               />
             </div>
 
             {!isEdit && (
-              <div className="col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">Password</label>
                 <div className="relative">
                   <input
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     required
                     placeholder="Min. 8 karakter"
-                    className="w-full px-3 pr-10 py-2.5 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                    className="w-full px-3.5 pr-10 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 transition-all placeholder:text-slate-400"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                     tabIndex={-1}
                   >
                     {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
@@ -227,11 +222,11 @@ export function UserFormModal({ open, user, onClose, onSuccess }: UserFormModalP
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">Role Akses</label>
               <select
                 name="role"
                 defaultValue={user?.role ?? 'admin'}
-                className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-white"
+                className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 transition-all bg-white cursor-pointer text-slate-700"
               >
                 <option value="admin">Admin</option>
                 <option value="super_admin">Super Admin</option>
@@ -240,11 +235,11 @@ export function UserFormModal({ open, user, onClose, onSuccess }: UserFormModalP
 
             {isEdit && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">Status Akun</label>
                 <select
                   name="status"
                   defaultValue={user?.status ?? 'active'}
-                  className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all bg-white"
+                  className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 transition-all bg-white cursor-pointer text-slate-700"
                 >
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
@@ -253,41 +248,35 @@ export function UserFormModal({ open, user, onClose, onSuccess }: UserFormModalP
             )}
           </div>
 
-          {/* ── Permission Table ── */}
+          {/* Permission Table */}
           <div>
-            <p className="text-sm font-medium text-gray-700 mb-3">Hak Akses Fitur</p>
-            <div className="border border-gray-200 rounded-xl overflow-hidden">
-              <table className="w-full text-sm">
-                <thead className="bg-gray-50">
+            <p className="text-xs font-medium text-slate-700 mb-2">Matriks Hak Akses Modul</p>
+            <div className="border border-slate-200/80 rounded-xl overflow-hidden shadow-2xs">
+              <table className="w-full text-xs">
+                <thead className="bg-slate-50/75 border-b border-slate-200/70">
                   <tr>
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wide">Fitur</th>
+                    <th className="text-left px-3.5 py-2.5 font-semibold text-slate-800 uppercase tracking-wider">Modul</th>
                     {CRUD_FIELDS.map((c) => (
                       <th
                         key={c}
-                        className="text-center px-3 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wide w-20"
+                        className="text-center px-2 py-2.5 font-semibold text-slate-800 uppercase tracking-wider w-16"
                       >
                         {CRUD_LABELS[c]}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y divide-slate-100 text-xs">
                   {FEATURES.map(({ key, label }) => (
-                    <tr
-                      key={key}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-4 py-3 font-medium text-gray-700">{label}</td>
+                    <tr key={key} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="px-3.5 py-2.5 font-medium text-slate-800">{label}</td>
                       {CRUD_FIELDS.map((c) => (
-                        <td
-                          key={c}
-                          className="px-3 py-3 text-center"
-                        >
+                        <td key={c} className="px-2 py-2.5 text-center">
                           <input
                             type="checkbox"
                             checked={permissions[key][c]}
                             onChange={() => togglePerm(key, c)}
-                            className="w-4 h-4 rounded accent-purple-600 cursor-pointer"
+                            className="w-4 h-4 rounded accent-[#1E3A8A] cursor-pointer"
                           />
                         </td>
                       ))}
@@ -298,28 +287,25 @@ export function UserFormModal({ open, user, onClose, onSuccess }: UserFormModalP
             </div>
           </div>
 
-          {/* ── Actions ── */}
-          <div className="flex justify-end gap-3 pt-2">
+          {/* Modal Actions */}
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2.5 pt-3 border-t border-slate-100">
             <button
               type="button"
               onClick={onClose}
               disabled={isPending}
-              className="px-4 py-2.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="w-full sm:w-auto px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors disabled:opacity-50 cursor-pointer"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="px-5 py-2.5 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors disabled:opacity-60 flex items-center gap-2"
+              className="w-full sm:w-auto px-4 py-2 text-xs font-medium text-white bg-[#1E3A8A] hover:bg-blue-800 rounded-xl transition-colors disabled:opacity-60 flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
             >
               {isPending && (
-                <Loader2
-                  size={14}
-                  className="animate-spin"
-                />
+                <Loader2 size={13} className="animate-spin" />
               )}
-              {isEdit ? 'Simpan Perubahan' : 'Tambah Pengguna'}
+              <span>{isEdit ? 'Simpan Perubahan' : 'Tambah Pengguna'}</span>
             </button>
           </div>
         </form>

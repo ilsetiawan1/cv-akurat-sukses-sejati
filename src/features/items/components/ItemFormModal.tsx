@@ -1,4 +1,4 @@
-// components/data-master/ItemFormModal.tsx
+// src/features/items/components/ItemFormModal.tsx
 'use client';
 
 import { useState } from 'react';
@@ -79,28 +79,29 @@ export default function ItemFormModal({ isOpen, onClose, item, categories, units
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div 
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
       
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto flex flex-col z-10 animate-in fade-in zoom-in-95 duration-200">
-        <div className="sticky top-0 bg-white flex items-center justify-between p-4 md:p-6 border-b z-20">
-          <h2 className="text-lg md:text-xl font-bold text-gray-900">
+      <div className="relative bg-white rounded-2xl shadow-xl border border-slate-200/80 w-full max-w-lg max-h-[90vh] overflow-y-auto flex flex-col z-10 animate-in fade-in zoom-in-95 duration-200">
+        <div className="sticky top-0 bg-white/95 backdrop-blur-xs flex items-center justify-between p-4 md:p-5 border-b border-slate-100 z-20">
+          <h2 className="text-base md:text-lg font-semibold text-slate-900">
             {item ? 'Edit Barang' : 'Tambah Barang Baru'}
           </h2>
           <button 
+            type="button"
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex-1 flex flex-col p-4 md:p-6 gap-5">
-          <div className="space-y-5">
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col p-4 md:p-5 gap-4">
+          <div className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1.5">
-                Nama Barang <span className="text-red-500">*</span>
+              <label htmlFor="name" className="block text-xs font-medium text-slate-700 mb-1.5">
+                Nama Suku Cadang / Barang <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
@@ -109,14 +110,14 @@ export default function ItemFormModal({ isOpen, onClose, item, categories, units
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] outline-none transition-all"
+                className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all placeholder:text-slate-400"
                 placeholder="Contoh: Aki GS Astra Premium"
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               <div>
-                <label htmlFor="category_id" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="category_id" className="block text-xs font-medium text-slate-700 mb-1.5">
                   Kategori
                 </label>
                 <select
@@ -124,7 +125,7 @@ export default function ItemFormModal({ isOpen, onClose, item, categories, units
                   name="category_id"
                   value={formData.category_id}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] outline-none transition-all bg-white"
+                  className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all bg-white cursor-pointer"
                 >
                   <option value="">Pilih Kategori...</option>
                   {categories.map(cat => (
@@ -134,7 +135,7 @@ export default function ItemFormModal({ isOpen, onClose, item, categories, units
               </div>
 
               <div>
-                <label htmlFor="unit_id" className="block text-sm font-medium text-gray-700 mb-1.5">
+                <label htmlFor="unit_id" className="block text-xs font-medium text-slate-700 mb-1.5">
                   Satuan
                 </label>
                 <select
@@ -142,7 +143,7 @@ export default function ItemFormModal({ isOpen, onClose, item, categories, units
                   name="unit_id"
                   value={formData.unit_id}
                   onChange={handleChange}
-                  className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] outline-none transition-all bg-white"
+                  className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all bg-white cursor-pointer"
                 >
                   <option value="">Pilih Satuan...</option>
                   {units.map(unit => (
@@ -153,8 +154,8 @@ export default function ItemFormModal({ isOpen, onClose, item, categories, units
             </div>
 
             <div>
-              <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1.5">
-                Harga Jual (Rp) <span className="text-red-500">*</span>
+              <label htmlFor="price" className="block text-xs font-medium text-slate-700 mb-1.5">
+                Harga Jual (Rp) <span className="text-rose-500">*</span>
               </label>
               <input
                 type="number"
@@ -165,25 +166,25 @@ export default function ItemFormModal({ isOpen, onClose, item, categories, units
                 min="0"
                 step="100"
                 required
-                className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#7C3AED]/20 focus:border-[#7C3AED] outline-none transition-all font-mono"
+                className="w-full px-3.5 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all font-medium tabular-nums placeholder:text-slate-400"
                 placeholder="0"
               />
             </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t flex flex-col-reverse md:flex-row justify-end gap-3 sticky bottom-0 bg-white">
+          <div className="mt-5 pt-3.5 border-t border-slate-100 flex flex-col-reverse sm:flex-row justify-end gap-2.5 sticky bottom-0 bg-white">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="w-full md:w-auto px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+              className="w-full sm:w-auto px-4 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full md:w-auto px-5 py-2.5 text-sm font-medium text-white bg-[#7C3AED] rounded-xl hover:bg-[#6D28D9] transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center"
+              className="w-full sm:w-auto px-4 py-2 text-xs font-medium text-white bg-[#1E3A8A] rounded-xl hover:bg-blue-800 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer shadow-2xs"
             >
               {isSubmitting ? 'Menyimpan...' : 'Simpan Barang'}
             </button>

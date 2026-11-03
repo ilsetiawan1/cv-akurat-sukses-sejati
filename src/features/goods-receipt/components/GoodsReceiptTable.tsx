@@ -5,6 +5,7 @@ import { Search, Plus, Archive, ArrowDownLeft, Download, RotateCcw, Eye } from '
 import { useGoodsReceiptTable } from '../hooks/useGoodsReceiptTable';
 import GoodsReceiptFormModal from './GoodsReceiptFormModal';
 import ReceiptDetailModal from './ReceiptDetailModal';
+import ReceiptFunnelCard from './ReceiptFunnelCard';
 import ReceiptStatCards from './ReceiptStatCards';
 import ReceiptMobileCardList from './ReceiptMobileCardList';
 import { Pagination } from '@/components/ui/Pagination';
@@ -56,45 +57,43 @@ export default function GoodsReceiptTable({
 
   return (
     <div className="w-full space-y-4">
-      {/* Quick Stat Summary Cards */}
+      {/* Distribusi Pengadaan Kategori (Funnel Widget) dengan Filter Periode */}
+      <ReceiptFunnelCard 
+        stats={stats} 
+        selectedMonth={selectedMonth}
+        monthOptions={monthOptions}
+        onMonthChange={handleMonthChange}
+      />
+
+      {/* Modern SaaS Stat Cards (2 Kartu: Total Nilai Pembelian di kiri, Total Transaksi Masuk di kanan) */}
       <ReceiptStatCards stats={stats} />
 
       {/* Main Table Card */}
-      <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
+      <div className="relative z-10 bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
         {/* Table Toolbar with Search, Filters, and Actions */}
         <div className="p-4 md:p-5 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 border-b border-slate-100">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
-            {/* Search Input */}
-            <form onSubmit={handleSearch} className="relative w-full sm:w-56 md:w-52 lg:w-64">
+          {/* SISI KIRI: Search di kiri sendiri dengan width lebih panjang */}
+          <div className="w-full md:w-auto md:flex-1 md:max-w-sm lg:max-w-md">
+            <form onSubmit={handleSearch} className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <input
                 type="text"
                 placeholder="Cari transaksi / barang..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all placeholder:text-slate-400 text-slate-900 bg-white"
+                className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all placeholder:text-slate-400 text-slate-900 bg-white shadow-2xs"
               />
             </form>
+          </div>
 
-            {/* Filter Dropdowns (2 columns on mobile, flex on desktop) */}
-            <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-2.5 w-full sm:w-auto">
-              <select
-                value={selectedMonth}
-                onChange={(e) => handleMonthChange(e.target.value)}
-                className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-800 bg-white cursor-pointer truncate"
-              >
-                <option value="">Semua Periode</option>
-                {monthOptions.map((m) => (
-                  <option key={m.key} value={m.key}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-
+          {/* SISI KANAN: Filter Kategori, Reset, Export CSV, dan + Barang Masuk di pojok kanan */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 w-full md:w-auto justify-end shrink-0">
+            {/* Filter Kategori & Reset */}
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <select
                 value={selectedCategory}
                 onChange={(e) => handleCategoryChange(e.target.value)}
-                className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-800 bg-white cursor-pointer truncate"
+                className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-800 bg-white cursor-pointer truncate shadow-2xs"
               >
                 <option value="">Semua Kategori</option>
                 {categories.map((cat) => (
@@ -103,43 +102,43 @@ export default function GoodsReceiptTable({
                   </option>
                 ))}
               </select>
+
+              {/* Reset Filter Button */}
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={handleResetFilters}
+                  className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors shrink-0 cursor-pointer"
+                  title="Reset semua filter"
+                >
+                  <RotateCcw size={13} />
+                  <span>Reset</span>
+                </button>
+              )}
             </div>
 
-            {/* Reset Filter Button */}
-            {hasActiveFilters && (
-              <button
-                type="button"
-                onClick={handleResetFilters}
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors shrink-0 cursor-pointer self-start sm:self-auto"
-                title="Reset semua filter"
-              >
-                <RotateCcw size={13} />
-                <span>Reset</span>
-              </button>
-            )}
-          </div>
-
-          {/* Actions: Export CSV & Tambah Transaksi (2 columns on mobile, flex on desktop) */}
-          <div className="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto justify-end shrink-0">
-            <button 
-              type="button"
-              onClick={exportToCSV}
-              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors text-xs sm:text-sm font-medium shadow-xs shrink-0 whitespace-nowrap cursor-pointer"
-            >
-              <Download size={15} className="text-slate-500" />
-              <span>Export CSV</span>
-            </button>
-
-            {canCreate && (
+            {/* Actions: Export CSV & Tambah Transaksi */}
+            <div className="grid grid-cols-2 sm:flex items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
               <button 
                 type="button"
-                onClick={() => openModal()}
-                className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-[#1E3A8A] text-white rounded-xl hover:bg-blue-800 transition-all text-xs sm:text-sm font-medium shadow-xs cursor-pointer active:scale-[0.99] shrink-0 whitespace-nowrap"
+                onClick={exportToCSV}
+                className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors text-xs sm:text-sm font-medium shadow-xs shrink-0 whitespace-nowrap cursor-pointer"
               >
-                <Plus size={15} />
-                <span>+ Transaksi</span>
+                <Download size={15} className="text-slate-500" />
+                <span>Export CSV</span>
               </button>
-            )}
+
+              {canCreate && (
+                <button 
+                  type="button"
+                  onClick={() => openModal()}
+                  className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-[#1E3A8A] text-white rounded-xl hover:bg-blue-800 transition-all text-xs sm:text-sm font-medium shadow-xs cursor-pointer active:scale-[0.99] shrink-0 whitespace-nowrap"
+                >
+                  <Plus size={15} />
+                  <span>Barang Masuk</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -155,7 +154,7 @@ export default function GoodsReceiptTable({
         <div className="hidden md:block overflow-x-auto w-full">
           <table className="w-full text-left border-collapse min-w-190">
             <thead>
-              <tr className="bg-slate-50/75 text-slate-500 text-xs font-medium border-b border-slate-200/70 uppercase tracking-wider">
+              <tr className="bg-slate-50/75 text-slate-800 text-xs font-semibold border-b border-slate-200/70 uppercase tracking-wider">
                 <th className="py-3.5 px-5">Kode</th>
                 <th className="py-3.5 px-5">Tanggal</th>
                 <th className="py-3.5 px-5 min-w-50">Barang</th>

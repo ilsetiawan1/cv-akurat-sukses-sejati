@@ -14,10 +14,10 @@ export default function InventoryTable({
   currentPage, 
   limit, 
   searchQuery, 
-  selectedCategory,
-  selectedStatus,
-  categories,
-  stats
+  selectedCategory, 
+  selectedStatus, 
+  categories, 
+  stats 
 }: InventoryTableProps) {
   const {
     searchInput,
@@ -47,28 +47,31 @@ export default function InventoryTable({
       />
 
       {/* Main Table Card */}
-      <div className="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
-        {/* Table Toolbar with Filters */}
+      <div className="relative z-10 bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden">
+        {/* Table Toolbar with Search, Filters, and Export */}
         <div className="p-4 md:p-5 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-3 border-b border-slate-100">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
-            {/* Search Input */}
-            <form onSubmit={handleSearch} className="relative w-full sm:w-56 md:w-52 lg:w-64">
+          {/* SISI KIRI: Search di kiri sendiri dengan width lebih panjang */}
+          <div className="w-full md:w-auto md:flex-1 md:max-w-sm lg:max-w-md">
+            <form onSubmit={handleSearch} className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <input
                 type="text"
                 placeholder="Cari nama barang..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all placeholder:text-slate-400 text-slate-900 bg-white"
+                className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all placeholder:text-slate-400 text-slate-900 bg-white shadow-2xs"
               />
             </form>
+          </div>
 
-            {/* Filter Dropdowns (2 columns on mobile, flex on tablet/desktop) */}
+          {/* SISI KANAN: Filter Kategori, Filter Status, Reset, dan Export CSV */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 w-full md:w-auto justify-end shrink-0">
+            {/* Filter Dropdowns (2 columns on mobile, flex on desktop) */}
             <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-2.5 w-full sm:w-auto">
               <select
                 value={selectedCategory}
                 onChange={(e) => handleCategoryChange(e.target.value)}
-                className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-800 bg-white cursor-pointer truncate"
+                className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-800 bg-white cursor-pointer truncate shadow-2xs"
               >
                 <option value="">Semua Kategori</option>
                 {categories.map((cat) => (
@@ -81,7 +84,7 @@ export default function InventoryTable({
               <select
                 value={selectedStatus}
                 onChange={(e) => handleStatusChange(e.target.value)}
-                className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-800 bg-white cursor-pointer truncate"
+                className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-900/10 focus:border-blue-900 outline-none transition-all text-slate-800 bg-white cursor-pointer truncate shadow-2xs"
               >
                 <option value="">Semua Status</option>
                 <option value="safe">Stok Aman (≥ 5)</option>
@@ -95,24 +98,24 @@ export default function InventoryTable({
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 sm:py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors shrink-0 cursor-pointer self-start sm:self-auto"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 rounded-xl transition-colors shrink-0 cursor-pointer self-start sm:self-auto"
                 title="Reset semua filter"
               >
                 <RotateCcw size={13} />
                 <span>Reset</span>
               </button>
             )}
-          </div>
 
-          {/* Export Action */}
-          <button 
-            type="button"
-            onClick={exportToCSV}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors text-xs sm:text-sm font-medium shadow-xs shrink-0 whitespace-nowrap cursor-pointer"
-          >
-            <Download size={15} className="text-slate-500" />
-            <span>Export CSV</span>
-          </button>
+            {/* Export CSV Button */}
+            <button 
+              type="button"
+              onClick={exportToCSV}
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 bg-white border border-slate-200 text-slate-700 rounded-xl hover:bg-slate-50 transition-colors text-xs sm:text-sm font-medium shadow-xs shrink-0 whitespace-nowrap cursor-pointer"
+            >
+              <Download size={15} className="text-slate-500" />
+              <span>Export CSV</span>
+            </button>
+          </div>
         </div>
 
         {/* 1. Mobile View: Card List (< md) */}
@@ -128,7 +131,7 @@ export default function InventoryTable({
         <div className="hidden md:block overflow-x-auto w-full">
           <table className="w-full text-left border-collapse min-w-190">
             <thead>
-              <tr className="bg-slate-50/75 text-slate-500 text-xs font-semibold border-b border-slate-200/70 uppercase tracking-wider">
+              <tr className="bg-slate-50/75 text-slate-800 text-xs font-semibold border-b border-slate-200/70 uppercase tracking-wider">
                 <th className="py-3.5 px-5">Kode</th>
                 <th className="py-3.5 px-5 min-w-50">Nama Barang</th>
                 <th className="py-3.5 px-5">Kategori & Satuan</th>

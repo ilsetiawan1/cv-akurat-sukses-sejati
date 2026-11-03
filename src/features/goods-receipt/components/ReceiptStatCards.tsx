@@ -1,7 +1,8 @@
 // src/features/goods-receipt/components/ReceiptStatCards.tsx
 'use client';
 
-import { PackageCheck, ArrowDownLeft, Wallet } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Info } from 'lucide-react';
 import type { ReceiptSummaryStats } from '../types/goods-receipt.types';
 
 export interface ReceiptStatCardsProps {
@@ -9,83 +10,204 @@ export interface ReceiptStatCardsProps {
 }
 
 export default function ReceiptStatCards({ stats }: ReceiptStatCardsProps) {
+  const [activeTooltip, setActiveTooltip] = useState<'purchase' | 'tx' | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!activeTooltip) return;
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setActiveTooltip(null);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, [activeTooltip]);
+
   return (
-    <div className="flex sm:grid sm:grid-cols-3 gap-2.5 lg:gap-4 overflow-x-auto sm:overflow-visible pb-1 sm:pb-0 snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden select-none">
-      {/* CARD 1: TOTAL TRANSAKSI */}
-      <div className="w-[210px] sm:w-auto shrink-0 snap-start relative overflow-hidden rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 bg-linear-to-br from-white via-slate-50 to-blue-50/40 border border-slate-200/80 shadow-xs hover:border-blue-200/80 transition-all group">
-        <svg className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-30" viewBox="0 0 400 200" fill="none" preserveAspectRatio="none">
-          <path d="M-20 140 C100 60, 240 200, 420 80 L420 220 L-20 220 Z" fill="#3B82F6" fillOpacity="0.08" />
-          <path d="M140 -20 C220 90, 120 160, 280 220 L420 220 L420 -20 Z" fill="#2563EB" fillOpacity="0.06" />
-          <circle cx="330" cy="145" r="85" fill="#60A5FA" fillOpacity="0.08" />
-        </svg>
+    <div 
+      ref={containerRef}
+      className="relative z-30 grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-4 select-none"
+    >
+      {/* CARD 1: TOTAL NILAI PEMBELIAN (POSISI KIRI) */}
+      <div className="relative bg-white border border-slate-200/80 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between">
+        {/* Top Header: Title & Info Button */}
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-medium text-slate-600 tracking-tight truncate">
+            Total Nilai Pembelian
+          </span>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTooltip((prev) => (prev === 'purchase' ? null : 'purchase'));
+              }}
+              onMouseEnter={() => setActiveTooltip('purchase')}
+              onMouseLeave={() => setActiveTooltip(null)}
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                activeTooltip === 'purchase'
+                  ? 'bg-slate-100 border-slate-300 text-slate-900 shadow-2xs'
+                  : 'border-slate-200/90 text-slate-400 hover:text-slate-800 hover:border-slate-300 hover:bg-slate-50'
+              }`}
+              title="Penjelasan & rumus Total Nilai Pembelian"
+              aria-label="Info rumus Total Nilai Pembelian"
+            >
+              <Info size={14} />
+            </button>
 
-        <div className="relative z-10 flex flex-col justify-between">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-slate-600 font-medium text-xs sm:text-sm tracking-tight truncate">
-              Total Transaksi Masuk
-            </span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-blue-100/80 text-blue-700 flex items-center justify-center shrink-0 border border-blue-200/70 shadow-2xs">
-              <PackageCheck size={13} />
+            {/* FLOATING CARD: LIGHT MONOCHROME GLASS (HITAM - ABU - PUTIH) */}
+            {activeTooltip === 'purchase' && (
+              <div 
+                onMouseEnter={() => setActiveTooltip('purchase')}
+                onMouseLeave={() => setActiveTooltip(null)}
+                className="absolute right-0 top-9 sm:top-10 w-68 sm:w-72 bg-white/95 backdrop-blur-md text-slate-800 p-3.5 rounded-xl sm:rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-200/90 text-xs z-50 pointer-events-auto animate-in fade-in zoom-in-95 duration-150 select-text"
+                role="tooltip"
+              >
+                <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                  <span className="font-medium text-slate-900 text-xs">Total Nilai Pembelian</span>
+                  <span className="text-3xs px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-mono border border-slate-200/70">
+                    FINANSIAL
+                  </span>
+                </div>
+                <p className="mt-2 text-slate-600 text-2xs leading-relaxed font-normal">
+                  Akumulasi total nilai perolehan suku cadang yang dibeli dari supplier rekanan pada periode yang dipilih.
+                </p>
+                <div className="mt-2.5 p-2 rounded-lg bg-slate-50/90 border border-slate-200/80">
+                  <span className="text-3xs text-slate-400 font-normal uppercase tracking-wider block">
+                    Rumus Perhitungan:
+                  </span>
+                  <code className="text-2xs text-slate-800 font-mono font-medium block mt-0.5">
+                    Σ (Qty Masuk × Harga Beli)
+                  </code>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Body: Value on left, Waveform on right */}
+        <div className="mt-4 flex items-center justify-between gap-2">
+          <div>
+            <div className="flex items-baseline whitespace-nowrap">
+              <span className="text-xs font-normal text-slate-400 mr-1">Rp</span>
+              <span className="text-xl sm:text-2xl font-medium text-slate-900 tabular-nums">
+                {stats.totalAmount.toLocaleString('id-ID')}
+              </span>
+              <span className={`text-xs font-medium ml-1.5 select-none ${stats.totalAmount > 0 ? 'text-emerald-500' : 'text-slate-300'}`}>
+                ▲
+              </span>
+            </div>
+            <div className="mt-1 flex flex-col">
+              <span className={`text-xs font-medium ${stats.totalAmount > 0 ? 'text-emerald-600' : 'text-slate-500'}`}>
+                Harga Beli
+              </span>
+              <span className="text-xs text-slate-400 font-normal">
+                total nilai pengadaan
+              </span>
             </div>
           </div>
 
-          <div className="mt-2 sm:mt-2.5 flex items-baseline gap-1.5">
-            <span className="text-lg sm:text-2xl lg:text-3xl font-medium text-slate-900 tabular-nums">
-              {stats.totalTransactions.toLocaleString('id-ID')}
-            </span>
-            <span className="text-xs text-slate-400 font-normal">transaksi</span>
+          {/* Mini Waveform Sparkline */}
+          <div className="flex items-end gap-1 sm:gap-1.5 h-10 sm:h-11 pb-0.5" aria-hidden="true">
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3.5" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-6" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
+            <span className={`w-2 sm:w-2.5 rounded-full ${stats.totalAmount > 0 ? 'bg-indigo-500' : 'bg-slate-200'} h-10`} />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-7" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-8" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-4" />
           </div>
         </div>
       </div>
 
-      {/* CARD 2: TOTAL UNIT MASUK */}
-      <div className="w-[210px] sm:w-auto shrink-0 snap-start relative overflow-hidden rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 bg-linear-to-br from-white via-slate-50 to-emerald-50/40 border border-slate-200/80 shadow-xs hover:border-emerald-200/80 transition-all group">
-        <svg className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-30" viewBox="0 0 400 200" fill="none" preserveAspectRatio="none">
-          <path d="M-20 160 C120 120, 180 20, 420 50 L420 220 L-20 220 Z" fill="#10B981" fillOpacity="0.08" />
-          <circle cx="335" cy="140" r="80" fill="#34D399" fillOpacity="0.08" />
-        </svg>
+      {/* CARD 2: TOTAL TRANSAKSI (POSISI KANAN) */}
+      <div className="relative bg-white border border-slate-200/80 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between">
+        {/* Top Header: Title & Info Button */}
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-xs font-medium text-slate-600 tracking-tight truncate">
+            Total Transaksi
+          </span>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveTooltip((prev) => (prev === 'tx' ? null : 'tx'));
+              }}
+              onMouseEnter={() => setActiveTooltip('tx')}
+              onMouseLeave={() => setActiveTooltip(null)}
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border flex items-center justify-center transition-all shrink-0 cursor-pointer ${
+                activeTooltip === 'tx'
+                  ? 'bg-slate-100 border-slate-300 text-slate-900 shadow-2xs'
+                  : 'border-slate-200/90 text-slate-400 hover:text-slate-800 hover:border-slate-300 hover:bg-slate-50'
+              }`}
+              title="Penjelasan Total Transaksi Masuk"
+              aria-label="Info Total Transaksi Masuk"
+            >
+              <Info size={14} />
+            </button>
 
-        <div className="relative z-10 flex flex-col justify-between">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-slate-600 font-medium text-xs sm:text-sm tracking-tight truncate">
-              Total Fisik Diterima
-            </span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-emerald-100/80 text-emerald-800 flex items-center justify-center shrink-0 border border-emerald-200/70 shadow-2xs">
-              <ArrowDownLeft size={13} />
-            </div>
-          </div>
-
-          <div className="mt-2 sm:mt-2.5 flex items-baseline gap-1.5">
-            <span className="text-lg sm:text-2xl lg:text-3xl font-medium text-emerald-700 tabular-nums">
-              +{stats.totalQuantity.toLocaleString('id-ID')}
-            </span>
-            <span className="text-xs text-emerald-600/80 font-normal">unit</span>
+            {/* FLOATING CARD: LIGHT MONOCHROME GLASS (HITAM - ABU - PUTIH) */}
+            {activeTooltip === 'tx' && (
+              <div 
+                onMouseEnter={() => setActiveTooltip('tx')}
+                onMouseLeave={() => setActiveTooltip(null)}
+                className="absolute right-0 top-9 sm:top-10 w-68 sm:w-72 bg-white/95 backdrop-blur-md text-slate-800 p-3.5 rounded-xl sm:rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-200/90 text-xs z-50 pointer-events-auto animate-in fade-in zoom-in-95 duration-150 select-text"
+                role="tooltip"
+              >
+                <div className="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                  <span className="font-medium text-slate-900 text-xs">Total Transaksi Masuk</span>
+                  <span className="text-3xs px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 font-mono border border-slate-200/70">
+                    OPERASIONAL
+                  </span>
+                </div>
+                <p className="mt-2 text-slate-600 text-2xs leading-relaxed font-normal">
+                  Jumlah seluruh dokumen transaksi barang masuk yang berhasil dicatat dan diverifikasi di sistem pada periode ini.
+                </p>
+                <div className="mt-2.5 p-2 rounded-lg bg-slate-50/90 border border-slate-200/80">
+                  <span className="text-3xs text-slate-400 font-normal uppercase tracking-wider block">
+                    Keterangan:
+                  </span>
+                  <code className="text-2xs text-slate-800 font-mono font-medium block mt-0.5">
+                    Count (Dokumen AD-XXXX)
+                  </code>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* CARD 3: TOTAL NILAI BELANJA */}
-      <div className="w-[210px] sm:w-auto shrink-0 snap-start relative overflow-hidden rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 bg-linear-to-br from-white via-slate-50 to-indigo-50/40 border border-slate-200/80 shadow-xs hover:border-indigo-200/80 transition-all group">
-        <svg className="absolute inset-0 w-full h-full object-cover pointer-events-none opacity-30" viewBox="0 0 400 200" fill="none" preserveAspectRatio="none">
-          <path d="M-20 120 C90 190, 240 60, 420 130 L420 220 L-20 220 Z" fill="#6366F1" fillOpacity="0.08" />
-          <circle cx="330" cy="145" r="82" fill="#818CF8" fillOpacity="0.08" />
-        </svg>
-
-        <div className="relative z-10 flex flex-col justify-between">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-slate-600 font-medium text-xs sm:text-sm tracking-tight truncate">
-              Total Nilai Pembelian
-            </span>
-            <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-indigo-100/80 text-indigo-700 flex items-center justify-center shrink-0 border border-indigo-200/70 shadow-2xs">
-              <Wallet size={13} />
+        {/* Body: Value on left, Waveform on right */}
+        <div className="mt-4 flex items-center justify-between gap-2">
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl sm:text-2xl font-medium text-slate-900 tabular-nums">
+                {stats.totalTransactions.toLocaleString('id-ID')}
+              </span>
+              <span className={`text-xs font-medium select-none ${stats.totalTransactions > 0 ? 'text-emerald-500' : 'text-slate-300'}`}>
+                ▲
+              </span>
+            </div>
+            <div className="mt-1 flex flex-col">
+              <span className={`text-xs font-medium ${stats.totalTransactions > 0 ? 'text-emerald-600' : 'text-slate-500'}`}>
+                Tercatat
+              </span>
+              <span className="text-xs text-slate-400 font-normal">
+                total transaksi
+              </span>
             </div>
           </div>
 
-          <div className="mt-2 sm:mt-2.5 flex items-baseline whitespace-nowrap">
-            <span className="text-xs sm:text-sm font-normal text-slate-400 mr-1">Rp</span>
-            <span className="text-lg sm:text-2xl lg:text-3xl font-medium text-slate-900 tabular-nums">
-              {stats.totalAmount.toLocaleString('id-ID')}
-            </span>
+          {/* Mini Waveform Sparkline */}
+          <div className="flex items-end gap-1 sm:gap-1.5 h-10 sm:h-11 pb-0.5" aria-hidden="true">
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-7" />
+            <span className={`w-2 sm:w-2.5 rounded-full ${stats.totalTransactions > 0 ? 'bg-[#2E82F6]' : 'bg-slate-200'} h-10`} />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-6" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-5" />
+            <span className="w-2 sm:w-2.5 rounded-full bg-slate-100 h-3.5" />
           </div>
         </div>
       </div>

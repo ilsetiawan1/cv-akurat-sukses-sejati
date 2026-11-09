@@ -38,3 +38,42 @@ export interface StockStatusInfo {
   badgeClass: string;
   textClass: string;
 }
+
+export interface StockMovementHistoryEntry {
+  id: string;
+  type: 'IN' | 'OUT';
+  code: string;
+  date: string;
+  quantity: number;
+  unitPrice: number;
+  totalAmount: number;
+  operatorName: string;
+  partyName: string;
+  runningBalance: number;
+  createdAt: string;
+}
+
+export interface ItemStockCardDetail {
+  item: {
+    id: string;
+    itemCode: string;
+    name: string;
+    categoryName: string;
+    unitName: string;
+    price: number;
+  };
+  inventory: {
+    id: string;
+    inventoryCode: string;
+    stock: number;
+    hpp: number;
+    totalValuation: number;
+  };
+  summary: {
+    totalIn: number;
+    totalOut: number;
+    currentStock: number;
+    totalTransactions: number;
+  };
+  movements: StockMovementHistoryEntry[];
+}

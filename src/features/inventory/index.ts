@@ -2,6 +2,7 @@
 export { default as InventoryTable } from './components/InventoryTable';
 export { default as InventoryStatCards } from './components/InventoryStatCards';
 export { default as InventoryMobileCardList } from './components/InventoryMobileCardList';
+export { default as StockCardModal } from './components/StockCardModal';
 export * from './hooks/useInventoryTable';
 export * from './services/inventory.service';
 export * from './repositories/inventory.repository';

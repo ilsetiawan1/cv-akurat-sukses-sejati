@@ -3,9 +3,9 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
-import { listInventory } from '@/features/inventory/services/inventory.service';
+import { listInventory, fetchItemStockCard } from '@/features/inventory/services/inventory.service';
 import type { ActionResult } from '@/features/users/types/user.types';
-import type { PaginatedInventory } from '@/features/inventory/types/inventory.types';
+import type { PaginatedInventory, ItemStockCardDetail } from '@/features/inventory/types/inventory.types';
 
 async function checkAccess(action: 'can_read') {
   const supabase = await createClient();
@@ -30,5 +30,18 @@ export async function getInventoryAction(page = 1, limit = 10, search = ''): Pro
     return { success: true, data: result };
   } catch (error: unknown) {
     return { success: false, error: (error as Error).message || 'Terjadi kesalahan sistem' };
+  }
+}
+
+export async function getItemStockCardAction(itemId: string): Promise<ActionResult<ItemStockCardDetail>> {
+  try {
+    await checkAccess('can_read');
+    if (!itemId) {
+      return { success: false, error: 'ID barang tidak valid' };
+    }
+    const data = await fetchItemStockCard(itemId);
+    return { success: true, data };
+  } catch (error: unknown) {
+    return { success: false, error: (error as Error).message || 'Gagal memuat kartu stok' };
   }
 }

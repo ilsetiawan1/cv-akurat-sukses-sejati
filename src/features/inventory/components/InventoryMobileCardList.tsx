@@ -2,19 +2,21 @@
 'use client';
 
 import Link from 'next/link';
-import { PackageOpen, ArrowDownToLine } from 'lucide-react';
+import { PackageOpen, ArrowDownToLine, History } from 'lucide-react';
 import type { InventoryWithItem, StockStatusInfo } from '../types/inventory.types';
 
 export interface InventoryMobileCardListProps {
   data: InventoryWithItem[];
   hasActiveFilters: boolean;
   getStockStatus: (stock: number) => StockStatusInfo;
+  onOpenStockCard?: (itemId: string) => void;
 }
 
 export default function InventoryMobileCardList({
   data,
   hasActiveFilters,
   getStockStatus,
+  onOpenStockCard,
 }: InventoryMobileCardListProps) {
   if (data.length === 0) {
     return (
@@ -81,16 +83,30 @@ export default function InventoryMobileCardList({
                 </span>
               </div>
 
-              {needsRestock && (
-                <Link
-                  href={`/transaksi/barang-masuk?item_id=${inv.item_id}`}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#1E3A8A] bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200/80 transition-colors shrink-0"
-                  title="Tambah stok barang ini via Barang Masuk"
-                >
-                  <ArrowDownToLine size={12} />
-                  <span>+ Restock</span>
-                </Link>
-              )}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {onOpenStockCard && (
+                  <button
+                    type="button"
+                    onClick={() => onOpenStockCard(inv.item_id)}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 rounded-lg border border-slate-200 transition-colors shrink-0 shadow-2xs cursor-pointer"
+                    title="Lihat riwayat mutasi kartu stok"
+                  >
+                    <History size={12} className="text-slate-500" />
+                    <span>Kartu Stok</span>
+                  </button>
+                )}
+
+                {needsRestock && (
+                  <Link
+                    href={`/transaksi/barang-masuk?item_id=${inv.item_id}`}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-[#1E3A8A] bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200/80 transition-colors shrink-0"
+                    title="Tambah stok barang ini via Barang Masuk"
+                  >
+                    <ArrowDownToLine size={12} />
+                    <span>+ Restock</span>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
         );

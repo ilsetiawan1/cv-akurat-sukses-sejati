@@ -151,3 +151,95 @@ export async function insertInventoryRecord(data: {
   const supabase = createAdminClient();
   return supabase.from('inventory').insert(data);
 }
+
+export async function getItemStockCardRaw(itemId: string) {
+  const supabase = createAdminClient();
+
+  const [invRes, receiptsRes, issuesRes] = await Promise.all([
+    supabase
+      .from('inventory')
+      .select(`
+        *,
+        items (
+          id,
+          item_code,
+          name,
+          price,
+          category:categories(name),
+          unit:units(name)
+        )
+      `)
+      .eq('item_id', itemId)
+      .maybeSingle(),
+
+    supabase
+      .from('goods_receipts')
+      .select(`
+        id,
+        receipt_code,
+        quantity,
+        total_price,
+        receipt_date,
+        created_at,
+        supplier:suppliers(id, name),
+        user:users(id, name)
+      `)
+      .eq('item_id', itemId)
+      .order('receipt_date', { ascending: true })
+      .order('created_at', { ascending: true }),
+
+    supabase
+      .from('goods_issues')
+      .select(`
+        id,
+        issue_code,
+        quantity,
+        hpp,
+        total_hpp,
+        issue_date,
+        created_at,
+        user:users(id, name)
+      `)
+      .eq('item_id', itemId)
+      .order('issue_date', { ascending: true })
+      .order('created_at', { ascending: true }),
+  ]);
+
+  if (invRes.error) {
+    throw new Error(`Gagal mengambil data persediaan: ${invRes.error.message}`);
+  }
+  if (receiptsRes.error) {
+    throw new Error(`Gagal mengambil data penerimaan: ${receiptsRes.error.message}`);
+  }
+  if (issuesRes.error) {
+    throw new Error(`Gagal mengambil data pengeluaran: ${issuesRes.error.message}`);
+  }
+
+  let itemData = invRes.data?.items ?? null;
+  if (!invRes.data) {
+    const itemRes = await supabase
+      .from('items')
+      .select(`
+        id,
+        item_code,
+        name,
+        price,
+        category:categories(name),
+        unit:units(name)
+      `)
+      .eq('id', itemId)
+      .single();
+
+    if (itemRes.error) {
+      throw new Error(`Barang tidak ditemukan: ${itemRes.error.message}`);
+    }
+    itemData = itemRes.data;
+  }
+
+  return {
+    inventoryRow: invRes.data,
+    itemRow: itemData,
+    receipts: receiptsRes.data || [],
+    issues: issuesRes.data || [],
+  };
+}

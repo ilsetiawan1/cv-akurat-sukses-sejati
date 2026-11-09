@@ -1,11 +1,13 @@
 // src/features/inventory/components/InventoryTable.tsx
 'use client';
 
-import { Search, Download, PackageOpen, RotateCcw } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Download, PackageOpen, RotateCcw, History } from 'lucide-react';
 import { useInventoryTable } from '../hooks/useInventoryTable';
 import { Pagination } from '@/components/ui/Pagination';
 import InventoryStatCards from './InventoryStatCards';
 import InventoryMobileCardList from './InventoryMobileCardList';
+import StockCardModal from './StockCardModal';
 import type { InventoryTableProps } from '../types/inventory.types';
 
 export default function InventoryTable({ 
@@ -36,6 +38,8 @@ export default function InventoryTable({
     selectedCategory, 
     selectedStatus 
   });
+
+  const [stockCardItemId, setStockCardItemId] = useState<string | null>(null);
 
   return (
     <div className="w-full space-y-4">
@@ -124,6 +128,7 @@ export default function InventoryTable({
             data={data}
             hasActiveFilters={hasActiveFilters}
             getStockStatus={getStockStatus}
+            onOpenStockCard={setStockCardItemId}
           />
         </div>
 
@@ -138,12 +143,13 @@ export default function InventoryTable({
                 <th className="py-3.5 px-5 text-right">Nilai HPP</th>
                 <th className="py-3.5 px-5 text-center">Stok Tersedia</th>
                 <th className="py-3.5 px-5">Status Stok</th>
+                <th className="py-3.5 px-5 text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
               {data.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-12 px-4 text-center">
+                  <td colSpan={7} className="py-12 px-4 text-center">
                     <div className="flex flex-col items-center justify-center">
                       <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mb-2.5 border border-slate-100">
                         <PackageOpen className="h-6 w-6 text-slate-300" />
@@ -194,6 +200,17 @@ export default function InventoryTable({
                           {stockStatus.label}
                         </span>
                       </td>
+                      <td className="py-3.5 px-5 text-right">
+                        <button
+                          type="button"
+                          onClick={() => setStockCardItemId(inv.item_id)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 hover:text-slate-900 border border-slate-200 hover:border-slate-300 rounded-lg shadow-2xs transition-all cursor-pointer whitespace-nowrap"
+                          title="Lihat riwayat mutasi kartu stok suku cadang ini"
+                        >
+                          <History size={13} className="text-slate-500" />
+                          <span>Kartu Stok</span>
+                        </button>
+                      </td>
                     </tr>
                   );
                 })
@@ -218,6 +235,13 @@ export default function InventoryTable({
           </div>
         )}
       </div>
+
+      {/* Stock Card Modal */}
+      <StockCardModal
+        itemId={stockCardItemId}
+        isOpen={!!stockCardItemId}
+        onClose={() => setStockCardItemId(null)}
+      />
     </div>
   );
 }

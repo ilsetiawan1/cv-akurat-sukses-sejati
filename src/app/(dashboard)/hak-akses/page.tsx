@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import { UserTable } from '@/features/users/components/UserTable';
+import { AccessDeniedCard } from '@/components/ui/AccessDeniedCard';
 
 export default async function HakAksesPage() {
   const supabase = await createClient();
@@ -19,11 +20,7 @@ export default async function HakAksesPage() {
   const canDelete = currentUser.role === 'super_admin' || !!perm?.can_delete;
 
   if (!canRead) {
-    return (
-      <div className="flex items-center justify-center h-64 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
-        <p className="text-rose-500 font-medium text-sm">Anda tidak memiliki hak akses untuk mengelola Hak Akses Pengguna.</p>
-      </div>
-    );
+    return <AccessDeniedCard message="Akun Anda tidak memiliki hak akses untuk mengelola Hak Akses Pengguna." />;
   }
 
   return (

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentUser } from '@/features/users/services/user.service';
 import { InventoryTable, getInventoryPageData } from '@/features/inventory';
+import { AccessDeniedCard } from '@/components/ui/AccessDeniedCard';
 import type { UserPermission } from '@/features/users/types/user.types';
 
 export default async function DataPersediaanPage(props: {
@@ -31,11 +32,7 @@ export default async function DataPersediaanPage(props: {
   const canRead = currentUser.role === 'super_admin' || !!perm?.can_read;
 
   if (!canRead) {
-    return (
-      <div className="flex items-center justify-center h-64 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
-        <p className="text-rose-500 font-medium text-sm">Anda tidak memiliki akses untuk melihat halaman ini.</p>
-      </div>
-    );
+    return <AccessDeniedCard message="Akun Anda tidak memiliki izin untuk melihat modul Data Persediaan Barang." />;
   }
 
   const { data, total, categories, stats } = await getInventoryPageData(page, limit, search, category, status);

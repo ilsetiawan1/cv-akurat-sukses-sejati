@@ -5,6 +5,7 @@ import { getCurrentUser } from '@/features/users/services/user.service';
 import ReportFilterBar from '@/features/reports/components/ReportFilterBar';
 import ReportTable from '@/features/reports/components/ReportTable';
 import { generateReportData } from '@/features/reports/services/report.service';
+import { AccessDeniedCard } from '@/components/ui/AccessDeniedCard';
 import type { UserPermission } from '@/features/users/types/user.types';
 import { cookies } from 'next/headers';
 
@@ -46,11 +47,7 @@ export default async function LaporanPage(props: {
   const canRead = currentUser.role === 'super_admin' || !!perm?.can_read;
 
   if (!canRead) {
-    return (
-      <div className="flex items-center justify-center h-64 bg-white rounded-2xl border border-slate-200/80 shadow-xs">
-        <p className="text-rose-500 font-medium text-sm">Anda tidak memiliki akses untuk melihat laporan.</p>
-      </div>
-    );
+    return <AccessDeniedCard message="Akun Anda tidak memiliki izin untuk melihat modul Laporan & Analitik." />;
   }
 
   // Tarik Informasi Perusahaan Dinamis dari Cookie (di-set via /pengaturan)

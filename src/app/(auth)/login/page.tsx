@@ -1,6 +1,7 @@
 // src/app/(auth)/login/page.tsx
 'use client';
 
+import Image from 'next/image';
 import { Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useLogin } from '@/features/auth/hooks/useLogin';
 
@@ -21,7 +22,7 @@ export default function LoginPage() {
   } = useLogin();
 
   return (
-    <div className="min-h-screen w-full bg-[#dce7f6] flex items-center justify-center p-3 sm:p-6 lg:p-8 selection:bg-blue-100 selection:text-blue-900">
+    <main className="min-h-screen w-full bg-[#dce7f6] flex items-center justify-center p-3 sm:p-6 lg:p-8 selection:bg-blue-100 selection:text-blue-900">
       
       {/* ── Main Container Card (Floating Rounded SaaS Card) ── */}
       <div className="w-full max-w-5xl bg-white rounded-3xl sm:rounded-4xl shadow-2xl shadow-blue-900/10 border border-white/80 p-3 sm:p-4 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 my-auto">
@@ -147,7 +148,7 @@ export default function LoginPage() {
                 {/* Divider Pemisah */}
                 <div className="relative flex items-center justify-center my-3">
                   <div className="w-full border-t border-slate-200" />
-                  <span className="absolute bg-white px-3 text-xs text-slate-400 font-normal">
+                  <span className="absolute bg-white px-3 text-xs text-slate-600 font-medium">
                     atau
                   </span>
                 </div>
@@ -216,7 +217,7 @@ export default function LoginPage() {
           </div>
 
           {/* Footer Form */}
-          <div className="pt-4 text-center sm:text-left text-xs text-slate-400">
+          <div className="pt-4 text-center sm:text-left text-xs text-slate-600">
             © {new Date().getFullYear()} CV Akurat Sukses Sejati
           </div>
         </div>
@@ -225,10 +226,16 @@ export default function LoginPage() {
         <div className="hidden md:flex rounded-2xl sm:rounded-3xl overflow-hidden relative min-h-115 md:min-h-120 lg:min-h-125 flex-col justify-between p-6 sm:p-8 lg:p-10 bg-slate-950">
           
           {/* Background Visual Otomotif Presisi */}
-          <div 
-            className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat scale-105"
-            style={{ backgroundImage: "url('/bg-login-page.avif')" }}
-          />
+          <div className="absolute inset-0 z-0 overflow-hidden">
+            <Image
+              src="/bg-login-page.avif"
+              alt="Latar Belakang Operasional Suku Cadang Otomotif"
+              fill
+              priority
+              sizes="(min-width: 768px) 50vw, 100vw"
+              className="object-cover object-center scale-105"
+            />
+          </div>
 
           {/* Clean Deep Navy Gradient Overlay */}
           <div className="absolute inset-0 z-1 bg-linear-to-t from-slate-950 via-slate-950/70 to-slate-900/40" />
@@ -254,6 +261,6 @@ export default function LoginPage() {
 
       </div>
 
-    </div>
+    </main>
   );
 }

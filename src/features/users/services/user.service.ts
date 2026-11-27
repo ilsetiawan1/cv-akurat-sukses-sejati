@@ -1,5 +1,6 @@
 // lib/services/user.service.ts
 
+import { cache } from 'react';
 import { createAdminClient } from '@/lib/supabase/server-admin';
 import { getUsers, getUserById, updateUser, deleteUserById, upsertUserPermissions } from '@/features/users/repositories/user.repository';
 import type { UserWithPermissions, PaginatedUsers, PermissionInput } from '@/features/users/types/user.types';
@@ -8,11 +9,11 @@ import type { UserWithPermissions, PaginatedUsers, PermissionInput } from '@/fea
  * BUSINESS LOGIC LAYER
  */
 
-export async function getCurrentUser(userId: string): Promise<UserWithPermissions | null> {
+export const getCurrentUser = cache(async (userId: string): Promise<UserWithPermissions | null> => {
   const { data, error } = await getUserById(userId);
   if (error || !data) return null;
   return data as UserWithPermissions;
-}
+});
 
 export async function listUsers(page = 1, limit = 10, search = ''): Promise<PaginatedUsers> {
   const { data, count, error } = await getUsers(page, limit, search);
